@@ -10,7 +10,7 @@ import {
 import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';
 import 'virtual:uno.css';
-import CountView from "./pages/CountView.vue";
+import CountView from "./pages/test.vue";
 import HomeView from "./pages/HomeView.vue";
 
 

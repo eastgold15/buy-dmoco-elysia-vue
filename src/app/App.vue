@@ -16,5 +16,14 @@ import Button from 'primevue/button';
 		</ul>
 	</nav>
 	<Button label="Submit" />
-	<RouterView />
+	<RouterView></RouterView>
+	<!-- 使用Suspense包装RouterView以支持异步组件 -->
+	<!-- <Suspense>
+		<template #default>
+			<RouterView />
+		</template>
+		<template #fallback>
+			<div>Loading...</div>
+		</template>
+	</Suspense> -->
 </template>
