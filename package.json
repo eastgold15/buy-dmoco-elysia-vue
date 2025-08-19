@@ -21,6 +21,8 @@
 		"@vitejs/plugin-vue": "^6.0.1",
 		"domco": "^4.0.0",
 		"typescript": "^5.8.0",
+		"unocss": "^66.4.2",
+		"unocss-preset-animations": "^1.2.1",
 		"vite": "^7.0.0"
 	}
 }
