@@ -2,6 +2,7 @@ import { createApp } from "@/app/app";
 import * as page from "client:page";
 import { Elysia } from "elysia";
 import { renderToString } from "vue/server-renderer";
+import { api } from ".";
 const app = new Elysia()
     .onRequest(async ({ request }) => {
         const { pathname } = new URL(request.url)
@@ -20,9 +21,8 @@ const app = new Elysia()
             headers: { "Content-Type": "text/html; charset=utf-8" },
         });
     })
-    .get("/api", () => {
-        return { hello: "vue" };
-    });
+    .mount('/api', api)
+
 
 
 export default app;

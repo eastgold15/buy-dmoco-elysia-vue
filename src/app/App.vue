@@ -1,4 +1,7 @@
-<script setup></script>
+<script setup>
+import Button from 'primevue/button';
+
+</script>
 
 <template>
 	<h1>Vue + Elysia</h1>
@@ -12,5 +15,6 @@
 			</li>
 		</ul>
 	</nav>
+	<Button label="Submit" />
 	<RouterView />
 </template>

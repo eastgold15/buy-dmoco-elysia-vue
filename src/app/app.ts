@@ -7,9 +7,12 @@ import {
 	createWebHistory,
 } from "vue-router";
 
+import Aura from '@primeuix/themes/aura';
+import PrimeVue from 'primevue/config';
 import 'virtual:uno.css';
 import CountView from "./pages/CountView.vue";
 import HomeView from "./pages/HomeView.vue";
+
 
 export const createApp = async () => {
 	const app = createSSRApp(App);
@@ -34,6 +37,11 @@ export const createApp = async () => {
 	});
 
 	app.use(router);
+	app.use(PrimeVue, {
+		theme: {
+			preset: Aura
+		}
+	});
 
 	return { app, router };
 };
