@@ -1,0 +1,43 @@
+{
+	"extends": "@robino/tsconfig/bundler.json",
+	"compilerOptions": {
+		"target": "ESNext",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"skipLibCheck": true,
+		"module": "Preserve",
+		"moduleResolution": "Bundler",
+		"verbatimModuleSyntax": true,
+		"allowImportingTsExtensions": true,
+		"resolveJsonModule": true,
+		"moduleDetection": "force",
+		"noEmit": true,
+		"allowJs": true,
+		"checkJs": true,
+		/* JSX */
+		"jsx": "react-jsx",
+		/* Strict */
+		"strict": true,
+		"noUnusedLocals": true,
+		"noImplicitOverride": true,
+		"noUnusedParameters": true,
+		"noUncheckedIndexedAccess": true,
+		"noFallthroughCasesInSwitch": true,
+		/* Aliases */
+		"paths": {
+			"@": [
+				"./src"
+			],
+			"@/*": [
+				"./src/*"
+			]
+		}
+	},
+	"include": [
+		"vite.config.ts",
+		"src"
+	]
+}
