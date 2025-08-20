@@ -160,6 +160,7 @@ const emit = defineEmits<{
 // 分类数据类型定义
 interface CategoryTree {
   id: string;
+  slug: string;
   name: string;
   parentId?: string;
   level: number;
@@ -167,6 +168,7 @@ interface CategoryTree {
   isVisible: boolean;
   description?: string;
   icon?: string;
+  image?: string;
   children: CategoryTree[];
 }
 

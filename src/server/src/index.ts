@@ -213,3 +213,53 @@ export const api = new Elysia()
             return response;
         }
     })
+    
+    // 分类上移
+    .patch('/categories/:id/move-up', async ({ params: { id } }) => {
+        try {
+            const updated = await CategoryService.moveCategoryUp(id);
+            if (!updated) {
+                const response: ApiResponse<null> = {
+                    success: false,
+                    error: '无法上移分类'
+                };
+                return response;
+            }
+            const response: ApiResponse<null> = {
+                success: true,
+                message: '分类上移成功'
+            };
+            return response;
+        } catch (error) {
+            const response: ApiResponse<null> = {
+                success: false,
+                error: error instanceof Error ? error.message : '分类上移失败'
+            };
+            return response;
+        }
+    })
+    
+    // 分类下移
+    .patch('/categories/:id/move-down', async ({ params: { id } }) => {
+        try {
+            const updated = await CategoryService.moveCategoryDown(id);
+            if (!updated) {
+                const response: ApiResponse<null> = {
+                    success: false,
+                    error: '无法下移分类'
+                };
+                return response;
+            }
+            const response: ApiResponse<null> = {
+                success: true,
+                message: '分类下移成功'
+            };
+            return response;
+        } catch (error) {
+            const response: ApiResponse<null> = {
+                success: false,
+                error: error instanceof Error ? error.message : '分类下移失败'
+            };
+            return response;
+        }
+    })

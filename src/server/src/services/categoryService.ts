@@ -72,8 +72,8 @@ export class CategoryService {
   // 创建新分类
   static async createCategory(data: CreateCategoryRequest): Promise<Category> {
     try {
-      // 生成slug
-      const slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      // 使用传入的slug，如果没有则自动生成
+      const slug = data.slug || data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       
       const newCategoryData = {
         name: data.name,
@@ -102,8 +102,11 @@ export class CategoryService {
         updatedAt: new Date()
       };
       
-      // 如果更新了名称，重新生成slug
-      if (data.name) {
+      // 处理slug字段
+      if (data.slug !== undefined) {
+        updateData.slug = data.slug;
+      } else if (data.name && !data.slug) {
+        // 如果更新了名称但没有提供slug，则自动生成
         updateData.slug = data.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
       }
       
@@ -196,6 +199,96 @@ export class CategoryService {
     } catch (error) {
       console.error('切换分类显示状态失败:', error);
       throw new Error('切换分类显示状态失败');
+    }
+  }
+
+  // 分类上移
+  static async moveCategoryUp(id: string): Promise<boolean> {
+    try {
+      const category = await this.getCategoryById(id);
+      if (!category) {
+        throw new Error('分类不存在');
+      }
+
+      // 获取同级分类中排序值小于当前分类且最接近的分类
+      const prevCategory = await db.select()
+        .from(categoriesSchema)
+        .where(
+          and(
+            category.parentId 
+              ? eq(categoriesSchema.parentId, parseInt(category.parentId))
+              : isNull(categoriesSchema.parentId),
+            sql`${categoriesSchema.sortOrder} < ${category.sort}`
+          )
+        )
+        .orderBy(desc(categoriesSchema.sortOrder))
+        .limit(1);
+
+      if (prevCategory.length === 0) {
+        return false; // 已经是第一个，无法上移
+      }
+
+      // 交换排序值
+      const prevSort = prevCategory[0].sortOrder;
+      const currentSort = category.sort;
+
+      await db.update(categoriesSchema)
+        .set({ sortOrder: prevSort, updatedAt: new Date() })
+        .where(eq(categoriesSchema.id, parseInt(id)));
+
+      await db.update(categoriesSchema)
+        .set({ sortOrder: currentSort, updatedAt: new Date() })
+        .where(eq(categoriesSchema.id, prevCategory[0].id));
+
+      return true;
+    } catch (error) {
+      console.error('分类上移失败:', error);
+      throw new Error('分类上移失败');
+    }
+  }
+
+  // 分类下移
+  static async moveCategoryDown(id: string): Promise<boolean> {
+    try {
+      const category = await this.getCategoryById(id);
+      if (!category) {
+        throw new Error('分类不存在');
+      }
+
+      // 获取同级分类中排序值大于当前分类且最接近的分类
+      const nextCategory = await db.select()
+        .from(categoriesSchema)
+        .where(
+          and(
+            category.parentId 
+              ? eq(categoriesSchema.parentId, parseInt(category.parentId))
+              : isNull(categoriesSchema.parentId),
+            sql`${categoriesSchema.sortOrder} > ${category.sort}`
+          )
+        )
+        .orderBy(asc(categoriesSchema.sortOrder))
+        .limit(1);
+
+      if (nextCategory.length === 0) {
+        return false; // 已经是最后一个，无法下移
+      }
+
+      // 交换排序值
+      const nextSort = nextCategory[0].sortOrder;
+      const currentSort = category.sort;
+
+      await db.update(categoriesSchema)
+        .set({ sortOrder: nextSort, updatedAt: new Date() })
+        .where(eq(categoriesSchema.id, parseInt(id)));
+
+      await db.update(categoriesSchema)
+        .set({ sortOrder: currentSort, updatedAt: new Date() })
+        .where(eq(categoriesSchema.id, nextCategory[0].id));
+
+      return true;
+    } catch (error) {
+      console.error('分类下移失败:', error);
+      throw new Error('分类下移失败');
     }
   }
 }

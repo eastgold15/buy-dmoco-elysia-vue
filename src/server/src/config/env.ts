@@ -10,7 +10,7 @@ export class EnvConfig {
 	private static instance: EnvConfig;
 	private isLoaded = false;
 
-	private constructor() {}
+	private constructor() { }
 
 	/**
 	 * 获取单例实例
@@ -99,18 +99,18 @@ export class EnvConfig {
 		switch (environment) {
 			case "development":
 				paths.push(
-					join(projectRoot, ".container", "dev", ".env.development"),
-					join(projectRoot, ".container", "dev", ".env"),
-					join(projectRoot, ".env.development"),
-					join(projectRoot, ".env"),
+					join(projectRoot, "src", "server", "src", ".container", "dev", ".env.development"),
+					// join(projectRoot,"src", "server","src", ".container", "dev", ".env"),
+					// join(projectRoot, ".env.development"),
+					join(projectRoot, "src", "server", ".env"),
 				);
 				break;
 			case "production":
 				paths.push(
-					join(projectRoot, ".container", "prod", ".env.production"),
-					join(projectRoot, ".container", "prod", ".env"),
-					join(projectRoot, ".env.production"),
-					join(projectRoot, ".env"),
+					join(projectRoot, "src", "server", "src", ".container", "prod", ".env.production"),
+					// join(projectRoot,"src", "server","src", ".container", "prod", ".env"),
+					// join(projectRoot, ".env.production"),
+					join(projectRoot, "src", "server", ".env"),
 				);
 				break;
 			case "test":

@@ -7,4 +7,8 @@ logs
 *.log
 *.local
 .vercel
+src/server/src/docker/*
 src/server/docker/*
+
+
+src/docker/*

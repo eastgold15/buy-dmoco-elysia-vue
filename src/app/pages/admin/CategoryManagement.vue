@@ -7,69 +7,28 @@
           <h1 class="text-3xl font-bold text-gray-900">分类管理</h1>
           <p class="text-gray-600 mt-1">管理商品分类，支持树形结构、排序和显示控制</p>
         </div>
-        <Button 
-          label="新增分类" 
-          icon="pi pi-plus" 
-          @click="showCreateDialog = true"
-          class="p-button-success"
-        />
+        <Button label="新增分类" icon="pi pi-plus" @click="showCreateDialog = true" class="p-button-success" />
       </div>
 
       <!-- 工具栏 -->
       <div class="flex justify-between items-center mb-4">
         <div class="flex gap-3">
-          <Button 
-            label="展开全部" 
-            icon="pi pi-angle-down" 
-            @click="expandAll"
-            class="p-button-outlined"
-            size="small"
-          />
-          <Button 
-            label="收起全部" 
-            icon="pi pi-angle-up" 
-            @click="collapseAll"
-            class="p-button-outlined"
-            size="small"
-          />
-          <Button 
-            label="刷新" 
-            icon="pi pi-refresh" 
-            @click="loadCategories"
-            class="p-button-outlined"
-            size="small"
-          />
+          <Button label="展开全部" icon="pi pi-angle-down" @click="expandAll" class="p-button-outlined" size="small" />
+          <Button label="收起全部" icon="pi pi-angle-up" @click="collapseAll" class="p-button-outlined" size="small" />
+          <Button label="刷新" icon="pi pi-refresh" @click="loadCategories" class="p-button-outlined" size="small" />
         </div>
         <div class="flex gap-3">
-          <InputText 
-            v-model="searchKeyword" 
-            placeholder="搜索分类名称..."
-            class="w-64"
-          />
-          <Dropdown 
-            v-model="filterStatus" 
-            :options="statusOptions" 
-            optionLabel="label" 
-            optionValue="value" 
-            placeholder="筛选状态"
-            class="w-32"
-          />
+          <InputText v-model="searchKeyword" placeholder="搜索分类名称..." class="w-64" />
+          <Dropdown v-model="filterStatus" :options="statusOptions" optionLabel="label" optionValue="value"
+            placeholder="筛选状态" class="w-32" />
         </div>
       </div>
     </div>
 
     <!-- 分类树表格 -->
     <div class="table-section">
-      <TreeTable 
-        :value="filteredCategories" 
-        :loading="loading"
-        :expandedKeys="expandedKeys"
-        @node-expand="onNodeExpand"
-        @node-collapse="onNodeCollapse"
-        class="p-treetable-sm"
-        showGridlines
-        responsiveLayout="scroll"
-      >
+      <TreeTable :value="filteredCategories" :loading="loading" :expandedKeys="expandedKeys" @node-expand="onNodeExpand"
+        @node-collapse="onNodeCollapse" class="p-treetable-sm" showGridlines responsiveLayout="scroll">
         <!-- 分类名称列 -->
         <Column field="name" header="分类名称" :expander="true" style="width: 300px">
           <template #body="{ node }">
@@ -92,34 +51,7 @@
         <Column field="sort" header="排序" style="width: 120px">
           <template #body="{ node }">
             <div class="flex items-center gap-2">
-              <InputNumber 
-                v-model="node.data.sort" 
-                :min="0" 
-                :max="9999"
-                @blur="updateSort(node.data.id, node.data.sort)"
-                class="w-20"
-                size="small"
-                :showButtons="true"
-                buttonLayout="horizontal"
-                decrementButtonClass="p-button-secondary"
-                incrementButtonClass="p-button-secondary"
-              />
-              <div class="flex flex-col gap-1">
-                <Button 
-                  icon="pi pi-angle-up" 
-                  @click="moveCategoryUp(node.data)"
-                  class="p-button-text p-button-sm"
-                  size="small"
-                  v-tooltip.top="'上移'"
-                />
-                <Button 
-                  icon="pi pi-angle-down" 
-                  @click="moveCategoryDown(node.data)"
-                  class="p-button-text p-button-sm"
-                  size="small"
-                  v-tooltip.top="'下移'"
-                />
-              </div>
+              <Button :label="node.data.sort.toString()" size="small" severity="secondary" outlined />
             </div>
           </template>
         </Column>
@@ -128,18 +60,12 @@
         <Column field="isVisible" header="显示状态" style="width: 140px">
           <template #body="{ node }">
             <div class="flex items-center gap-3">
-              <InputSwitch 
-                v-model="node.data.isVisible" 
-                @change="toggleVisibility(node.data.id)"
-                class="scale-90"
-              />
+              <InputSwitch v-model="node.data.isVisible" @change="toggleVisibility(node.data.id)" class="scale-90" />
               <div class="flex items-center gap-1">
-                <i :class="node.data.isVisible ? 'pi pi-eye text-green-600' : 'pi pi-eye-slash text-gray-400'" class="text-sm"></i>
-                <Tag 
-                  :value="node.data.isVisible ? '显示' : '隐藏'" 
-                  :severity="node.data.isVisible ? 'success' : 'secondary'"
-                  class="text-xs px-2 py-1"
-                />
+                <i :class="node.data.isVisible ? 'pi pi-eye text-green-600' : 'pi pi-eye-slash text-gray-400'"
+                  class="text-sm"></i>
+                <Tag :value="node.data.isVisible ? '显示' : '隐藏'"
+                  :severity="node.data.isVisible ? 'success' : 'secondary'" class="text-xs px-2 py-1" />
               </div>
             </div>
           </template>
@@ -156,25 +82,12 @@
         <Column header="操作" style="width: 200px">
           <template #body="{ node }">
             <div class="flex gap-2">
-              <Button 
-                icon="pi pi-plus" 
-                @click="showCreateChildDialog(node.data)"
-                class="p-button-success p-button-sm"
-                v-tooltip.top="'添加子分类'"
-              />
-              <Button 
-                icon="pi pi-pencil" 
-                @click="showEditDialog(node.data)"
-                class="p-button-warning p-button-sm"
-                v-tooltip.top="'编辑'"
-              />
-              <Button 
-                icon="pi pi-trash" 
-                @click="confirmDelete(node.data)"
-                class="p-button-danger p-button-sm"
-                v-tooltip.top="'删除'"
-                :disabled="hasChildren(node)"
-              />
+              <Button icon="pi pi-plus" @click="showCreateChildDialog(node.data)" class="p-button-success p-button-sm"
+                v-tooltip.top="'添加子分类'" />
+              <Button icon="pi pi-pencil" @click="showEditDialog(node.data)" class="p-button-warning p-button-sm"
+                v-tooltip.top="'编辑'" />
+              <Button icon="pi pi-trash" @click="confirmDelete(node.data)" class="p-button-danger p-button-sm"
+                v-tooltip.top="'删除'" :disabled="hasChildren(node)" />
             </div>
           </template>
         </Column>
@@ -182,63 +95,45 @@
     </div>
 
     <!-- 创建/编辑分类对话框 -->
-    <Dialog 
-      v-model:visible="showCreateDialog" 
-      :header="editingCategory ? '编辑分类' : '新增分类'" 
-      :modal="true" 
-      :closable="true"
-      class="w-96"
-    >
+    <Dialog v-model:visible="showCreateDialog" :header="editingCategory ? '编辑分类' : '新增分类'" :modal="true"
+      :closable="true" class="w-96">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-2">分类名称 *</label>
-          <InputText 
-            v-model="categoryForm.name" 
-            placeholder="请输入分类名称"
-            class="w-full"
-            :class="{ 'p-invalid': !categoryForm.name }"
-          />
+          <InputText v-model="categoryForm.name" placeholder="请输入分类名称" class="w-full"
+            :class="{ 'p-invalid': !categoryForm.name }" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2">URL标识符</label>
+          <InputText v-model="categoryForm.slug" placeholder="URL友好的标识符（留空自动生成）" class="w-full" />
         </div>
 
         <div>
           <label class="block text-sm font-medium mb-2">父分类</label>
-          <TreeSelect 
-            v-model="categoryForm.parentId" 
-            :options="categoryTreeOptions" 
-            placeholder="选择父分类（留空为顶级分类）"
-            class="w-full"
-          />
+          <TreeSelect v-model="categoryForm.parentId" :options="categoryTreeOptions" placeholder="选择父分类（留空为顶级分类）"
+            class="w-full" />
         </div>
 
         <div>
           <label class="block text-sm font-medium mb-2">描述</label>
-          <Textarea 
-            v-model="categoryForm.description" 
-            placeholder="请输入分类描述"
-            rows="3"
-            class="w-full"
-          />
+          <Textarea v-model="categoryForm.description" placeholder="请输入分类描述" rows="3" class="w-full" />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium mb-2">排序</label>
-            <InputNumber 
-              v-model="categoryForm.sort" 
-              :min="0" 
-              :max="9999"
-              placeholder="排序值"
-              class="w-full"
-            />
+            <InputNumber v-model="categoryForm.sort" :min="0" :max="9999" placeholder="排序值" class="w-full" />
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">图标</label>
-            <InputText 
-              v-model="categoryForm.icon" 
-              placeholder="图标类名"
-              class="w-full"
-            />
+            <InputText v-model="categoryForm.icon" placeholder="图标类名" class="w-full" />
           </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium mb-2">分类图片</label>
+          <InputText v-model="categoryForm.image" placeholder="分类图片URL" class="w-full" />
         </div>
 
         <div>
@@ -251,18 +146,9 @@
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button 
-            label="取消" 
-            @click="closeDialog"
-            class="p-button-text"
-          />
-          <Button 
-            :label="editingCategory ? '更新' : '创建'" 
-            @click="saveCategory"
-            class="p-button-success"
-            :loading="saving"
-            :disabled="!categoryForm.name"
-          />
+          <Button label="取消" @click="closeDialog" class="p-button-text" />
+          <Button :label="editingCategory ? '更新' : '创建'" @click="saveCategory" class="p-button-success"
+            :loading="saving" :disabled="!categoryForm.name" />
         </div>
       </template>
     </Dialog>
@@ -361,6 +247,7 @@ import ConfirmDialog from 'primevue/confirmdialog'
 // 类型定义
 interface Category {
   id: string
+  slug: string
   name: string
   parentId?: string
   level: number
@@ -368,6 +255,7 @@ interface Category {
   isVisible: boolean
   description?: string
   icon?: string
+  image?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -380,11 +268,13 @@ interface CategoryTree {
 
 interface CategoryForm {
   name: string
+  slug?: string
   parentId?: string
   description?: string
   sort: number
   isVisible: boolean
   icon?: string
+  image?: string
 }
 
 // 响应式数据
@@ -400,11 +290,13 @@ const editingCategory = ref<Category | null>(null)
 // 表单数据
 const categoryForm = ref<CategoryForm>({
   name: '',
+  slug: '',
   parentId: undefined,
   description: '',
   sort: 0,
   isVisible: true,
-  icon: ''
+  icon: '',
+  image: ''
 })
 
 // 状态选项
@@ -421,18 +313,18 @@ const toast = useToast()
 // 计算属性
 const filteredCategories = computed(() => {
   let result = categories.value
-  
+
   // 搜索过滤
   if (searchKeyword.value) {
     result = filterByKeyword(result, searchKeyword.value)
   }
-  
+
   // 状态过滤
   if (filterStatus.value !== 'all') {
     const isVisible = filterStatus.value === 'visible'
     result = filterByStatus(result, isVisible)
   }
-  
+
   return result
 })
 
@@ -461,7 +353,7 @@ const loadCategories = async () => {
 const buildCategoryTree = (categoryList: Category[]): CategoryTree[] => {
   const categoryMap = new Map<string, CategoryTree>()
   const rootCategories: CategoryTree[] = []
-  
+
   // 创建节点映射
   categoryList.forEach(category => {
     categoryMap.set(category.id, {
@@ -470,7 +362,7 @@ const buildCategoryTree = (categoryList: Category[]): CategoryTree[] => {
       children: []
     })
   })
-  
+
   // 构建树形结构
   categoryList.forEach(category => {
     const node = categoryMap.get(category.id)!
@@ -483,7 +375,7 @@ const buildCategoryTree = (categoryList: Category[]): CategoryTree[] => {
       rootCategories.push(node)
     }
   })
-  
+
   return rootCategories
 }
 
@@ -498,11 +390,11 @@ const buildTreeSelectOptions = (treeData: CategoryTree[]): any[] => {
 
 const filterByKeyword = (treeData: CategoryTree[], keyword: string): CategoryTree[] => {
   const filtered: CategoryTree[] = []
-  
+
   treeData.forEach(node => {
     const matchesKeyword = node.data.name.toLowerCase().includes(keyword.toLowerCase())
     const filteredChildren = node.children ? filterByKeyword(node.children, keyword) : []
-    
+
     if (matchesKeyword || filteredChildren.length > 0) {
       filtered.push({
         ...node,
@@ -510,17 +402,17 @@ const filterByKeyword = (treeData: CategoryTree[], keyword: string): CategoryTre
       })
     }
   })
-  
+
   return filtered
 }
 
 const filterByStatus = (treeData: CategoryTree[], isVisible: boolean): CategoryTree[] => {
   const filtered: CategoryTree[] = []
-  
+
   treeData.forEach(node => {
     const matchesStatus = node.data.isVisible === isVisible
     const filteredChildren = node.children ? filterByStatus(node.children, isVisible) : []
-    
+
     if (matchesStatus || filteredChildren.length > 0) {
       filtered.push({
         ...node,
@@ -528,7 +420,7 @@ const filterByStatus = (treeData: CategoryTree[], isVisible: boolean): CategoryT
       })
     }
   })
-  
+
   return filtered
 }
 
@@ -575,11 +467,13 @@ const showEditDialog = (category: Category) => {
   editingCategory.value = category
   categoryForm.value = {
     name: category.name,
+    slug: category.slug,
     parentId: category.parentId,
     description: category.description || '',
     sort: category.sort,
     isVisible: category.isVisible,
-    icon: category.icon || ''
+    icon: category.icon || '',
+    image: category.image || ''
   }
   showCreateDialog.value = true
 }
@@ -589,11 +483,13 @@ const closeDialog = () => {
   editingCategory.value = null
   categoryForm.value = {
     name: '',
+    slug: '',
     parentId: undefined,
     description: '',
     sort: 0,
     isVisible: true,
-    icon: ''
+    icon: '',
+    image: ''
   }
 }
 
@@ -602,10 +498,10 @@ const saveCategory = async () => {
     toast.add({ severity: 'warn', summary: '警告', detail: '请输入分类名称' })
     return
   }
-  
+
   try {
     saving.value = true
-    
+
     const requestData = {
       name: categoryForm.value.name,
       parentId: categoryForm.value.parentId || undefined,
@@ -614,7 +510,7 @@ const saveCategory = async () => {
       isVisible: categoryForm.value.isVisible,
       icon: categoryForm.value.icon
     }
-    
+
     let response
     if (editingCategory.value) {
       // 更新分类
@@ -629,12 +525,12 @@ const saveCategory = async () => {
         body: requestData
       })
     }
-    
+
     if (response.success) {
-      toast.add({ 
-        severity: 'success', 
-        summary: '成功', 
-        detail: editingCategory.value ? '分类更新成功' : '分类创建成功' 
+      toast.add({
+        severity: 'success',
+        summary: '成功',
+        detail: editingCategory.value ? '分类更新成功' : '分类创建成功'
       })
       closeDialog()
       await loadCategories()
@@ -655,7 +551,7 @@ const updateSort = async (categoryId: string, sortOrder: number) => {
       method: 'PATCH',
       body: { sortOrder }
     })
-    
+
     if (response.success) {
       toast.add({ severity: 'success', summary: '成功', detail: '排序更新成功' })
     } else {
@@ -674,7 +570,7 @@ const moveCategoryUp = async (category: Category) => {
     const response = await $fetch(`/api/categories/${category.id}/move-up`, {
       method: 'PATCH'
     })
-    
+
     if (response.success) {
       toast.add({ severity: 'success', summary: '成功', detail: '分类上移成功' })
       await loadCategories()
@@ -692,7 +588,7 @@ const moveCategoryDown = async (category: Category) => {
     const response = await $fetch(`/api/categories/${category.id}/move-down`, {
       method: 'PATCH'
     })
-    
+
     if (response.success) {
       toast.add({ severity: 'success', summary: '成功', detail: '分类下移成功' })
       await loadCategories()
@@ -711,7 +607,7 @@ const toggleVisibility = async (categoryId: string) => {
     const response = await $fetch(`/api/categories/${categoryId}/toggle-visibility`, {
       method: 'PATCH'
     })
-    
+
     if (response.success) {
       toast.add({ severity: 'success', summary: '成功', detail: '显示状态更新成功' })
     } else {
@@ -740,7 +636,7 @@ const deleteCategory = async (categoryId: string) => {
     const response = await $fetch(`/api/categories/${categoryId}`, {
       method: 'DELETE'
     })
-    
+
     if (response.success) {
       toast.add({ severity: 'success', summary: '成功', detail: '分类删除成功' })
       await loadCategories()

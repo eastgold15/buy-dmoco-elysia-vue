@@ -158,6 +158,7 @@ const toggleSidebar = () => {
 	sidebarVisible.value = !sidebarVisible.value;
 };
 
+
 const toggleUserMenu = (event) => {
 	userMenuVisible.value = !userMenuVisible.value;
 };
@@ -170,7 +171,6 @@ const toggleUserMenu = (event) => {
 			<div class="header-left">
 				<!-- 侧边栏切换按钮 -->
 				<Button icon="pi pi-bars" @click="toggleSidebar" class="sidebar-toggle" text />
-
 				<!-- Logo -->
 				<div class="admin-logo">
 					<RouterLink to="/admin/dashboard" class="logo-link">

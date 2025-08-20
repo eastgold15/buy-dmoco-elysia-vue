@@ -1,7 +1,7 @@
 /**
  * 自动生成的数据库 Schema 文件
  * 请勿手动修改此文件，运行 `bun run generate:schema` 重新生成
- * 生成时间: 2025-08-20T04:57:26.673Z
+ * 生成时间: 2025-08-20T05:38:32.898Z
  */
 
 import { userSchema, tokenSchema } from './auth.ts';
