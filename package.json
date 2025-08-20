@@ -20,6 +20,7 @@
 	},
 	"devDependencies": {
 		"@domcojs/vercel": "^3.0.0",
+		"@iconify-json/ic": "^1.2.4",
 		"@robino/tsconfig": "^1.1.0",
 		"@vitejs/plugin-vue": "^6.0.1",
 		"domco": "^4.0.0",
