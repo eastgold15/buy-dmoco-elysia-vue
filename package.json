@@ -1,32 +1,55 @@
 {
-	"name": "html",
-	"private": true,
-	"version": "0.0.0",
-	"type": "module",
-	"scripts": {
-		"dev": "vite",
-		"check": "tsc",
-		"build": "vite build",
-		"preview": "vite preview"
-	},
-	"dependencies": {
-		"@elysiajs/html": "^1.0.0",
-		"@primeuix/themes": "^1.2.3",
-		"elysia": "^1.0.0",
-		"ofetch": "^1.4.1",
-		"primevue": "^4.3.7",
-		"vue": "^3.5.18",
-		"vue-router": "^4.5.1"
-	},
-	"devDependencies": {
-		"@domcojs/vercel": "^3.0.0",
-		"@iconify-json/ic": "^1.2.4",
-		"@robino/tsconfig": "^1.1.0",
-		"@vitejs/plugin-vue": "^6.0.1",
-		"domco": "^4.0.0",
-		"typescript": "^5.8.0",
-		"unocss": "^66.4.2",
-		"unocss-preset-animations": "^1.2.1",
-		"vite": "^7.0.0"
-	}
+  "name": "html",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:server": "bun --watch src/server/index.ts",
+    "check": "tsc",
+    "build": "vite build",
+    "preview": "vite preview",
+    "docker:dev": "docker-compose -f src/server/.container/dev/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f src/server/.container/dev/docker-compose.yml down",
+    "docker:logs": "docker-compose -f src/server/.container/dev/docker-compose.yml logs -f",
+    "db:generate": "drizzle-kit generate --config=src/server/.container/dev/drizzle-dev.config.ts",
+    "db:migrate": "drizzle-kit migrate --config=src/server/.container/dev/drizzle-dev.config.ts",
+    "db:comments": "bun run src/db/comment/schema-comments.ts",
+    "db:schema": "bun run src/server/scripts/schema/cli.ts",
+    "db:push": "bun run db:schema && drizzle-kit push --config=src/server/.container/dev/drizzle-dev.config.ts",
+    "db:studio": "drizzle-kit studio --config=src/server/.container/dev/drizzle-dev.config.ts",
+    "db:setup": "bun run docker:dev && sleep 5 && bun run db:push"
+  },
+  "dependencies": {
+    "@elysiajs/html": "^1.3.1",
+    "@primeuix/themes": "^1.2.3",
+    "dotenv": "^17.2.1",
+    "dotenv-expand": "^12.0.2",
+    "drizzle-orm": "^0.44.4",
+    "drizzle-typebox": "^0.3.3",
+    "elysia": "^1.3.13",
+    "ofetch": "^1.4.1",
+    "primevue": "^4.3.7",
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.20",
+    "@types/pg": "^8.15.5",
+    "@domcojs/vercel": "^3.0.0",
+    "@iconify-json/ic": "^1.2.4",
+    "@robino/tsconfig": "^1.1.0",
+    "@vitejs/plugin-vue": "^6.0.1",
+    "domco": "^4.3.0",
+    "drizzle-kit": "^0.31.4",
+    "postgres": "^3.4.7",
+    "ts-morph": "^26.0.0",
+    "typescript": "^5.8.0",
+    "unocss": "^66.4.2",
+    "unocss-preset-animations": "^1.2.1",
+    "vite": "^7.1.3"
+  },
+  "overrides": {
+    "@sinclair/typebox": "0.34.40"
+  }
 }

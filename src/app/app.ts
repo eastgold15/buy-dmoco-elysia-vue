@@ -12,6 +12,7 @@ import PrimeVue from 'primevue/config';
 import 'virtual:uno.css';
 import CountView from "./pages/test.vue";
 import HomeView from "./pages/HomeView.vue";
+import ProductDetail from "./pages/ProductDetail.vue";
 
 
 export const createApp = async () => {
@@ -32,6 +33,11 @@ export const createApp = async () => {
 				path: "/counter",
 				name: "counter",
 				component: CountView,
+			},
+			{
+				path: "/product/:id",
+				name: "product-detail",
+				component: ProductDetail,
 			},
 		],
 	});
