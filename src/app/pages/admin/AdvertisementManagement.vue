@@ -316,7 +316,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
-import { apiFetch } from '../../utils/api';
+import { client } from '@/share/useTreaty';
 import Button from 'primevue/button';
 import Card from 'primevue/card';
 import DataTable from 'primevue/datatable';
@@ -407,15 +407,15 @@ const loadAdvertisements = async () => {
 		if (filters.position) params.append('position', filters.position);
 		if (filters.isActive !== undefined) params.append('isActive', filters.isActive.toString());
 
-		const response = await apiFetch<AdvertisementListResponse>(`/api/advertisements?${params}`);
+		const { data, error } = await client.api.advertisements.get({ query: Object.fromEntries(params) });
 		
-		if (response.success && response.data) {
-			advertisements.value = response.data.advertisements;
-			pagination.total = response.data.total;
-			pagination.page = response.data.page;
-			pagination.limit = response.data.limit;
+		if (data) {
+			advertisements.value = data.advertisements;
+			pagination.total = data.total;
+			pagination.page = data.page;
+			pagination.limit = data.limit;
 		} else {
-			throw new Error(response.error || '获取广告列表失败');
+			throw new Error(error || '获取广告列表失败');
 		}
 	} catch (error) {
 		console.error('加载广告列表失败:', error);
@@ -486,10 +486,8 @@ const editAdvertisement = (advertisement: Advertisement) => {
  */
 const toggleStatus = async (advertisement: Advertisement) => {
 	try {
-		const response = await apiFetch<AdvertisementResponse>(`/api/advertisements/${advertisement.id}/toggle`, {
-			method: 'PATCH',
-			body: { isActive: !advertisement.isActive }
-		});
+		const { data, error } = await client.api.advertisements({ id: advertisement.id }).toggle.patch({ isActive: !advertisement.isActive });
+		const response = { success: !!data, data, error, message: data?.message };
 		
 		if (response.success) {
 			toast.add({
@@ -526,9 +524,8 @@ const deleteAdvertisement = (advertisement: Advertisement) => {
 		acceptLabel: '删除',
 		accept: async () => {
 			try {
-				const response = await apiFetch<AdvertisementResponse>(`/api/advertisements/${advertisement.id}`, {
-					method: 'DELETE'
-				});
+				const { data, error } = await client.api.advertisements({ id: advertisement.id }).delete();
+			const response = { success: !!data, data, error };
 				
 				if (response.success) {
 					toast.add({
@@ -623,20 +620,26 @@ const saveAdvertisement = async () => {
 		
 		const method = editingAdvertisement.value ? 'PUT' : 'POST';
 		
-		const response = await apiFetch<AdvertisementResponse>(url, {
-			method,
-			body: {
-				title: form.title,
-				type: form.type,
-				image: form.image,
-				link: form.link || undefined,
-				position: form.position || undefined,
-				sortOrder: form.sortOrder,
-				isActive: form.isActive,
-				startDate: form.startDate || undefined,
-				endDate: form.endDate || undefined
-			}
-		});
+		const requestData = {
+			title: form.title,
+			type: form.type,
+			image: form.image,
+			link: form.link || undefined,
+			position: form.position || undefined,
+			sortOrder: form.sortOrder,
+			isActive: form.isActive,
+			startDate: form.startDate || undefined,
+			endDate: form.endDate || undefined
+		};
+		
+		let result;
+		if (editingAdvertisement.value) {
+			result = await client.api.advertisements({ id: editingAdvertisement.value.id }).put(requestData);
+		} else {
+			result = await client.api.advertisements.post(requestData);
+		}
+		
+		const response = { success: !!result.data, data: result.data, error: result.error, message: result.data?.message };
 		
 		if (response.success) {
 			toast.add({

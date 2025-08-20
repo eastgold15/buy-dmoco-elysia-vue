@@ -2,8 +2,7 @@
 	<div class="home-page">
 		<!-- 轮播图广告 -->
 		<section class="hero-section">
-			<CarouselAds :autoplay-interval="5000" :show-navigators="true" :show-indicators="true" :show-title="true"
-				class="hero-carousel" />
+			<CarouselAds :autoplay-interval="5000" :show-navigators="true" :show-indicators="true" :show-title="true" />
 		</section>
 
 		<!-- Banner广告区域 -->
@@ -111,13 +110,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { $fetch } from 'ofetch';
 import CarouselAds from '../components/CarouselAds.vue';
 import BannerAds from '../components/BannerAds.vue';
 import CategoryNavigation from '@/app/components/CategoryNavigation.vue';
+import Rating from 'primevue/rating';
 import type { Product } from '../types/product';
-
-import client from '@/share/useTreaty'
+import { client } from '@/share/useTreaty';
 // 路由
 const router = useRouter();
 
@@ -139,14 +137,18 @@ const latestNews = ref<any[]>([]);
 const loadFeaturedProducts = async () => {
 	loadingProducts.value = true;
 	try {
-		const response = await client.products.get({
-			featured: true,
-			limit: 8
+		const { data, error } = await client.api.products.get({
+			query: {
+				featured: true,
+				limit: 8
+			}
 		});
-		console.log("response", response)
+		console.log("response", data)
 
-		if (response.success && response.data) {
-			featuredProducts.value = response.data.products || [];
+		if (data) {
+			featuredProducts.value = data.products || [];
+		} else {
+			console.error('加载热门商品失败:', error);
 		}
 	} catch (error) {
 		console.error('加载热门商品失败:', error);
@@ -242,11 +244,7 @@ onMounted(() => {
 
 /* 轮播图区域 */
 .hero-section {
-	@apply mb-8;
-}
-
-.hero-carousel {
-	@apply w-full;
+	@apply mb-8 w-full;
 	height: 400px;
 }
 
@@ -386,7 +384,7 @@ onMounted(() => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-	.hero-carousel {
+	.hero-section {
 		height: 250px;
 	}
 

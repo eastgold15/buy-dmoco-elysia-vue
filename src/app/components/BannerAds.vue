@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue';
-import { apiFetch } from '../utils/api';
+import { client } from '@/share/useTreaty';
 import type { Advertisement } from '../types/advertisement';
 
 // Props
@@ -141,18 +141,14 @@ const containerStyle = computed(() => ({
 const loadBannerAds = async () => {
 	loading.value = true;
 	try {
-		const params = new URLSearchParams();
-		if (props.position) {
-			params.append('position', props.position);
-		}
+		const query = props.position ? { position: props.position } : {};
 		
-		const url = `/api/advertisements/banner${params.toString() ? '?' + params.toString() : ''}`;
-		const response = await apiFetch(url);
+		const { data, error } = await client.api.advertisements.banner.get({ query });
 		
-		if (response.success && response.data) {
-			advertisements.value = response.data;
+		if (data) {
+			advertisements.value = data;
 		} else {
-			console.error('获取Banner广告失败:', response.error);
+			console.error('获取Banner广告失败:', error);
 			advertisements.value = [];
 		}
 	} catch (error) {

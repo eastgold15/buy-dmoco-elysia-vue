@@ -227,7 +227,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { apiFetch } from '../../utils/api'
+import { client } from '@/share/useTreaty'
 
 // PrimeVue 组件
 import Button from 'primevue/button'
@@ -336,11 +336,11 @@ const categoryTreeOptions = computed(() => {
 const loadCategories = async () => {
   try {
     loading.value = true
-    const response = await apiFetch('/api/categories')
-    if (response.success) {
-      categories.value = buildCategoryTree(response.data)
+    const { data, error } = await client.api.categories.get()
+    if (data) {
+      categories.value = buildCategoryTree(data)
     } else {
-      toast.add({ severity: 'error', summary: '错误', detail: response.error || '加载分类失败' })
+      toast.add({ severity: 'error', summary: '错误', detail: error || '加载分类失败' })
     }
   } catch (error) {
     console.error('加载分类失败:', error)
@@ -511,22 +511,16 @@ const saveCategory = async () => {
       icon: categoryForm.value.icon
     }
 
-    let response
+    let result
     if (editingCategory.value) {
       // 更新分类
-      response = await apiFetch(`/api/categories/${editingCategory.value.id}`, {
-        method: 'PUT',
-        body: requestData
-      })
+      result = await client.api.categories({ id: editingCategory.value.id }).put(requestData)
     } else {
       // 创建分类
-      response = await apiFetch('/api/categories', {
-        method: 'POST',
-        body: requestData
-      })
+      result = await client.api.categories.post(requestData)
     }
 
-    if (response.success) {
+    if (result.data) {
       toast.add({
         severity: 'success',
         summary: '成功',
@@ -535,7 +529,7 @@ const saveCategory = async () => {
       closeDialog()
       await loadCategories()
     } else {
-      toast.add({ severity: 'error', summary: '错误', detail: response.error || '操作失败' })
+      toast.add({ severity: 'error', summary: '错误', detail: result.error || '操作失败' })
     }
   } catch (error) {
     console.error('保存分类失败:', error)
@@ -547,15 +541,12 @@ const saveCategory = async () => {
 
 const updateSort = async (categoryId: string, sortOrder: number) => {
   try {
-    const response = await apiFetch(`/api/categories/${categoryId}/sort`, {
-      method: 'PATCH',
-      body: { sortOrder }
-    })
+    const { data, error } = await client.api.categories({ id: categoryId }).sort.patch({ sortOrder })
 
-    if (response.success) {
+    if (data) {
       toast.add({ severity: 'success', summary: '成功', detail: '排序更新成功' })
     } else {
-      toast.add({ severity: 'error', summary: '错误', detail: response.error || '更新排序失败' })
+      toast.add({ severity: 'error', summary: '错误', detail: error || '更新排序失败' })
       await loadCategories() // 重新加载数据
     }
   } catch (error) {
@@ -567,15 +558,13 @@ const updateSort = async (categoryId: string, sortOrder: number) => {
 
 const moveCategoryUp = async (category: Category) => {
   try {
-    const response = await apiFetch(`/api/categories/${category.id}/move-up`, {
-      method: 'PATCH'
-    })
+    const { data, error } = await client.api.categories({ id: category.id })['move-up'].patch()
 
-    if (response.success) {
+    if (data) {
       toast.add({ severity: 'success', summary: '成功', detail: '分类上移成功' })
       await loadCategories()
     } else {
-      toast.add({ severity: 'error', summary: '错误', detail: response.error || '上移失败' })
+      toast.add({ severity: 'error', summary: '错误', detail: error || '上移失败' })
     }
   } catch (error) {
     console.error('上移分类失败:', error)
@@ -585,15 +574,13 @@ const moveCategoryUp = async (category: Category) => {
 
 const moveCategoryDown = async (category: Category) => {
   try {
-    const response = await apiFetch(`/api/categories/${category.id}/move-down`, {
-      method: 'PATCH'
-    })
+    const { data, error } = await client.api.categories({ id: category.id })['move-down'].patch()
 
-    if (response.success) {
+    if (data) {
       toast.add({ severity: 'success', summary: '成功', detail: '分类下移成功' })
       await loadCategories()
     } else {
-      toast.add({ severity: 'error', summary: '错误', detail: response.error || '下移失败' })
+      toast.add({ severity: 'error', summary: '错误', detail: error || '下移失败' })
     }
   } catch (error) {
     console.error('更新排序失败:', error)
@@ -604,14 +591,12 @@ const moveCategoryDown = async (category: Category) => {
 
 const toggleVisibility = async (categoryId: string) => {
   try {
-    const response = await apiFetch(`/api/categories/${categoryId}/toggle-visibility`, {
-      method: 'PATCH'
-    })
+    const { data, error } = await client.api.categories({ id: categoryId })['toggle-visibility'].patch()
 
-    if (response.success) {
+    if (data) {
       toast.add({ severity: 'success', summary: '成功', detail: '显示状态更新成功' })
     } else {
-      toast.add({ severity: 'error', summary: '错误', detail: response.error || '更新显示状态失败' })
+      toast.add({ severity: 'error', summary: '错误', detail: error || '更新显示状态失败' })
       await loadCategories() // 重新加载数据
     }
   } catch (error) {
@@ -633,15 +618,13 @@ const confirmDelete = (category: Category) => {
 
 const deleteCategory = async (categoryId: string) => {
   try {
-    const response = await apiFetch(`/api/categories/${categoryId}`, {
-      method: 'DELETE'
-    })
+    const { data, error } = await client.api.categories({ id: categoryId }).delete()
 
-    if (response.success) {
+    if (data) {
       toast.add({ severity: 'success', summary: '成功', detail: '分类删除成功' })
       await loadCategories()
     } else {
-      toast.add({ severity: 'error', summary: '错误', detail: response.error || '删除分类失败' })
+      toast.add({ severity: 'error', summary: '错误', detail: error || '删除分类失败' })
     }
   } catch (error) {
     console.error('删除分类失败:', error)

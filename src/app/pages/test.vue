@@ -1,6 +1,6 @@
 <script setup>
 import Counter from '@/app/components/count.vue'
-import { ofetch } from "ofetch";
+import { client } from '@/share/useTreaty';
 import { ref, onMounted } from 'vue';
 
 // 使用响应式数据存储API结果
@@ -11,9 +11,14 @@ const error = ref();
 // 在组件挂载后获取数据，避免setup函数返回Promise
 onMounted(async () => {
 	try {
-		const result = await ofetch("/api");
-		data.value = result;
-		console.log("1111", result);
+		const { data: result, error: apiError } = await client.api.get();
+		if (result) {
+			data.value = result;
+			console.log("1111", result);
+		} else {
+			error.value = apiError;
+			console.error('API请求失败:', apiError);
+		}
 	} catch (err) {
 		error.value = err;
 		console.error('API请求失败:', err);

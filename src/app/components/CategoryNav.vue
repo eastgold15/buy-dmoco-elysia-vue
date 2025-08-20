@@ -3,59 +3,30 @@
     <div class="category-container">
       <!-- 桌面端分类导航菜单 -->
       <ul v-if="!isMobile" class="category-list">
-        <li 
-          v-for="category in categories" 
-          :key="category.id"
-          class="category-item"
-          @mouseenter="showDropdown(category.id)"
-          @mouseleave="hideDropdown"
-        >
-          <a 
-            href="#" 
-            class="category-link"
-            @click.prevent="navigateToCategory(category)"
-          >
+        <li v-for="category in categories" :key="category.id" class="category-item"
+          @mouseenter="showDropdown(category.id)" @mouseleave="hideDropdown">
+          <a href="#" class="category-link" @click.prevent="navigateToCategory(category)">
             <i v-if="category.icon" :class="category.icon" class="category-icon"></i>
             {{ category.name }}
-            <i v-if="category.children.length > 0" class="pi pi-angle-down dropdown-arrow"></i>
+            <i v-if="category.children && category.children.length > 0" class="pi pi-angle-down dropdown-arrow"></i>
           </a>
-          
+
           <!-- 桌面端下拉菜单 -->
-          <div 
-            v-if="category.children.length > 0 && activeDropdown === category.id"
-            class="dropdown-menu"
-            @mouseenter="keepDropdownOpen"
-            @mouseleave="hideDropdown"
-          >
+          <div v-if="category.children && category.children.length > 0 && activeDropdown === category.id" class="dropdown-menu"
+            @mouseenter="keepDropdownOpen" @mouseleave="hideDropdown">
             <div class="dropdown-content">
               <div class="subcategory-grid">
-                <div 
-                  v-for="subcategory in category.children" 
-                  :key="subcategory.id"
-                  class="subcategory-group"
-                >
+                <div v-for="subcategory in category.children" :key="subcategory.id" class="subcategory-group">
                   <h4 class="subcategory-title">
-                    <a 
-                      href="#" 
-                      @click.prevent="navigateToCategory(subcategory)"
-                      class="subcategory-link"
-                    >
+                    <a href="#" @click.prevent="navigateToCategory(subcategory)" class="subcategory-link">
                       {{ subcategory.name }}
                     </a>
                   </h4>
-                  
+
                   <!-- 三级分类 -->
-                  <ul v-if="subcategory.children.length > 0" class="third-level-list">
-                    <li 
-                      v-for="thirdLevel in subcategory.children" 
-                      :key="thirdLevel.id"
-                      class="third-level-item"
-                    >
-                      <a 
-                        href="#" 
-                        @click.prevent="navigateToCategory(thirdLevel)"
-                        class="third-level-link"
-                      >
+                  <ul v-if="subcategory.children && subcategory.children.length > 0" class="third-level-list">
+                    <li v-for="thirdLevel in subcategory.children" :key="thirdLevel.id" class="third-level-item">
+                      <a href="#" @click.prevent="navigateToCategory(thirdLevel)" class="third-level-link">
                         {{ thirdLevel.name }}
                       </a>
                     </li>
@@ -66,68 +37,36 @@
           </div>
         </li>
       </ul>
-      
+
       <!-- 移动端分类菜单 -->
       <div v-else class="mobile-category-list">
-        <div 
-          v-for="category in categories" 
-          :key="category.id"
-          class="mobile-category-item"
-        >
+        <div v-for="category in categories" :key="category.id" class="mobile-category-item">
           <!-- 一级分类 -->
           <div class="mobile-category-header">
-            <a 
-              href="#" 
-              class="mobile-category-link"
-              @click.prevent="navigateToCategory(category)"
-            >
+            <a href="#" class="mobile-category-link" @click.prevent="navigateToCategory(category)">
               <i v-if="category.icon" :class="category.icon" class="mobile-category-icon"></i>
               <span class="mobile-category-name">{{ category.name }}</span>
             </a>
-            
+
             <!-- 展开/收起按钮 -->
-            <button 
-              v-if="category.children.length > 0"
-              @click="toggleMobileCategory(category.id)"
-              class="mobile-expand-btn"
-            >
-              <i 
-                class="pi pi-angle-down transition-transform duration-200"
-                :class="{ 'rotate-180': isCategoryExpanded(category.id) }"
-              ></i>
+            <button v-if="category.children && category.children.length > 0" @click="toggleMobileCategory(category.id)"
+              class="mobile-expand-btn">
+              <i class="pi pi-angle-down transition-transform duration-200"
+                :class="{ 'rotate-180': isCategoryExpanded(category.id) }"></i>
             </button>
           </div>
-          
+
           <!-- 二级分类 -->
-          <div 
-            v-if="category.children.length > 0 && isCategoryExpanded(category.id)"
-            class="mobile-subcategory-list"
-          >
-            <div 
-              v-for="subcategory in category.children" 
-              :key="subcategory.id"
-              class="mobile-subcategory-item"
-            >
-              <a 
-                href="#" 
-                @click.prevent="navigateToCategory(subcategory)"
-                class="mobile-subcategory-link"
-              >
+          <div v-if="category.children && category.children.length > 0 && isCategoryExpanded(category.id)" class="mobile-subcategory-list">
+            <div v-for="subcategory in category.children" :key="subcategory.id" class="mobile-subcategory-item">
+              <a href="#" @click.prevent="navigateToCategory(subcategory)" class="mobile-subcategory-link">
                 {{ subcategory.name }}
               </a>
-              
+
               <!-- 三级分类 -->
-              <div 
-                v-if="subcategory.children.length > 0"
-                class="mobile-third-level-list"
-              >
-                <a 
-                  v-for="thirdLevel in subcategory.children" 
-                  :key="thirdLevel.id"
-                  href="#" 
-                  @click.prevent="navigateToCategory(thirdLevel)"
-                  class="mobile-third-level-link"
-                >
+              <div v-if="subcategory.children && subcategory.children.length > 0" class="mobile-third-level-list">
+                <a v-for="thirdLevel in subcategory.children" :key="thirdLevel.id" href="#"
+                  @click.prevent="navigateToCategory(thirdLevel)" class="mobile-third-level-link">
                   {{ thirdLevel.name }}
                 </a>
               </div>
@@ -141,7 +80,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { apiFetch } from '../utils/api';
+import { client } from '@/share/useTreaty';
 
 // Props
 interface Props {
@@ -218,7 +157,7 @@ const navigateToCategory = (category: CategoryTree) => {
   console.log('导航到分类:', category.name, category.id);
   // 这里可以使用 Vue Router 进行页面跳转
   // router.push(`/category/${category.id}`);
-  
+
   // 在移动端模式下，触发分类选择事件
   if (props.isMobile) {
     emit('categorySelected', category);
@@ -247,17 +186,21 @@ const fetchCategories = async () => {
   try {
     loading.value = true;
     error.value = null;
+
+    const { data, error: apiError } = await client.api.categories.tree.get();
     
-    const response = await apiFetch<ApiResponse<CategoryTree[]>>('/api/categories/tree');
-    
-    if (response.success && response.data) {
-      categories.value = response.data;
+    if (data) {
+      categories.value = data;
     } else {
-      error.value = response.error || '获取分类数据失败';
+      error.value = apiError || '获取分类数据失败';
+      // 使用模拟数据作为后备
+      categories.value = [];
     }
   } catch (err) {
     error.value = err instanceof Error ? err.message : '网络请求失败';
     console.error('获取分类数据失败:', err);
+    // 使用模拟数据作为后备
+    categories.value = [];
   } finally {
     loading.value = false;
   }
@@ -420,11 +363,11 @@ onMounted(() => {
   .mobile-category-header {
     @apply px-3 py-2;
   }
-  
+
   .mobile-category-name {
     @apply text-sm;
   }
-  
+
   .mobile-subcategory-list {
     @apply px-3;
   }

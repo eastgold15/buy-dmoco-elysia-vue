@@ -9,18 +9,13 @@
           <div class="main-image-container mb-4">
             <div class="aspect-square bg-white rounded-lg overflow-hidden shadow-sm">
               <!-- 视频播放器 -->
-              <video v-if="isVideoMode && currentVideo" 
-                :src="currentVideo" 
-                class="w-full h-full object-cover cursor-zoom-in" 
-                controls 
-                :poster="currentImage"
+              <video v-if="isVideoMode && currentVideo" :src="currentVideo"
+                class="w-full h-full object-cover cursor-zoom-in" controls :poster="currentImage"
                 @click="openImageModal">
                 您的浏览器不支持视频播放。
               </video>
               <!-- 图片显示 -->
-              <img v-else 
-                :src="currentImage" 
-                :alt="product?.title" 
+              <img v-else :src="currentImage" :alt="product?.title"
                 class="w-full h-full object-cover cursor-zoom-in transition-all duration-300 ease-in-out"
                 @click="openImageModal" />
             </div>
@@ -237,16 +232,8 @@
 
     <!-- Banner广告区域 -->
     <div class="banner-ads-section mt-8 mb-8">
-      <BannerAds 
-        position="product-detail"
-        :show-title="false"
-        height="150px"
-        layout="horizontal"
-        :gap="'1rem'"
-        :rounded="true"
-        :shadow="true"
-        :show-empty="false"
-      />
+      <BannerAds position="product-detail" :show-title="false" height="150px" layout="horizontal" :gap="'1rem'"
+        :rounded="true" :shadow="true" :show-empty="false" />
     </div>
 
     <!-- 相关推荐 -->
@@ -288,6 +275,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BannerAds from '../components/BannerAds.vue'
+import { client } from '@/share/useTreaty'
 import type { Product, ProductColor, ProductSize } from '../types/product'
 
 // 路由相关
@@ -421,148 +409,153 @@ const fetchProduct = async (productId: string) => {
     loading.value = true
     error.value = null
 
-    // TODO: 实现API调用
-    // const response = await $fetch(`/api/products/${productId}`)
-    // product.value = response
+    // 使用Eden Treaty调用API
+    const { data, error: apiError } = await client.api.products({ id: productId }).get()
 
-    // 模拟数据
-    product.value = {
-      id: productId,
-      title: 'JACK & JONES Blupaulin Knit Mens Polo Shirt',
-      shortDescription: 'Jack & Jones Blupaulin Knit Polo Shirt. Knit fabrication. Collared neckline. Slim fit. Short sleeves. Rib hem.',
-      fullDescription: 'This premium polo shirt features a sophisticated knit fabrication with a classic collared neckline. The slim fit design provides a modern silhouette while maintaining comfort. Made with high-quality materials for durability and style. Perfect for both casual and semi-formal occasions.',
-      brand: 'JACK & JONES',
-      model: 'Blupaulin Knit',
-      sku: 'JJ-BK-001',
-      price: {
-        originalPrice: 69.99,
-        currentPrice: 54.99,
-        currency: 'USD',
-        discount: 21,
-        installmentPrice: 13.75,
-        installmentCount: 4
-      },
-      categoryId: 'mens-polo',
-      categoryPath: ['Men', 'Clothing', 'Polo Shirts'],
-      tags: ['polo', 'knit', 'casual', 'mens'],
-      images: [
-        {
-          id: '1',
-          url: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=800',
-          alt: 'Black polo shirt front view',
-          isMain: true,
-          sortOrder: 1
+    if (data) {
+      product.value = data
+    } else {
+      // 如果API调用失败，使用模拟数据作为后备
+      console.warn('API调用失败，使用模拟数据:', apiError)
+      // 模拟数据
+      product.value = {
+        id: productId,
+        title: 'JACK & JONES Blupaulin Knit Mens Polo Shirt',
+        shortDescription: 'Jack & Jones Blupaulin Knit Polo Shirt. Knit fabrication. Collared neckline. Slim fit. Short sleeves. Rib hem.',
+        fullDescription: 'This premium polo shirt features a sophisticated knit fabrication with a classic collared neckline. The slim fit design provides a modern silhouette while maintaining comfort. Made with high-quality materials for durability and style. Perfect for both casual and semi-formal occasions.',
+        brand: 'JACK & JONES',
+        model: 'Blupaulin Knit',
+        sku: 'JJ-BK-001',
+        price: {
+          originalPrice: 69.99,
+          currentPrice: 54.99,
+          currency: 'USD',
+          discount: 21,
+          installmentPrice: 13.75,
+          installmentCount: 4
         },
-        {
-          id: '2',
-          url: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800',
-          alt: 'Black polo shirt back view',
-          isMain: false,
-          sortOrder: 2
-        }
-      ],
-      videos: [
-        {
-          id: '1',
-          url: 'https://example.com/video.mp4',
-          thumbnail: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=800',
-          title: 'Product showcase video',
-          duration: 30
-        }
-      ],
-      colors: [
-        {
-          id: 'black',
-          name: 'BLACK',
-          hexCode: '#000000',
-          imageUrl: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=800'
+        categoryId: 'mens-polo',
+        categoryPath: ['Men', 'Clothing', 'Polo Shirts'],
+        tags: ['polo', 'knit', 'casual', 'mens'],
+        images: [
+          {
+            id: '1',
+            url: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=800',
+            alt: 'Black polo shirt front view',
+            isMain: true,
+            sortOrder: 1
+          },
+          {
+            id: '2',
+            url: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=800',
+            alt: 'Black polo shirt back view',
+            isMain: false,
+            sortOrder: 2
+          }
+        ],
+        videos: [
+          {
+            id: '1',
+            url: 'https://example.com/video.mp4',
+            thumbnail: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=800',
+            title: 'Product showcase video',
+            duration: 30
+          }
+        ],
+        colors: [
+          {
+            id: 'black',
+            name: 'BLACK',
+            hexCode: '#000000',
+            imageUrl: 'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=800'
+          },
+          {
+            id: 'navy',
+            name: 'NAVY',
+            hexCode: '#1e3a8a'
+          }
+        ],
+        sizes: [
+          {
+            id: 's',
+            name: 'S',
+            ukSize: 'S',
+            euSize: '46',
+            usSize: 'S',
+            stock: 10,
+            isAvailable: true
+          },
+          {
+            id: 'm',
+            name: 'M',
+            ukSize: 'M',
+            euSize: '48',
+            usSize: 'M',
+            stock: 15,
+            isAvailable: true
+          },
+          {
+            id: 'l',
+            name: 'L',
+            ukSize: 'L',
+            euSize: '50',
+            usSize: 'L',
+            stock: 8,
+            isAvailable: true
+          },
+          {
+            id: 'xl',
+            name: 'XL',
+            ukSize: 'XL',
+            euSize: '52',
+            usSize: 'XL',
+            stock: 0,
+            isAvailable: false
+          }
+        ],
+        stock: {
+          totalStock: 33,
+          availableStock: 33,
+          reservedStock: 0,
+          lowStockThreshold: 5
         },
-        {
-          id: 'navy',
-          name: 'NAVY',
-          hexCode: '#1e3a8a'
-        }
-      ],
-      sizes: [
-        {
-          id: 's',
-          name: 'S',
-          ukSize: 'S',
-          euSize: '46',
-          usSize: 'S',
-          stock: 10,
-          isAvailable: true
+        specifications: [
+          { name: 'Material', value: '62% Cotton 38% Polyester' },
+          { name: 'Fit', value: 'Slim Fit' },
+          { name: 'Sleeve Length', value: 'Short Sleeves' },
+          { name: 'Care', value: 'Machine wash' },
+          { name: 'Origin', value: 'Imported' }
+        ],
+        features: ['Knit fabrication', 'Collared neckline', 'Slim fit', 'Short sleeves', 'Rib hem'],
+        materials: ['62% Cotton', '38% Polyester'],
+        careInstructions: ['Machine wash cold', 'Do not bleach', 'Tumble dry low', 'Iron on low heat'],
+        reviews: [],
+        averageRating: 5,
+        totalReviews: 0,
+        isActive: true,
+        isFeatured: true,
+        isNew: false,
+        isOnSale: true,
+        seo: {
+          metaTitle: 'JACK & JONES Blupaulin Knit Mens Polo Shirt',
+          metaDescription: 'Premium knit polo shirt with slim fit design',
+          keywords: ['polo shirt', 'mens clothing', 'jack and jones'],
+          slug: 'jack-jones-blupaulin-knit-polo-shirt'
         },
-        {
-          id: 'm',
-          name: 'M',
-          ukSize: 'M',
-          euSize: '48',
-          usSize: 'M',
-          stock: 15,
-          isAvailable: true
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        publishedAt: new Date(),
+        salesCount: 127,
+        viewCount: 1543,
+        weight: 200,
+        dimensions: {
+          length: 30,
+          width: 25,
+          height: 2
         },
-        {
-          id: 'l',
-          name: 'L',
-          ukSize: 'L',
-          euSize: '50',
-          usSize: 'L',
-          stock: 8,
-          isAvailable: true
-        },
-        {
-          id: 'xl',
-          name: 'XL',
-          ukSize: 'XL',
-          euSize: '52',
-          usSize: 'XL',
-          stock: 0,
-          isAvailable: false
-        }
-      ],
-      stock: {
-        totalStock: 33,
-        availableStock: 33,
-        reservedStock: 0,
-        lowStockThreshold: 5
-      },
-      specifications: [
-        { name: 'Material', value: '62% Cotton 38% Polyester' },
-        { name: 'Fit', value: 'Slim Fit' },
-        { name: 'Sleeve Length', value: 'Short Sleeves' },
-        { name: 'Care', value: 'Machine wash' },
-        { name: 'Origin', value: 'Imported' }
-      ],
-      features: ['Knit fabrication', 'Collared neckline', 'Slim fit', 'Short sleeves', 'Rib hem'],
-      materials: ['62% Cotton', '38% Polyester'],
-      careInstructions: ['Machine wash cold', 'Do not bleach', 'Tumble dry low', 'Iron on low heat'],
-      reviews: [],
-      averageRating: 5,
-      totalReviews: 0,
-      isActive: true,
-      isFeatured: true,
-      isNew: false,
-      isOnSale: true,
-      seo: {
-        metaTitle: 'JACK & JONES Blupaulin Knit Mens Polo Shirt',
-        metaDescription: 'Premium knit polo shirt with slim fit design',
-        keywords: ['polo shirt', 'mens clothing', 'jack and jones'],
-        slug: 'jack-jones-blupaulin-knit-polo-shirt'
-      },
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      publishedAt: new Date(),
-      salesCount: 127,
-      viewCount: 1543,
-      weight: 200,
-      dimensions: {
-        length: 30,
-        width: 25,
-        height: 2
-      },
-      relatedProductIds: ['2', '3', '4', '5'],
-      rewardPoints: 55
+        relatedProductIds: ['2', '3', '4', '5'],
+        rewardPoints: 55
+      }
     }
 
     // 设置默认图片
@@ -586,10 +579,19 @@ const fetchProduct = async (productId: string) => {
 // 获取相关商品
 const fetchRelatedProducts = async () => {
   try {
-    // TODO: 实现API调用
-    // const response = await $fetch(`/api/products/related/${product.value?.id}`)
-    // relatedProducts.value = response
+    // 使用Eden Treaty调用API
+    if (product.value?.id) {
+      const { data, error: apiError } = await client.api.products.related({ id: product.value.id }).get()
 
+      if (data) {
+        relatedProducts.value = data
+        return
+      } else {
+        console.warn('获取相关产品失败，使用模拟数据:', apiError)
+      }
+    }
+
+    // 如果API调用失败或没有产品ID，使用模拟数据作为后备
     // 模拟数据
     relatedProducts.value = [
       {

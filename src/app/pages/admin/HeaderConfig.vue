@@ -180,7 +180,7 @@ import { useToast } from 'primevue/usetoast'
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
-import { apiFetch } from '../../utils/api'
+import { client } from '@/share/useTreaty'
 import type { HeaderConfig, CreateHeaderConfigRequest, UpdateHeaderConfigRequest, ApiResponse } from '../../types/layout'
 
 // 响应式数据
@@ -221,7 +221,8 @@ const removeHelpLink = (index: number) => {
 const loadConfig = async () => {
   try {
     loading.value = true
-    const response = await apiFetch<ApiResponse<HeaderConfig>>('/api/header-config')
+    const { data, error } = await client.api['header-config'].get()
+    const response = { success: !!data, data, error }
     
     if (response.success && response.data) {
       config.value = { ...response.data }
@@ -285,10 +286,8 @@ const saveConfig = async () => {
         helpLinks: config.value.helpLinks
       }
       
-      response = await apiFetch<ApiResponse<HeaderConfig>>('/api/header-config', {
-        method: 'PUT',
-        body: updateData
-      })
+      const result = await client.api['header-config'].put(updateData)
+      response = { success: !!result.data, data: result.data, error: result.error, message: result.data?.message }
     } else {
       // 创建新配置
       const createData: CreateHeaderConfigRequest = {
@@ -299,10 +298,8 @@ const saveConfig = async () => {
         helpLinks: config.value.helpLinks
       }
       
-      response = await apiFetch<ApiResponse<HeaderConfig>>('/api/header-config', {
-        method: 'POST',
-        body: createData
-      })
+      const result = await client.api['header-config'].post(createData)
+      response = { success: !!result.data, data: result.data, error: result.error, message: result.data?.message }
     }
 
     if (response.success && response.data) {

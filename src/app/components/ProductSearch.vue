@@ -186,7 +186,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { $fetch } from 'ofetch';
+import { client } from '@/share/useTreaty';
 import InputText from 'primevue/inputtext';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
@@ -293,9 +293,11 @@ const handleSearch = async () => {
     if (filters.sizes.length) params.append('sizes', filters.sizes.join(','));
     if (filters.tags.length) params.append('tags', filters.tags.join(','));
 
-    const response = await $fetch(`/api/products/search?${params.toString()}`);
-    if (response.success) {
-      searchResults.value = response.data;
+    const { data, error } = await client.api.products.search.get({ query: Object.fromEntries(params) });
+    if (data) {
+      searchResults.value = data;
+    } else {
+      console.error('搜索失败:', error);
     }
   } catch (error) {
     console.error('搜索失败:', error);
@@ -344,9 +346,11 @@ const searchWithPage = async (page: number) => {
     if (filters.sizes.length) params.append('sizes', filters.sizes.join(','));
     if (filters.tags.length) params.append('tags', filters.tags.join(','));
 
-    const response = await $fetch(`/api/products/search?${params.toString()}`);
-    if (response.success) {
-      searchResults.value = response.data;
+    const { data, error } = await client.api.products.search.get({ query: Object.fromEntries(params) });
+    if (data) {
+      searchResults.value = data;
+    } else {
+      console.error('搜索失败:', error);
     }
   } catch (error) {
     console.error('搜索失败:', error);
@@ -396,21 +400,21 @@ const viewAllProducts = () => {
 const loadInitialData = async () => {
   try {
     // 加载热门搜索关键词
-    const termsResponse = await $fetch('/api/products/search/popular-terms');
-    if (termsResponse.success) {
-      popularTerms.value = termsResponse.data;
+    const { data: termsData } = await client.api.products.search['popular-terms'].get();
+    if (termsData) {
+      popularTerms.value = termsData;
     }
 
     // 加载分类列表
-    const categoriesResponse = await $fetch('/api/categories');
-    if (categoriesResponse.success) {
-      categories.value = categoriesResponse.data;
+    const { data: categoriesData } = await client.api.categories.get();
+    if (categoriesData) {
+      categories.value = categoriesData;
     }
 
     // 加载筛选选项
-    const optionsResponse = await $fetch('/api/products/filter-options');
-    if (optionsResponse.success) {
-      filterOptions.value = optionsResponse.data;
+    const { data: optionsData } = await client.api.products['filter-options'].get();
+    if (optionsData) {
+      filterOptions.value = optionsData;
     }
   } catch (error) {
     console.error('加载初始数据失败:', error);

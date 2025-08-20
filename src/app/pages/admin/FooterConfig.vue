@@ -208,7 +208,7 @@ import { useToast } from 'primevue/usetoast'
 import Card from 'primevue/card'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
-import { apiFetch } from '../../utils/api'
+import { client } from '@/share/useTreaty'
 import type { FooterConfig, FooterSection, CreateFooterConfigRequest, UpdateFooterConfigRequest, ApiResponse } from '../../types/layout'
 
 // 响应式数据
@@ -270,11 +270,13 @@ const removeLink = (sectionIndex: number, linkIndex: number) => {
 const loadConfig = async () => {
   try {
     loading.value = true
-    const response = await apiFetch<ApiResponse<FooterConfig>>('/api/footer-config')
+    const { data, error } = await client.api['footer-config'].get()
     
-    if (response.success && response.data) {
-      config.value = { ...response.data }
-      originalConfig.value = { ...response.data }
+    if (data) {
+      config.value = { ...data }
+      originalConfig.value = { ...data }
+    } else {
+      console.error('加载底部配置失败:', error)
     }
   } catch (error) {
     console.error('加载底部配置失败:', error)
@@ -337,10 +339,8 @@ const saveConfig = async () => {
         sections: config.value.sections
       }
       
-      response = await apiFetch<ApiResponse<FooterConfig>>('/api/footer-config', {
-        method: 'PUT',
-        body: updateData
-      })
+      const { data: updateResult, error: updateError } = await client.api['footer-config'].put(updateData)
+      response = { success: !!updateResult, data: updateResult, error: updateError }
     } else {
       // 创建新配置
       const createData: CreateFooterConfigRequest = {
@@ -349,10 +349,8 @@ const saveConfig = async () => {
         sections: config.value.sections
       }
       
-      response = await apiFetch<ApiResponse<FooterConfig>>('/api/footer-config', {
-        method: 'POST',
-        body: createData
-      })
+      const { data: createResult, error: createError } = await client.api['footer-config'].post(createData)
+      response = { success: !!createResult, data: createResult, error: createError }
     }
 
     if (response.success && response.data) {
@@ -416,9 +414,8 @@ const initializeDefault = async () => {
   try {
     saving.value = true
     
-    const response = await apiFetch<ApiResponse<null>>('/api/footer-config/initialize', {
-      method: 'POST'
-    })
+    const { data, error } = await client.api['footer-config'].initialize.post()
+    const response = { success: !!data, data, error }
 
     if (response.success) {
       toast.add({

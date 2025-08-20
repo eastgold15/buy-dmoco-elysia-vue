@@ -14,6 +14,7 @@ const isDarkMode = ref(false);
 const languageMenu = ref();
 const mobileLanguageMenu = ref();
 const searchQuery = ref('');
+const cartCount = ref(0);
 
 // 语言选项
 const languageOptions = ref([

@@ -22,13 +22,8 @@
               <label for="site_name" class="block text-sm font-medium text-gray-700 mb-2">
                 网站名称 <span class="text-red-500">*</span>
               </label>
-              <InputText
-                id="site_name"
-                v-model="configs.site_name"
-                placeholder="请输入网站名称"
-                class="w-full"
-                :class="{ 'p-invalid': errors.site_name }"
-              />
+              <InputText id="site_name" v-model="configs.site_name" placeholder="请输入网站名称" class="w-full"
+                :class="{ 'p-invalid': errors.site_name }" />
               <small v-if="errors.site_name" class="p-error">{{ errors.site_name }}</small>
             </div>
 
@@ -36,12 +31,8 @@
               <label for="site_logo" class="block text-sm font-medium text-gray-700 mb-2">
                 网站Logo
               </label>
-              <InputText
-                id="site_logo"
-                v-model="configs.site_logo"
-                placeholder="https://example.com/logo.png"
-                class="w-full"
-              />
+              <InputText id="site_logo" v-model="configs.site_logo" placeholder="https://example.com/logo.png"
+                class="w-full" />
               <small class="text-gray-500">请输入Logo图片的完整URL地址</small>
             </div>
 
@@ -49,15 +40,8 @@
               <label for="currency" class="block text-sm font-medium text-gray-700 mb-2">
                 货币单位
               </label>
-              <Dropdown
-                id="currency"
-                v-model="configs.currency"
-                :options="currencyOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="选择货币单位"
-                class="w-full"
-              />
+              <Dropdown id="currency" v-model="configs.currency" :options="currencyOptions" optionLabel="label"
+                optionValue="value" placeholder="选择货币单位" class="w-full" />
             </div>
           </div>
 
@@ -66,13 +50,8 @@
               <label for="header_notice" class="block text-sm font-medium text-gray-700 mb-2">
                 顶部通知
               </label>
-              <Textarea
-                id="header_notice"
-                v-model="configs.header_notice"
-                placeholder="FREE SHIPPING on orders over $59* details"
-                rows="3"
-                class="w-full"
-              />
+              <Textarea id="header_notice" v-model="configs.header_notice"
+                placeholder="FREE SHIPPING on orders over $59* details" rows="3" class="w-full" />
               <small class="text-gray-500">显示在网站顶部的通知信息</small>
             </div>
 
@@ -80,14 +59,8 @@
               <label for="free_shipping_threshold" class="block text-sm font-medium text-gray-700 mb-2">
                 免费配送门槛
               </label>
-              <InputNumber
-                id="free_shipping_threshold"
-                v-model="configs.free_shipping_threshold"
-                placeholder="59"
-                :min="0"
-                :max="9999"
-                class="w-full"
-              />
+              <InputNumber id="free_shipping_threshold" v-model="configs.free_shipping_threshold" placeholder="59"
+                :min="0" :max="9999" class="w-full" />
               <small class="text-gray-500">订单金额超过此数值免费配送</small>
             </div>
           </div>
@@ -101,12 +74,7 @@
             <label for="site_keywords" class="block text-sm font-medium text-gray-700 mb-2">
               SEO关键词
             </label>
-            <InputText
-              id="site_keywords"
-              v-model="configs.site_keywords"
-              placeholder="外贸,服装,时尚,购物"
-              class="w-full"
-            />
+            <InputText id="site_keywords" v-model="configs.site_keywords" placeholder="外贸,服装,时尚,购物" class="w-full" />
             <small class="text-gray-500">多个关键词用逗号分隔</small>
           </div>
 
@@ -114,13 +82,8 @@
             <label for="site_description" class="block text-sm font-medium text-gray-700 mb-2">
               网站描述
             </label>
-            <Textarea
-              id="site_description"
-              v-model="configs.site_description"
-              placeholder="专业的外贸服装购物平台"
-              rows="4"
-              class="w-full"
-            />
+            <Textarea id="site_description" v-model="configs.site_description" placeholder="专业的外贸服装购物平台" rows="4"
+              class="w-full" />
             <small class="text-gray-500">网站SEO描述，显示在搜索结果中</small>
           </div>
         </div>
@@ -134,14 +97,8 @@
               <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-2">
                 联系邮箱
               </label>
-              <InputText
-                id="contact_email"
-                v-model="configs.contact_email"
-                placeholder="contact@example.com"
-                type="email"
-                class="w-full"
-                :class="{ 'p-invalid': errors.contact_email }"
-              />
+              <InputText id="contact_email" v-model="configs.contact_email" placeholder="contact@example.com"
+                type="email" class="w-full" :class="{ 'p-invalid': errors.contact_email }" />
               <small v-if="errors.contact_email" class="p-error">{{ errors.contact_email }}</small>
             </div>
 
@@ -149,12 +106,8 @@
               <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-2">
                 联系电话
               </label>
-              <InputText
-                id="contact_phone"
-                v-model="configs.contact_phone"
-                placeholder="+86 400-123-4567"
-                class="w-full"
-              />
+              <InputText id="contact_phone" v-model="configs.contact_phone" placeholder="+86 400-123-4567"
+                class="w-full" />
             </div>
           </div>
 
@@ -163,13 +116,8 @@
               <label for="contact_address" class="block text-sm font-medium text-gray-700 mb-2">
                 联系地址
               </label>
-              <Textarea
-                id="contact_address"
-                v-model="configs.contact_address"
-                placeholder="请输入公司地址"
-                rows="3"
-                class="w-full"
-              />
+              <Textarea id="contact_address" v-model="configs.contact_address" placeholder="请输入公司地址" rows="3"
+                class="w-full" />
             </div>
           </div>
         </div>
@@ -182,25 +130,15 @@
             <label for="icp_number" class="block text-sm font-medium text-gray-700 mb-2">
               ICP备案号
             </label>
-            <InputText
-              id="icp_number"
-              v-model="configs.icp_number"
-              placeholder="京ICP备12345678号"
-              class="w-full"
-            />
+            <InputText id="icp_number" v-model="configs.icp_number" placeholder="京ICP备12345678号" class="w-full" />
           </div>
 
           <div class="field">
             <label for="copyright" class="block text-sm font-medium text-gray-700 mb-2">
               版权信息
             </label>
-            <Textarea
-              id="copyright"
-              v-model="configs.copyright"
-              placeholder="© 2024 公司名称 All Rights Reserved"
-              rows="3"
-              class="w-full"
-            />
+            <Textarea id="copyright" v-model="configs.copyright" placeholder="© 2024 公司名称 All Rights Reserved" rows="3"
+              class="w-full" />
             <small class="text-gray-500">显示在网站底部的版权信息</small>
           </div>
         </div>
@@ -211,7 +149,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { apiFetch } from '../../utils/api'
+import { client } from '@/share/useTreaty'
 import { useToast } from 'primevue/usetoast'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -266,11 +204,11 @@ const currencyOptions = [
 const loadConfigs = async () => {
   try {
     loading.value = true
-    const response = await apiFetch('/api/site-config')
-    
-    if (response.success && response.data) {
+
+    const { data, error } = await client.api['site-config'].get()
+    if (data) {
       // 将配置数组转换为对象
-      response.data.forEach((config: any) => {
+      data.forEach((config: any) => {
         if (config.key in configs) {
           // 处理数字类型
           if (config.key === 'free_shipping_threshold') {
@@ -280,7 +218,7 @@ const loadConfigs = async () => {
           }
         }
       })
-      
+
       // 保存原始数据
       Object.assign(originalConfigs, configs)
     }
@@ -300,23 +238,23 @@ const loadConfigs = async () => {
 // 验证表单
 const validateForm = () => {
   let isValid = true
-  
+
   // 清空错误
   errors.site_name = ''
   errors.contact_email = ''
-  
+
   // 验证网站名称
   if (!configs.site_name.trim()) {
     errors.site_name = '网站名称不能为空'
     isValid = false
   }
-  
+
   // 验证邮箱格式
   if (configs.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(configs.contact_email)) {
     errors.contact_email = '请输入有效的邮箱地址'
     isValid = false
   }
-  
+
   return isValid
 }
 
@@ -331,29 +269,26 @@ const saveConfigs = async () => {
     })
     return
   }
-  
+
   try {
     saving.value = true
-    
+
     // 准备批量更新数据
     const updateData = Object.entries(configs).map(([key, value]) => ({
       key,
       value: String(value)
     }))
-    
-    const response = await apiFetch('/api/site-config/batch', {
-      method: 'PATCH',
-      body: updateData
-    })
-    
-    if (response.success) {
+
+    const { data, error } = await client.api['site-config'].batch.patch(updateData)
+
+    if (data) {
       toast.add({
         severity: 'success',
         summary: '成功',
         detail: '配置保存成功',
         life: 3000
       })
-      
+
       // 更新原始数据
       Object.assign(originalConfigs, configs)
     } else {
@@ -375,11 +310,11 @@ const saveConfigs = async () => {
 // 重置配置
 const resetConfigs = () => {
   Object.assign(configs, originalConfigs)
-  
+
   // 清空错误
   errors.site_name = ''
   errors.contact_email = ''
-  
+
   toast.add({
     severity: 'info',
     summary: '提示',
@@ -391,11 +326,9 @@ const resetConfigs = () => {
 // 初始化默认配置
 const initializeConfigs = async () => {
   try {
-    const response = await apiFetch('/api/site-config/initialize', {
-      method: 'POST'
-    })
-    
-    if (response.success) {
+    const { data, error } = await client.api['site-config'].initialize.post()
+
+    if (data) {
       await loadConfigs()
       toast.add({
         severity: 'success',
@@ -412,7 +345,7 @@ const initializeConfigs = async () => {
 // 组件挂载时加载数据
 onMounted(async () => {
   await loadConfigs()
-  
+
   // 如果没有配置数据，初始化默认配置
   if (!configs.site_name) {
     await initializeConfigs()
@@ -456,11 +389,11 @@ onMounted(async () => {
   .site-config-page {
     padding: 16px;
   }
-  
+
   .grid-cols-2 {
     grid-template-columns: 1fr;
   }
-  
+
   .p-tabview-panels {
     padding: 1rem;
   }

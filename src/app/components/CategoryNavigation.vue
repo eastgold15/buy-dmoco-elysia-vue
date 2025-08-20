@@ -93,7 +93,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { apiFetch } from '../utils/api';
+import { client } from '@/share/useTreaty';
 import type { Category } from '../types/category';
 
 // Props
@@ -143,11 +143,11 @@ const visibleCategories = computed(() => {
 const loadCategories = async () => {
 	loading.value = true;
 	try {
-		const response = await apiFetch('/api/categories/tree');
-		if (response.success && response.data) {
-			categories.value = response.data.filter((cat: Category) => cat.isVisible);
+		const { data, error } = await client.api.categories.tree.get();
+		if (data && Array.isArray(data)) {
+			categories.value = data.filter((cat: Category) => cat.isVisible);
 		} else {
-			console.error('获取分类失败:', response.error);
+			console.error('获取分类失败:', error);
 			categories.value = [];
 		}
 	} catch (error) {

@@ -63,7 +63,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { apiFetch } from '../utils/api';
+import { client } from '@/share/useTreaty';
+import Carousel from 'primevue/carousel';
 import type { Advertisement } from '../types/advertisement';
 
 // Props
@@ -109,12 +110,12 @@ const carouselStyle = computed(() => ({
 const loadCarouselAds = async () => {
 	loading.value = true;
 	try {
-		const response = await apiFetch('/api/advertisements/carousel');
+		const { data, error } = await client.api.advertisements.carousel.get();
 		
-		if (response.success && response.data) {
-			advertisements.value = response.data;
+		if (data) {
+			advertisements.value = data;
 		} else {
-			console.error('获取轮播图广告失败:', response.error);
+			console.error('获取轮播图广告失败:', error);
 			advertisements.value = [];
 		}
 	} catch (error) {
