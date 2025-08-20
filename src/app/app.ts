@@ -9,10 +9,15 @@ import {
 
 import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';
+import ConfirmationService from 'primevue/confirmationservice';
+import ToastService from 'primevue/toastservice';
+import Tooltip from 'primevue/tooltip';
+import 'primeicons/primeicons.css';
 import 'virtual:uno.css';
 import CountView from "./pages/test.vue";
 import HomeView from "./pages/HomeView.vue";
 import ProductDetail from "./pages/ProductDetail.vue";
+import CategoryManagement from "./pages/admin/CategoryManagement.vue";
 
 
 export const createApp = async () => {
@@ -39,6 +44,11 @@ export const createApp = async () => {
 				name: "product-detail",
 				component: ProductDetail,
 			},
+			{
+				path: "/admin/categories",
+				name: "category-management",
+				component: CategoryManagement,
+			},
 		],
 	});
 
@@ -48,6 +58,9 @@ export const createApp = async () => {
 			preset: Aura
 		}
 	});
+	app.use(ConfirmationService);
+	app.use(ToastService);
+	app.directive('tooltip', Tooltip);
 
 	return { app, router };
 };

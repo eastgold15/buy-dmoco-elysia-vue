@@ -2,7 +2,7 @@ import { createApp } from "@/app/app";
 import * as page from "client:page";
 import { Elysia } from "elysia";
 import { renderToString } from "vue/server-renderer";
-import { api } from ".";
+import { api } from "./src";
 const app = new Elysia()
     .onRequest(async ({ request }) => {
         const { pathname } = new URL(request.url)

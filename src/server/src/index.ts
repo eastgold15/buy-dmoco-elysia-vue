@@ -1,6 +1,6 @@
 import Elysia from "elysia";
 import { CategoryService } from './services/categoryService';
-import type { CreateCategoryRequest, UpdateCategoryRequest, ApiResponse } from './types/category';
+import type { CreateCategoryRequest, UpdateCategoryRequest, ApiResponse } from '../types/category';
 
 export const api = new Elysia()
     // 原有接口
@@ -13,9 +13,9 @@ export const api = new Elysia()
     
     // 分类管理API
     // 获取分类树形结构
-    .get('/categories/tree', () => {
+    .get('/categories/tree', async () => {
         try {
-            const categoryTree = CategoryService.getCategoryTree();
+            const categoryTree = await CategoryService.getCategoryTree();
             const response: ApiResponse<typeof categoryTree> = {
                 success: true,
                 data: categoryTree
@@ -31,9 +31,9 @@ export const api = new Elysia()
     })
     
     // 获取所有分类（管理后台用）
-    .get('/categories', () => {
+    .get('/categories', async () => {
         try {
-            const categories = CategoryService.getAllCategories();
+            const categories = await CategoryService.getAllCategories();
             const response: ApiResponse<typeof categories> = {
                 success: true,
                 data: categories
@@ -49,9 +49,9 @@ export const api = new Elysia()
     })
     
     // 根据ID获取分类
-    .get('/categories/:id', ({ params: { id } }) => {
+    .get('/categories/:id', async ({ params: { id } }) => {
         try {
-            const category = CategoryService.getCategoryById(id);
+            const category = await CategoryService.getCategoryById(id);
             if (!category) {
                 const response: ApiResponse<null> = {
                     success: false,
@@ -74,10 +74,10 @@ export const api = new Elysia()
     })
     
     // 创建分类
-    .post('/categories', ({ body }) => {
+    .post('/categories', async ({ body }) => {
         try {
             const categoryData = body as CreateCategoryRequest;
-            const newCategory = CategoryService.createCategory(categoryData);
+            const newCategory = await CategoryService.createCategory(categoryData);
             const response: ApiResponse<typeof newCategory> = {
                 success: true,
                 data: newCategory,
@@ -94,10 +94,10 @@ export const api = new Elysia()
     })
     
     // 更新分类
-    .put('/categories/:id', ({ params: { id }, body }) => {
+    .put('/categories/:id', async ({ params: { id }, body }) => {
         try {
             const updateData = body as UpdateCategoryRequest;
-            const updatedCategory = CategoryService.updateCategory(id, updateData);
+            const updatedCategory = await CategoryService.updateCategory(id, updateData);
             if (!updatedCategory) {
                 const response: ApiResponse<null> = {
                     success: false,
@@ -121,9 +121,9 @@ export const api = new Elysia()
     })
     
     // 删除分类
-    .delete('/categories/:id', ({ params: { id } }) => {
+    .delete('/categories/:id', async ({ params: { id } }) => {
         try {
-            const deleted = CategoryService.deleteCategory(id);
+            const deleted = await CategoryService.deleteCategory(id);
             if (!deleted) {
                 const response: ApiResponse<null> = {
                     success: false,
@@ -146,9 +146,9 @@ export const api = new Elysia()
     })
     
     // 获取子分类
-    .get('/categories/:id/children', ({ params: { id } }) => {
+    .get('/categories/:id/children', async ({ params: { id } }) => {
         try {
-            const children = CategoryService.getChildCategories(id);
+            const children = await CategoryService.getChildCategories(id);
             const response: ApiResponse<typeof children> = {
                 success: true,
                 data: children
@@ -158,6 +158,57 @@ export const api = new Elysia()
             const response: ApiResponse<null> = {
                 success: false,
                 error: error instanceof Error ? error.message : '获取子分类失败'
+            };
+            return response;
+        }
+    })
+    
+    // 更新分类排序
+    .patch('/categories/:id/sort', async ({ params: { id }, body }) => {
+        try {
+            const { sortOrder } = body as { sortOrder: number };
+            const updated = await CategoryService.updateCategorySort(id, sortOrder);
+            if (!updated) {
+                const response: ApiResponse<null> = {
+                    success: false,
+                    error: '分类不存在'
+                };
+                return response;
+            }
+            const response: ApiResponse<null> = {
+                success: true,
+                message: '排序更新成功'
+            };
+            return response;
+        } catch (error) {
+            const response: ApiResponse<null> = {
+                success: false,
+                error: error instanceof Error ? error.message : '更新排序失败'
+            };
+            return response;
+        }
+    })
+    
+    // 切换分类显示状态
+    .patch('/categories/:id/toggle-visibility', async ({ params: { id } }) => {
+        try {
+            const updated = await CategoryService.toggleCategoryVisibility(id);
+            if (!updated) {
+                const response: ApiResponse<null> = {
+                    success: false,
+                    error: '分类不存在'
+                };
+                return response;
+            }
+            const response: ApiResponse<null> = {
+                success: true,
+                message: '显示状态切换成功'
+            };
+            return response;
+        } catch (error) {
+            const response: ApiResponse<null> = {
+                success: false,
+                error: error instanceof Error ? error.message : '切换显示状态失败'
             };
             return response;
         }
