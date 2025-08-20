@@ -91,7 +91,7 @@ export const advertisementsSchema = pgTable("advertisements", {
 	id: serial("id").primaryKey(), // 广告ID
 	title: varchar("title", { length: 255 }).notNull(), // 广告标题
 	type: varchar("type", { length: 50 }).notNull(), // 广告类型：banner, carousel
-	image: varchar("image", { length: 500 }).notNull(), // 广告图片
+	image: text("image").notNull(), // 广告图片（支持base64格式）
 	link: varchar("link", { length: 500 }), // 广告链接
 	position: varchar("position", { length: 100 }), // 广告位置
 	sortOrder: integer("sort_order").default(0), // 排序
@@ -102,13 +102,28 @@ export const advertisementsSchema = pgTable("advertisements", {
 	updatedAt: timestamp("updated_at").defaultNow(), // 更新时间
 });
 
-// 技能效果表 (保留原有表)
-export const skillEffectsSchema = pgTable("skill_effect", {
-	id: serial("id").primaryKey(), // 效果ID
-	buffName: varchar("buff_name", { length: 50 }).notNull(),
-	maxFloor: integer("max_floor").notNull(),
-	value: integer("value").notNull(), // 效果值
-	negative: boolean("negative"), // 是否为负效果
-	buffLv: integer("buffLv").notNull(), // buff的驱散等级
-	description: text("description"), // 效果描述
+// 顶部配置表
+export const headerConfigSchema = pgTable("header_config", {
+	id: serial("id").primaryKey(),
+	shippingText: varchar("shipping_text", { length: 200 }).default("FREE SHIPPING on orders over $59* details"), // 免运费信息
+	trackOrderText: varchar("track_order_text", { length: 100 }).default("Track Order"), // 订单跟踪文本
+	helpText: varchar("help_text", { length: 100 }).default("Help"), // 帮助文本
+	trackOrderUrl: varchar("track_order_url", { length: 255 }).default("#"), // 订单跟踪链接
+	helpUrl: varchar("help_url", { length: 255 }).default("#"), // 帮助链接
+	isActive: boolean("is_active").default(true), // 是否启用
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// 底部配置表
+export const footerConfigSchema = pgTable("footer_config", {
+	id: serial("id").primaryKey(),
+	sectionTitle: varchar("section_title", { length: 100 }).notNull(), // 分区标题 (如 "For You", "Connect with Us")
+	linkText: varchar("link_text", { length: 100 }).notNull(), // 链接文本
+	linkUrl: varchar("link_url", { length: 255 }).notNull(), // 链接地址
+	sortOrder: integer("sort_order").default(0), // 排序
+	isActive: boolean("is_active").default(true), // 是否启用
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
+});
+

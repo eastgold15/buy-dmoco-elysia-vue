@@ -1,16 +1,19 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import CategoryNav from '../components/CategoryNav.vue';
 import Drawer from 'primevue/drawer';
 import Button from 'primevue/button';
 import Menu from 'primevue/menu';
 
+const router = useRouter();
 const isMobileMenuOpen = ref(false);
 const currentLanguage = ref('中文');
 const isUserLoggedIn = ref(false);
 const isDarkMode = ref(false);
 const languageMenu = ref();
 const mobileLanguageMenu = ref();
+const searchQuery = ref('');
 
 // 语言选项
 const languageOptions = ref([
@@ -66,6 +69,15 @@ const toggleFavorites = () => {
 const handleLogin = () => {
 	// TODO: 实现登录功能
 	console.log('处理登录');
+};
+
+const handleSearch = () => {
+	if (searchQuery.value.trim()) {
+		router.push({
+			path: '/search',
+			query: { q: searchQuery.value.trim() }
+		});
+	}
 };
 
 // 初始化主题
@@ -127,8 +139,14 @@ onMounted(() => {
 						<div class="header-right">
 							<!-- 搜索框 -->
 							<div class="search-box">
-								<input type="text" placeholder="搜索商品..." class="search-input">
-								<button class="search-btn">
+								<input 
+									type="text" 
+									placeholder="搜索商品..." 
+									class="search-input"
+									v-model="searchQuery"
+									@keyup.enter="handleSearch"
+								>
+								<button class="search-btn" @click="handleSearch">
 									<div class="i-ic:baseline-search"></div>
 								</button>
 							</div>

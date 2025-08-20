@@ -27,6 +27,9 @@ const currentPageTitle = computed(() => {
 	if (path.includes('/orders')) return '订单管理';
 	if (path.includes('/users')) return '用户管理';
 	if (path.includes('/settings')) return '网站设置';
+	if (path.includes('/header-config')) return '顶部配置管理';
+	if (path.includes('/footer-config')) return '底部配置管理';
+	if (path.includes('/advertisements')) return '广告管理';
 	if (path.includes('/reports')) return '统计报表';
 	return '仪表盘';
 });
@@ -98,6 +101,21 @@ const menuItems = ref([
 				label: '基本设置',
 				icon: 'pi pi-info-circle',
 				command: () => router.push('/admin/settings')
+			},
+			{
+				label: '顶部配置',
+				icon: 'pi pi-window-maximize',
+				command: () => router.push('/admin/header-config')
+			},
+			{
+				label: '底部配置',
+				icon: 'pi pi-window-minimize',
+				command: () => router.push('/admin/footer-config')
+			},
+			{
+				label: '广告管理',
+				icon: 'pi pi-image',
+				command: () => router.push('/admin/advertisements')
 			},
 			{
 				label: '支付设置',
@@ -182,6 +200,7 @@ const toggleUserMenu = (event) => {
 			<div class="header-right">
 				<!-- 通知 -->
 				<Button icon="pi pi-bell" class="notification-btn" text>
+					<i class="pi pi-bell"></i>
 					<Badge value="3" severity="danger" class="notification-badge" />
 				</Button>
 

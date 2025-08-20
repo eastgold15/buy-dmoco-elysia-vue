@@ -102,7 +102,7 @@ export class EnvConfig {
 					join(projectRoot, "src", "server", "src", ".container", "dev", ".env.development"),
 					// join(projectRoot,"src", "server","src", ".container", "dev", ".env"),
 					// join(projectRoot, ".env.development"),
-					join(projectRoot, "src", "server", ".env"),
+					join(projectRoot, ".env"),
 				);
 				break;
 			case "production":
@@ -110,7 +110,7 @@ export class EnvConfig {
 					join(projectRoot, "src", "server", "src", ".container", "prod", ".env.production"),
 					// join(projectRoot,"src", "server","src", ".container", "prod", ".env"),
 					// join(projectRoot, ".env.production"),
-					join(projectRoot, "src", "server", ".env"),
+					join(projectRoot, ".env"),
 				);
 				break;
 			case "test":

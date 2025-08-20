@@ -141,7 +141,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
-import { $fetch } from 'ofetch';
+import { apiFetch } from '../utils/api';
 
 // Props
 interface Props {
@@ -248,7 +248,7 @@ const fetchCategories = async () => {
     loading.value = true;
     error.value = null;
     
-    const response = await $fetch<ApiResponse<CategoryTree[]>>('/api/categories/tree');
+    const response = await apiFetch<ApiResponse<CategoryTree[]>>('/api/categories/tree');
     
     if (response.success && response.data) {
       categories.value = response.data;

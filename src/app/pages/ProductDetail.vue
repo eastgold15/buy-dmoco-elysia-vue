@@ -235,6 +235,20 @@
       </div>
     </div>
 
+    <!-- Banner广告区域 -->
+    <div class="banner-ads-section mt-8 mb-8">
+      <BannerAds 
+        position="product-detail"
+        :show-title="false"
+        height="150px"
+        layout="horizontal"
+        :gap="'1rem'"
+        :rounded="true"
+        :shadow="true"
+        :show-empty="false"
+      />
+    </div>
+
     <!-- 相关推荐 -->
     <div class="related-products bg-white py-12">
       <div class="max-w-7xl mx-auto px-4">
@@ -273,7 +287,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import type { Product, ProductColor, ProductSize } from '../../server/types/product'
+import BannerAds from '../components/BannerAds.vue'
+import type { Product, ProductColor, ProductSize } from '../types/product'
 
 // 路由相关
 const route = useRoute()

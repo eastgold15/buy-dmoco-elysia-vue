@@ -227,7 +227,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { $fetch } from 'ofetch'
+import { apiFetch } from '../../utils/api'
 
 // PrimeVue 组件
 import Button from 'primevue/button'
@@ -336,7 +336,7 @@ const categoryTreeOptions = computed(() => {
 const loadCategories = async () => {
   try {
     loading.value = true
-    const response = await $fetch('/api/categories')
+    const response = await apiFetch('/api/categories')
     if (response.success) {
       categories.value = buildCategoryTree(response.data)
     } else {
@@ -514,13 +514,13 @@ const saveCategory = async () => {
     let response
     if (editingCategory.value) {
       // 更新分类
-      response = await $fetch(`/api/categories/${editingCategory.value.id}`, {
+      response = await apiFetch(`/api/categories/${editingCategory.value.id}`, {
         method: 'PUT',
         body: requestData
       })
     } else {
       // 创建分类
-      response = await $fetch('/api/categories', {
+      response = await apiFetch('/api/categories', {
         method: 'POST',
         body: requestData
       })
@@ -547,7 +547,7 @@ const saveCategory = async () => {
 
 const updateSort = async (categoryId: string, sortOrder: number) => {
   try {
-    const response = await $fetch(`/api/categories/${categoryId}/sort`, {
+    const response = await apiFetch(`/api/categories/${categoryId}/sort`, {
       method: 'PATCH',
       body: { sortOrder }
     })
@@ -567,7 +567,7 @@ const updateSort = async (categoryId: string, sortOrder: number) => {
 
 const moveCategoryUp = async (category: Category) => {
   try {
-    const response = await $fetch(`/api/categories/${category.id}/move-up`, {
+    const response = await apiFetch(`/api/categories/${category.id}/move-up`, {
       method: 'PATCH'
     })
 
@@ -585,7 +585,7 @@ const moveCategoryUp = async (category: Category) => {
 
 const moveCategoryDown = async (category: Category) => {
   try {
-    const response = await $fetch(`/api/categories/${category.id}/move-down`, {
+    const response = await apiFetch(`/api/categories/${category.id}/move-down`, {
       method: 'PATCH'
     })
 
@@ -604,7 +604,7 @@ const moveCategoryDown = async (category: Category) => {
 
 const toggleVisibility = async (categoryId: string) => {
   try {
-    const response = await $fetch(`/api/categories/${categoryId}/toggle-visibility`, {
+    const response = await apiFetch(`/api/categories/${categoryId}/toggle-visibility`, {
       method: 'PATCH'
     })
 
@@ -633,7 +633,7 @@ const confirmDelete = (category: Category) => {
 
 const deleteCategory = async (categoryId: string) => {
   try {
-    const response = await $fetch(`/api/categories/${categoryId}`, {
+    const response = await apiFetch(`/api/categories/${categoryId}`, {
       method: 'DELETE'
     })
 

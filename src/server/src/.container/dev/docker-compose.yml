@@ -4,7 +4,7 @@ services:
     container_name: buy_postgres
     env_file:
       - .env.development
-      - ../../../.env
+      - ../../../../../.env
     environment:
       POSTGRES_USER: ${DB_USER:-app_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-app_pass}

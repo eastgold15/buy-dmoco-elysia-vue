@@ -1,7 +1,7 @@
 import { eq, desc, asc, and, isNull, sql } from 'drizzle-orm';
 import { db } from '../db/connection';
 import { categoriesSchema } from '../db/schema/schema';
-import type { Category, CategoryTree, CreateCategoryRequest, UpdateCategoryRequest } from '../../types/category';
+import type { Category, CategoryTree, CreateCategoryRequest, UpdateCategoryRequest } from '../types/category';
 
 // 数据库类型到业务类型的转换
 function dbCategoryToCategory(dbCategory: any): Category {

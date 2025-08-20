@@ -21,8 +21,8 @@ const app = new Elysia()
             headers: { "Content-Type": "text/html; charset=utf-8" },
         });
     })
-    .mount('/api', api)
+    .use(api)
 
 
-
+export type EndApp = typeof app
 export default app;

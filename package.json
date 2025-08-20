@@ -14,14 +14,16 @@
     "docker:logs": "docker-compose -f src/server/src/.container/dev/docker-compose.yml logs -f",
     "db:generate": "drizzle-kit generate --config=src/server/src/.container/dev/drizzle-dev.config.ts",
     "db:migrate": "drizzle-kit migrate --config=src/server/src/.container/dev/drizzle-dev.config.ts",
-    "db:comments": "bun run src/db/comment/schema-comments.ts",
+    "db:comments": "bun run src/server/src/db/comment/schema-comments.ts",
     "db:schema": "bun run src/server/scripts/schema/cli.ts",
     "db:push": "bun run db:schema && drizzle-kit push --config=src/server/src/.container/dev/drizzle-dev.config.ts",
     "db:studio": "drizzle-kit studio --config=src/server/src/.container/dev/drizzle-dev.config.ts",
     "db:setup": "bun run docker:dev && sleep 5 && bun run db:push"
   },
   "dependencies": {
+    "@elysiajs/eden": "^1.3.2",
     "@elysiajs/html": "^1.3.1",
+    "@elysiajs/swagger": "^1.3.1",
     "@primeuix/themes": "^1.2.3",
     "@sinclair/typebox": "^0.34.0",
     "dotenv": "^17.2.1",

@@ -16,3 +16,5 @@ export const dbTable = {
 	insert: spreads(dbSchema, "insert"),
 	select: spreads(dbSchema, "select"),
 } as const;
+
+type  a=   typeof  dbTable.select.footerConfigSchema
