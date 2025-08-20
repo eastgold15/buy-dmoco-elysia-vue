@@ -25,15 +25,12 @@ import SiteConfig from "./pages/admin/SiteConfig.vue";
 import HeaderConfig from "./pages/admin/HeaderConfig.vue";
 import FooterConfig from "./pages/admin/FooterConfig.vue";
 import AdvertisementManagement from "./pages/admin/AdvertisementManagement.vue";
+import ImageManager from "./pages/admin/ImageManager.vue";
 import Search from "./pages/Search.vue";
 
 
 export const createApp = async () => {
 	const app = createSSRApp(App);
-
-
-
-
 	const router = createRouter({
 		history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),
 		routes: [
@@ -81,6 +78,11 @@ export const createApp = async () => {
 				path: "/admin/advertisements",
 				name: "admin-advertisements",
 				component: AdvertisementManagement,
+			},
+			{
+				path: "/admin/images",
+				name: "image-manager",
+				component: ImageManager,
 			},
 		],
 	});

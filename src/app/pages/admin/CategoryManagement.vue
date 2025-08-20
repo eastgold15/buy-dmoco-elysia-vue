@@ -48,10 +48,10 @@
         </Column>
 
         <!-- 排序列 -->
-        <Column field="sort" header="排序" style="width: 120px">
+        <Column field="sortOrder" header="排序" style="width: 120px">
           <template #body="{ node }">
             <div class="flex items-center gap-2">
-              <Button :label="node.data.sort.toString()" size="small" severity="secondary" outlined />
+              <Button :label="node.data.sortOrder.toString()" size="small" severity="secondary" outlined />
             </div>
           </template>
         </Column>
@@ -123,7 +123,7 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium mb-2">排序</label>
-            <InputNumber v-model="categoryForm.sort" :min="0" :max="9999" placeholder="排序值" class="w-full" />
+            <InputNumber v-model="categoryForm.sortOrder" :min="0" :max="9999" placeholder="排序值" class="w-full" />
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">图标</label>
@@ -251,7 +251,7 @@ interface Category {
   name: string
   parentId?: string
   level: number
-  sort: number
+  sortOrder: number
   isVisible: boolean
   description?: string
   icon?: string
@@ -271,7 +271,7 @@ interface CategoryForm {
   slug?: string
   parentId?: string
   description?: string
-  sort: number
+  sortOrder: number
   isVisible: boolean
   icon?: string
   image?: string
@@ -293,7 +293,7 @@ const categoryForm = ref<CategoryForm>({
   slug: '',
   parentId: undefined,
   description: '',
-  sort: 0,
+  sortOrder: 0,
   isVisible: true,
   icon: '',
   image: ''
@@ -336,14 +336,17 @@ const categoryTreeOptions = computed(() => {
 const loadCategories = async () => {
   try {
     loading.value = true
-    const { data, error } = await client.api.categories.get()
-    if (data) {
-      categories.value = buildCategoryTree(data)
+    const response = await client.api.categories.get()
+    if (response.data && response.data.code === 200 && Array.isArray(response.data.data)) {
+      categories.value = buildCategoryTree(response.data.data)
     } else {
-      toast.add({ severity: 'error', summary: '错误', detail: error || '加载分类失败' })
+      console.error('API返回的数据格式错误:', response.data)
+      categories.value = []
+      toast.add({ severity: 'error', summary: '错误', detail: response.data?.message || '加载分类失败' })
     }
   } catch (error) {
     console.error('加载分类失败:', error)
+    categories.value = []
     toast.add({ severity: 'error', summary: '错误', detail: '加载分类失败' })
   } finally {
     loading.value = false
@@ -456,7 +459,7 @@ const showCreateChildDialog = (parentCategory: Category) => {
     name: '',
     parentId: parentCategory.id,
     description: '',
-    sort: 0,
+    sortOrder: 0,
     isVisible: true,
     icon: ''
   }
@@ -470,7 +473,7 @@ const showEditDialog = (category: Category) => {
     slug: category.slug,
     parentId: category.parentId,
     description: category.description || '',
-    sort: category.sort,
+    sortOrder: category.sortOrder,
     isVisible: category.isVisible,
     icon: category.icon || '',
     image: category.image || ''
@@ -486,7 +489,7 @@ const closeDialog = () => {
     slug: '',
     parentId: undefined,
     description: '',
-    sort: 0,
+    sortOrder: 0,
     isVisible: true,
     icon: '',
     image: ''
@@ -504,11 +507,13 @@ const saveCategory = async () => {
 
     const requestData = {
       name: categoryForm.value.name,
+      slug: categoryForm.value.slug,
       parentId: categoryForm.value.parentId || undefined,
       description: categoryForm.value.description,
-      sort: categoryForm.value.sort,
+      sortOrder: categoryForm.value.sortOrder,
       isVisible: categoryForm.value.isVisible,
-      icon: categoryForm.value.icon
+      icon: categoryForm.value.icon,
+      image: categoryForm.value.image
     }
 
     let result

@@ -7,7 +7,7 @@ export interface Category {
 	name: string;
 	parentId?: string;
 	level: number;
-	sort: number;
+	sortOrder: number;
 	isVisible: boolean;
 	description?: string;
 	icon?: string;
@@ -34,7 +34,7 @@ export interface CategoryForm {
 	icon?: string;
 	image?: string;
 	isVisible: boolean;
-	sort: number;
+	sortOrder: number;
 	metaTitle?: string;
 	metaDescription?: string;
 }

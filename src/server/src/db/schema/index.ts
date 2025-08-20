@@ -1,20 +1,39 @@
-// 导出所有数据库模式
+/**
+ * 自动生成的数据库 Schema 文件
+ * 请勿手动修改此文件，运行 `bun run generate:schema` 重新生成
+ * 生成时间: 2025-08-20T17:41:30.768Z
+ */
 
+import { userSchema, tokenSchema } from './auth.ts';
+import { categoriesSchema, productsSchema, reviewsSchema, siteConfigSchema, advertisementsSchema, headerConfigSchema, footerConfigSchema, imagesSchema } from './schema.ts';
+
+export const dbSchema = {
+  userSchema,
+  tokenSchema,
+  categoriesSchema,
+  productsSchema,
+  reviewsSchema,
+  siteConfigSchema,
+  advertisementsSchema,
+  headerConfigSchema,
+  footerConfigSchema,
+  imagesSchema,
+};
+// 导出所有扫描到的数据库模式文件
 export * from "./auth.ts";
 export * from "./schema.ts";
 
+/**
+ * 数据库 Schema 类型
+ */
+export type DbSchema = typeof dbSchema;
 
-// ------------------上面是导出schema--------------------------------------
-// - 导出 dbTable 对象，包含 insert 和 select 两个经过处理的数据库模式
-// - 主要用于类型转换，将 Drizzle 表结构转为 TypeBox 类型
+/**
+ * 所有表的名称列表
+ */
+export const tableNames = ['userSchema', 'tokenSchema', 'categoriesSchema', 'productsSchema', 'reviewsSchema', 'siteConfigSchema', 'advertisementsSchema', 'headerConfigSchema', 'footerConfigSchema', 'imagesSchema'] as const;
 
-import { spreads } from "../../utils/dizzle.type.ts";
-// 生成所有的shema
-import { dbSchema } from "./generated-schema.ts";
-// 导出 TypeBox 类型
-export const dbTable = {
-	insert: spreads(dbSchema, "insert"),
-	select: spreads(dbSchema, "select"),
-} as const;
-
-type  a=   typeof  dbTable.select.footerConfigSchema
+/**
+ * 表名称类型
+ */
+export type TableName = typeof tableNames[number];

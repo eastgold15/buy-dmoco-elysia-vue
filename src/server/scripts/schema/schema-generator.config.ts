@@ -25,7 +25,8 @@ export interface SchemaGeneratorConfig {
  */
 export const defaultConfig: SchemaGeneratorConfig = {
 	schemaDir: "src/server/src/db/schema",
-	outputFile: "src/server/src/db/schema/generated-schema.ts",
+	// outputFile: "src/server/src/db/schema/generated-schema.ts",
+	outputFile: "src/server/src/db/schema/index.ts",
 	excludePatterns: [
 		"**/generated-*.ts",
 		"**/index.ts",

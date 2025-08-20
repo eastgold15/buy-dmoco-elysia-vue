@@ -1,83 +1,126 @@
+# 项目规则总览
+
+本项目是一个基于现代技术栈的外贸电商网站系统，采用全栈TypeScript开发。
+
+## 技术栈
 1. 项目是 https://domco.robino.dev/tutorial 提供的全栈框架
-2. ui 组件是unocss 和 primevue ，组件尽量使用primevue 提供的组件
-3. 项目后端是elysia 框架，前端是vue3
-4. 使用ofetch 来请求后端api
+2. UI 组件是 UnoCSS 和 PrimeVue，组件尽量使用 PrimeVue 提供的组件
+3. 项目后端是 Elysia 框架，前端是 Vue3
+4. 使用 eden 来请求后端 API
+5. 图标使用 @iconify-json/ic
+6. 包管理器使用 Bun
+7. 数据库使用 PostgreSQL + Drizzle ORM
+8. 类型验证使用 TypeBox
+9. 类型方面后端为主
 
+## 核心规范文档
 
+### 📋 [后端代码规范](./backend_coding_standards.md)
+- 类型定义和自动生成规范
+- 数据库操作最佳实践
+- API设计和错误处理
+- 安全和性能优化
+
+### 🎨 [前端代码规范](./frontend_coding_standards.md)
+- Vue 3 组合式API使用
+- PrimeVue组件规范
+- 状态管理和API请求
+- 样式和性能优化
+
+### 🏗️ [项目架构](./project_architecture.md)
+- 整体架构设计
+- 数据库和API设计
+- 安全和性能架构
+- 部署和监控策略
 
 ## 项目目标
- 做一个可以配置的外贸网站，提供给小商户去售卖衣服服装类。
- 1. 分类 网站有一个商品分类，当时鼠标移动上去，展开一个下拉框，展示该分类下的商品。有一个后台管理，可以管理分类栏目。需要有：显示/隐藏	排序、操作、栏目名称 。应该是一个树形。
 
- 2. 商品 每个商品有一个详情页，展示商品的详细信息，包括图片、价格、描述等
- 5. 支付 订单支付完成后，会跳转到支付成功页面，展示支付成功信息
- 6. 广告管理，广告分为轮播图广告和 banner 广告。轮播图广告在首页展示，banner 广告在商品详情页展示。后台可以上传图片管理，替换广告的连接和图片
- 7. 网站管理 站点名称，logo、关键字、备案号、站点版权
- 8. 底部可以配置，应该有这些信息For You
-Favorites
-Gift Cards
-Afterpay
-Connect with Us
-Back to top
-Terms of Use
-Privacy & Cookie Policy
-Text Messaging Terms
-Bulk Buyer Policy
-Accessibility
-Do Not Sell or Share My Personal Information
-© 2024 WWW.APPARELCITY.COM.CN All Rights Reserved 赣ICP备2024041550号-5
+做一个可以配置的外贸网站，提供给小商户去售卖衣服服装类。
 
-9. 顶部有这些信息，FREE SHIPPING on orders over $59* details
-Sign InSign In
-Join Rewards
-Track Order
- Facility: Alderwood Mall
- 也是可以配置 
+### 功能模块
 
- 10. 需要有商品搜索功能
+1. **分类管理** - 网站有一个商品分类，当鼠标移动上去，展开一个下拉框，展示该分类下的商品。有一个后台管理，可以管理分类栏目。需要有：显示/隐藏、排序、操作、栏目名称。应该是一个树形。
 
+2. **商品管理** - 每个商品有一个详情页，展示商品的详细信息，包括图片、价格、描述等
 
-11. 商品 需要有这些信息 
-JACK & JONES Blupaulin Knit Mens Polo Shirt
-$54.99
-or 4 payments of $13.75 by Learn more
-Color: BLACK
+3. **支付系统** - 订单支付完成后，会跳转到支付成功页面，展示支付成功信息
 
+4. **广告管理** - 广告分为轮播图广告和 banner 广告。轮播图广告在首页展示，banner 广告在商品详情页展示。后台可以上传图片管理，替换广告的连接和图片
 
-Size:
-Choose a size to continue, Selection will refresh the page with new results
-    
-Size Chart
-FREE In Store Returns (?)
+5. **网站管理** - 站点名称，logo、关键字、备案号、站点版权
 
-Get 10% off* - Buy online, Pick up in store*
-Earn 55 Reward Points (?)
-30 points = $1 Reward
-You can earn up to this amount of Tillys Rewards points for purchasing this item. 30 points = $1 Reward
-5 out of 5 Customer Rating
-Be the first to write a review
-| Be the first to ask a question
-Jack & Jones Blupaulin Knit Polo Shirt. Knit fabrication. Collared neckline. Slim fit. Short sleeves. Rib hem. 62% Cotton 38% Polyester. Machine wash. Imported.
+6. **商品搜索** - 需要有商品搜索功能
 
-11. 图标使用 @iconify-json/ic
+### 开发进度
 
-~~创建数据库模型和API - 设计商品分类的数据结构，包括树形结构支持，创建分类管理的后端API接口~~
+- ✅ ~~创建数据库模型和API - 设计商品分类的数据结构，包括树形结构支持，创建分类管理的后端API接口~~
+- ✅ ~~实现商品分类前端组件 - 创建可配置的商品分类导航组件，支持鼠标悬停展开下拉菜单~~
+- ✅ ~~设计商品数据模型 - 创建商品的完整数据结构，包括图片、价格、描述、颜色、尺寸等信息~~
+- ✅ ~~开发分类管理后台 - 创建分类管理页面，支持显示/隐藏、排序、树形结构操作~~
+- ✅ ~~实现商品详情页 - 创建商品详情页面，展示所有商品信息，包括评价、尺寸选择等功能~~
+- ✅ ~~开发网站配置系统 - 创建网站基本信息管理，包括站点名称、logo、关键字、备案号等~~
+- ✅ ~~实现商品搜索功能 - 创建商品搜索接口和前端搜索组件~~
+- ✅ ~~实现顶部和底部配置 - 创建可配置的网站头部和底部信息管理功能~~
+- ✅ ~~集成支付系统 - 实现订单支付流程和支付成功页面~~
+- 🔄 开发广告管理系统 - 实现轮播图和banner广告的上传、管理和展示功能
 
+## 快速开始
 
-~~实现商品分类前端组件 - 创建可配置的商品分类导航组件，支持鼠标悬停展开下拉菜单~~
+### 开发环境设置
+```bash
+# 安装依赖
+bun install
 
-~~设计商品数据模型 - 创建商品的完整数据结构，包括图片、价格、描述、颜色、尺寸等信息~~
+# 启动开发服务器
+bun run dev
 
-开发分类管理后台 - 创建分类管理页面，支持显示/隐藏、排序、树形结构操作
+# 生成类型定义
+bun run db:schema:typebox
+```
 
-~~实现商品详情页 - 创建商品详情页面，展示所有商品信息，包括评价、尺寸选择等功能~~
+### 开发流程
+1. **创建功能分支**: `git checkout -b feature/功能名称`
+2. **开发和测试**: 遵循代码规范进行开发
+3. **提交代码**: 使用语义化提交信息
+4. **创建PR**: 进行代码审查
+5. **合并部署**: 通过审查后合并到主分支
 
-~~开发网站配置系统 - 创建网站基本信息管理，包括站点名称、logo、关键字、备案号等·~~
+## 关键原则
 
-~~实现商品搜索功能 - 创建商品搜索接口和前端搜索组件~~
+### 🔒 类型安全
+- 使用自动生成的TypeBox类型
+- 避免手动定义重复的类型
+- 前后端类型共享和一致性
 
-~~实现顶部和底部配置 - 创建可配置的网站头部和底部信息管理功能~~
+### 🎯 组件化
+- 优先使用PrimeVue组件
+- 保持组件单一职责
+- 合理的组件拆分和复用
 
-开发广告管理系统 - 实现轮播图和banner广告的上传、管理和展示功能
+### 📊 数据驱动
+- 数据库schema驱动API设计
+- 自动生成类型定义
+- 统一的数据转换和映射
 
-~~集成支付系统 - 实现订单支付流程和支付成功页面~~
+### 🚀 性能优先
+- 代码分割和懒加载
+- 数据库查询优化
+- 合理的缓存策略
+
+## 代码规范要点
+
+### 后端开发
+- 使用 `DbType.typebox.insert` 自动生成的类型
+- API字段映射确保前后端一致性
+- 统一的错误处理和响应格式
+- 条件导入解决SSR兼容性问题
+
+### 前端开发
+- Vue 3 Composition API + `<script setup>`
+- PrimeVue组件 + UnoCSS样式
+- ofetch进行API请求
+- TypeScript类型安全
+
+---
+
+**注意**: 请在开发前仔细阅读相关规范文档，确保代码质量和项目一致性。

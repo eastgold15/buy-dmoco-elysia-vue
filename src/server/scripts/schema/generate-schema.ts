@@ -155,6 +155,12 @@ class SchemaGenerator {
 		const tableNames = tables.map((t) => t.name);
 		const schemaObject = `export const dbSchema = {\n${tableNames.map((name) => `  ${name},`).join("\n")}\n};`;
 
+		// 动态生成所有扫描到的文件的导出语句
+		const uniqueFiles = Array.from(new Set(tables.map(t => t.relativePath)));
+		const dynamicExports = uniqueFiles.length > 0 
+			? `\n// 导出所有扫描到的数据库模式文件\n${uniqueFiles.map(path => `export * from "${path}.ts";`).join('\n')}`
+			: '';
+
 		let content = `/**
  * 自动生成的数据库 Schema 文件
  * 请勿手动修改此文件，运行 \`bun run generate:schema\` 重新生成
@@ -163,7 +169,7 @@ class SchemaGenerator {
 
 ${imports}
 
-${schemaObject}`;
+${schemaObject}${dynamicExports}`;
 		// 根据配置添加类型定义
 		if (this.config.generateTypes) {
 			content += `

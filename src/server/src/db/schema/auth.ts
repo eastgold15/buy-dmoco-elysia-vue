@@ -19,7 +19,7 @@ export const userSchema = pgTable(
 		id: uuid("id").primaryKey().notNull().defaultRandom(),
 		username: varchar("username", { length: 50 }).notNull().unique(),
 		password: varchar("password", { length: 255 }).notNull(), // 存储加密后的密码
-		email: varchar("email", { length: 100 }).unique(),
+		email: varchar("email", { length: 100 }).unique(), // @typebox { format: 'email' }
 		nickname: varchar("nickname", { length: 50 }),
 		avatar: varchar("avatar", { length: 255 }),
 		status: integer("status").notNull().default(1), // 1: 正常, 0: 禁用

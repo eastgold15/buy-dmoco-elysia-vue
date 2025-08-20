@@ -103,7 +103,7 @@ interface CategoryTree {
   name: string;
   parentId?: string;
   level: number;
-  sort: number;
+  sortOrder: number;
   isVisible: boolean;
   description?: string;
   icon?: string;

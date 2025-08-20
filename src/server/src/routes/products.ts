@@ -1,114 +1,353 @@
 import { Elysia } from "elysia";
-import { ProductService } from '../services/productService';
-import type { ProductSearchParams } from '../../../types/product';
-import type { ApiResponse } from '../../../types/category';
+import { eq, desc, asc, and, or, sql, ilike } from 'drizzle-orm';
+import { db } from '../db/connection';
+import { productsSchema, categoriesSchema } from '../db/schema/schema';
+import { commonRes, pageRes } from '../plugins/Res';
+import { productsModel } from './products.model';
 
 export const productsRoute = new Elysia({ tags: ['Products'] })
+    .model(productsModel)
     // 获取所有商品
     .get('/products', async ({ query }) => {
         try {
-            const params = {
-                page: query.page ? parseInt(query.page as string) : 1,
-                limit: query.limit ? parseInt(query.limit as string) : 20,
-                categoryId: query.categoryId as string,
-                isActive: query.isActive !== undefined ? query.isActive === 'true' : undefined,
-                isFeatured: query.isFeatured !== undefined ? query.isFeatured === 'true' : undefined
-            };
-            const result = await ProductService.getAllProducts(params);
-            const response: ApiResponse<typeof result> = {
-                success: true,
-                data: result
-            };
-            return response;
+            const page = query.page ? parseInt(query.page as string) : 1;
+            const limit = query.limit ? parseInt(query.limit as string) : 20;
+            const categoryId = query.categoryId as string;
+            const isActive = query.isActive !== undefined ? query.isActive === 'true' : undefined;
+            const isFeatured = query.isFeatured !== undefined ? query.isFeatured === 'true' : undefined;
+
+            const offset = (page - 1) * limit;
+            const conditions = [];
+
+            if (categoryId) {
+                conditions.push(eq(productsSchema.categoryId, parseInt(categoryId)));
+            }
+            if (isActive !== undefined) {
+                conditions.push(eq(productsSchema.isActive, isActive));
+            }
+            if (isFeatured !== undefined) {
+                conditions.push(eq(productsSchema.isFeatured, isFeatured));
+            }
+
+            const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+            // 获取商品列表
+            const dbProducts = await db
+                .select({
+                    id: productsSchema.id,
+                    name: productsSchema.name,
+                    slug: productsSchema.slug,
+                    description: productsSchema.description,
+                    shortDescription: productsSchema.shortDescription,
+                    price: productsSchema.price,
+                    originalPrice: productsSchema.originalPrice,
+                    sku: productsSchema.sku,
+                    stock: productsSchema.stock,
+                    images: productsSchema.images,
+                    colors: productsSchema.colors,
+                    sizes: productsSchema.sizes,
+                    tags: productsSchema.tags,
+                    categoryId: productsSchema.categoryId,
+                    categoryName: categoriesSchema.name,
+                    isActive: productsSchema.isActive,
+                    isFeatured: productsSchema.isFeatured,
+                    weight: productsSchema.weight,
+                    dimensions: productsSchema.dimensions,
+                    material: productsSchema.material,
+                    brand: productsSchema.brand,
+                    seoTitle: productsSchema.seoTitle,
+                    seoDescription: productsSchema.seoDescription,
+                    seoKeywords: productsSchema.seoKeywords,
+                    createdAt: productsSchema.createdAt,
+                    updatedAt: productsSchema.updatedAt
+                })
+                .from(productsSchema)
+                .leftJoin(categoriesSchema, eq(productsSchema.categoryId, categoriesSchema.id))
+                .where(whereClause)
+                .orderBy(desc(productsSchema.createdAt))
+                .limit(limit)
+                .offset(offset);
+
+            // 获取总数
+            const [{ count }] = await db
+                .select({ count: sql<number>`count(*)` })
+                .from(productsSchema)
+                .where(whereClause);
+
+            return pageRes({
+                products: dbProducts,
+                total: count,
+                page,
+                limit
+            });
         } catch (error) {
-            const response: ApiResponse<null> = {
-                success: false,
-                error: error instanceof Error ? error.message : '获取商品列表失败'
-            };
-            return response;
+            console.error('获取商品列表失败:', error);
+            return commonRes(null, 500, '获取商品列表失败');
+        }
+    }, {
+        query: 'ProductListQueryDto',
+        detail: {
+            tags: ['Products'],
+            summary: '获取商品列表',
+            description: '获取商品列表，支持分页、排序和筛选'
         }
     })
 
     // 根据ID获取商品详情
     .get('/products/:id', async ({ params: { id } }) => {
         try {
-            const product = await ProductService.getProductById(id);
-            if (!product) {
-                const response: ApiResponse<null> = {
-                    success: false,
-                    error: '商品不存在'
-                };
-                return response;
+            const [dbProduct] = await db
+                .select({
+                    id: productsSchema.id,
+                    name: productsSchema.name,
+                    slug: productsSchema.slug,
+                    description: productsSchema.description,
+                    shortDescription: productsSchema.shortDescription,
+                    price: productsSchema.price,
+                    originalPrice: productsSchema.originalPrice,
+                    sku: productsSchema.sku,
+                    stock: productsSchema.stock,
+                    images: productsSchema.images,
+                    colors: productsSchema.colors,
+                    sizes: productsSchema.sizes,
+                    tags: productsSchema.tags,
+                    categoryId: productsSchema.categoryId,
+                    categoryName: categoriesSchema.name,
+                    isActive: productsSchema.isActive,
+                    isFeatured: productsSchema.isFeatured,
+                    weight: productsSchema.weight,
+                    dimensions: productsSchema.dimensions,
+                    material: productsSchema.material,
+                    brand: productsSchema.brand,
+                    seoTitle: productsSchema.seoTitle,
+                    seoDescription: productsSchema.seoDescription,
+                    seoKeywords: productsSchema.seoKeywords,
+                    createdAt: productsSchema.createdAt,
+                    updatedAt: productsSchema.updatedAt
+                })
+                .from(productsSchema)
+                .leftJoin(categoriesSchema, eq(productsSchema.categoryId, categoriesSchema.id))
+                .where(eq(productsSchema.id, parseInt(id)))
+                .limit(1);
+
+            if (!dbProduct) {
+                return commonRes(null, 404, '商品不存在');
             }
-            const response: ApiResponse<typeof product> = {
-                success: true,
-                data: product
-            };
-            return response;
+
+            return commonRes(dbProduct, 200);
         } catch (error) {
-            const response: ApiResponse<null> = {
-                success: false,
-                error: error instanceof Error ? error.message : '获取商品详情失败'
-            };
-            return response;
+            console.error('获取商品详情失败:', error);
+            return commonRes(null, 500, '获取商品详情失败');
+        }
+    }, {
+        params: 'IdParams',
+        detail: {
+            tags: ['Products'],
+            summary: '根据ID获取商品详情',
+            description: '根据商品ID获取商品的详细信息'
         }
     })
 
     // 根据slug获取商品详情
     .get('/products/slug/:slug', async ({ params: { slug } }) => {
         try {
-            const product = await ProductService.getProductBySlug(slug);
-            if (!product) {
-                const response: ApiResponse<null> = {
-                    success: false,
-                    error: '商品不存在'
-                };
-                return response;
+            const [dbProduct] = await db
+                .select({
+                    id: productsSchema.id,
+                    name: productsSchema.name,
+                    slug: productsSchema.slug,
+                    description: productsSchema.description,
+                    shortDescription: productsSchema.shortDescription,
+                    price: productsSchema.price,
+                    originalPrice: productsSchema.originalPrice,
+                    sku: productsSchema.sku,
+                    stock: productsSchema.stock,
+                    images: productsSchema.images,
+                    colors: productsSchema.colors,
+                    sizes: productsSchema.sizes,
+                    tags: productsSchema.tags,
+                    categoryId: productsSchema.categoryId,
+                    categoryName: categoriesSchema.name,
+                    isActive: productsSchema.isActive,
+                    isFeatured: productsSchema.isFeatured,
+                    weight: productsSchema.weight,
+                    dimensions: productsSchema.dimensions,
+                    material: productsSchema.material,
+                    brand: productsSchema.brand,
+                    seoTitle: productsSchema.seoTitle,
+                    seoDescription: productsSchema.seoDescription,
+                    seoKeywords: productsSchema.seoKeywords,
+                    createdAt: productsSchema.createdAt,
+                    updatedAt: productsSchema.updatedAt
+                })
+                .from(productsSchema)
+                .leftJoin(categoriesSchema, eq(productsSchema.categoryId, categoriesSchema.id))
+                .where(eq(productsSchema.slug, slug))
+                .limit(1);
+
+            if (!dbProduct) {
+                return commonRes(null, 404, '商品不存在');
             }
-            const response: ApiResponse<typeof product> = {
-                success: true,
-                data: product
-            };
-            return response;
+
+            return commonRes(dbProduct, 200);
         } catch (error) {
-            const response: ApiResponse<null> = {
-                success: false,
-                error: error instanceof Error ? error.message : '获取商品详情失败'
-            };
-            return response;
+            console.error('获取商品详情失败:', error);
+            return commonRes(null, 500, '获取商品详情失败');
+        }
+    }, {
+        params: 'SlugParams',
+        detail: {
+            tags: ['Products'],
+            summary: '根据slug获取商品详情',
+            description: '根据商品slug获取商品的详细信息'
         }
     })
 
     // 搜索商品
     .get('/products/search', async ({ query }) => {
         try {
-            const searchParams = {
-                query: query.q as string,
-                categoryId: query.categoryId as string,
-                minPrice: query.minPrice ? parseFloat(query.minPrice as string) : undefined,
-                maxPrice: query.maxPrice ? parseFloat(query.maxPrice as string) : undefined,
-                colors: query.colors ? (query.colors as string).split(',') : [],
-                sizes: query.sizes ? (query.sizes as string).split(',') : [],
-                tags: query.tags ? (query.tags as string).split(',') : [],
-                isActive: query.isActive !== undefined ? query.isActive === 'true' : true,
-                isFeatured: query.isFeatured !== undefined ? query.isFeatured === 'true' : undefined,
-                sortBy: (query.sortBy as 'price' | 'name' | 'createdAt') || 'createdAt',
-                sortOrder: (query.sortOrder as 'asc' | 'desc') || 'desc',
-                page: query.page ? parseInt(query.page as string) : 1,
-                limit: query.limit ? parseInt(query.limit as string) : 20
-            };
-            const result = await ProductService.searchProducts(searchParams);
-            const response: ApiResponse<typeof result> = {
-                success: true,
-                data: result
-            };
-            return response;
+            const searchQuery = query.q as string;
+            const categoryId = query.categoryId as string;
+            const minPrice = query.minPrice ? parseFloat(query.minPrice as string) : undefined;
+            const maxPrice = query.maxPrice ? parseFloat(query.maxPrice as string) : undefined;
+            const colors = query.colors ? (query.colors as string).split(',') : [];
+            const sizes = query.sizes ? (query.sizes as string).split(',') : [];
+            const tags = query.tags ? (query.tags as string).split(',') : [];
+            const isActive = query.isActive !== undefined ? query.isActive === 'true' : true;
+            const isFeatured = query.isFeatured !== undefined ? query.isFeatured === 'true' : undefined;
+            const sortBy = (query.sortBy as 'price' | 'name' | 'createdAt') || 'createdAt';
+            const sortOrder = (query.sortOrder as 'asc' | 'desc') || 'desc';
+            const page = query.page ? parseInt(query.page as string) : 1;
+            const limit = query.limit ? parseInt(query.limit as string) : 20;
+
+            const offset = (page - 1) * limit;
+            const conditions = [eq(productsSchema.isActive, isActive)];
+
+            // 搜索条件
+            if (searchQuery) {
+                conditions.push(
+                    or(
+                        ilike(productsSchema.name, `%${searchQuery}%`),
+                        ilike(productsSchema.description, `%${searchQuery}%`),
+                        ilike(productsSchema.shortDescription, `%${searchQuery}%`)
+                    )
+                );
+            }
+
+            // 分类筛选
+            if (categoryId) {
+                conditions.push(eq(productsSchema.categoryId, parseInt(categoryId)));
+            }
+
+            // 价格范围筛选
+            if (minPrice !== undefined) {
+                conditions.push(sql`CAST(${productsSchema.price} AS DECIMAL) >= ${minPrice}`);
+            }
+            if (maxPrice !== undefined) {
+                conditions.push(sql`CAST(${productsSchema.price} AS DECIMAL) <= ${maxPrice}`);
+            }
+
+            // 颜色筛选
+            if (colors.length > 0) {
+                const colorConditions = colors.map(color =>
+                    sql`${productsSchema.colors} @> ${JSON.stringify([color])}`
+                );
+                conditions.push(or(...colorConditions));
+            }
+
+            // 尺寸筛选
+            if (sizes.length > 0) {
+                const sizeConditions = sizes.map(size =>
+                    sql`${productsSchema.sizes} @> ${JSON.stringify([size])}`
+                );
+                conditions.push(or(...sizeConditions));
+            }
+
+            // 标签筛选
+            if (tags.length > 0) {
+                const tagConditions = tags.map(tag =>
+                    sql`${productsSchema.tags} @> ${JSON.stringify([tag])}`
+                );
+                conditions.push(or(...tagConditions));
+            }
+
+            // 推荐商品筛选
+            if (isFeatured !== undefined) {
+                conditions.push(eq(productsSchema.isFeatured, isFeatured));
+            }
+
+            const whereClause = and(...conditions);
+
+            // 排序
+            let orderBy;
+            if (sortBy === 'price') {
+                orderBy = sortOrder === 'asc' ? asc(sql`CAST(${productsSchema.price} AS DECIMAL)`) : desc(sql`CAST(${productsSchema.price} AS DECIMAL)`);
+            } else if (sortBy === 'name') {
+                orderBy = sortOrder === 'asc' ? asc(productsSchema.name) : desc(productsSchema.name);
+            } else {
+                orderBy = sortOrder === 'asc' ? asc(productsSchema.createdAt) : desc(productsSchema.createdAt);
+            }
+
+            // 获取商品列表
+            const dbProducts = await db
+                .select({
+                    id: productsSchema.id,
+                    name: productsSchema.name,
+                    slug: productsSchema.slug,
+                    description: productsSchema.description,
+                    shortDescription: productsSchema.shortDescription,
+                    price: productsSchema.price,
+                    originalPrice: productsSchema.originalPrice,
+                    sku: productsSchema.sku,
+                    stock: productsSchema.stock,
+                    images: productsSchema.images,
+                    colors: productsSchema.colors,
+                    sizes: productsSchema.sizes,
+                    tags: productsSchema.tags,
+                    categoryId: productsSchema.categoryId,
+                    categoryName: categoriesSchema.name,
+                    isActive: productsSchema.isActive,
+                    isFeatured: productsSchema.isFeatured,
+                    weight: productsSchema.weight,
+                    dimensions: productsSchema.dimensions,
+                    material: productsSchema.material,
+                    brand: productsSchema.brand,
+                    seoTitle: productsSchema.seoTitle,
+                    seoDescription: productsSchema.seoDescription,
+                    seoKeywords: productsSchema.seoKeywords,
+                    createdAt: productsSchema.createdAt,
+                    updatedAt: productsSchema.updatedAt
+                })
+                .from(productsSchema)
+                .leftJoin(categoriesSchema, eq(productsSchema.categoryId, categoriesSchema.id))
+                .where(whereClause)
+                .orderBy(orderBy)
+                .limit(limit)
+                .offset(offset);
+
+            // 获取总数
+            const [{ count }] = await db
+                .select({ count: sql<number>`count(*)` })
+                .from(productsSchema)
+                .where(whereClause);
+
+            return commonRes({
+                products: dbProducts,
+                total: count,
+                page,
+                limit,
+                hasMore: offset + limit < count
+            }, 200);
         } catch (error) {
-            const response: ApiResponse<null> = {
-                success: false,
-                error: error instanceof Error ? error.message : '搜索商品失败'
-            };
-            return response;
+            console.error('搜索商品失败:', error);
+            return commonRes(null, 500, '搜索商品失败');
+        }
+    }, {
+        query: 'ProductSearchQueryDto',
+        detail: {
+            tags: ['Products'],
+            summary: '搜索商品',
+            description: '根据关键词搜索商品，支持分页、排序和筛选'
         }
     })
 
@@ -116,45 +355,112 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
     .get('/products/featured', async ({ query }) => {
         try {
             const limit = query.limit ? parseInt(query.limit as string) : 8;
-            const products = await ProductService.getFeaturedProducts(limit);
-            const response: ApiResponse<typeof products> = {
-                success: true,
-                data: products
-            };
-            return response;
+
+            const dbProducts = await db
+                .select({
+                    id: productsSchema.id,
+                    name: productsSchema.name,
+                    slug: productsSchema.slug,
+                    description: productsSchema.description,
+                    shortDescription: productsSchema.shortDescription,
+                    price: productsSchema.price,
+                    originalPrice: productsSchema.originalPrice,
+                    sku: productsSchema.sku,
+                    stock: productsSchema.stock,
+                    images: productsSchema.images,
+                    colors: productsSchema.colors,
+                    sizes: productsSchema.sizes,
+                    tags: productsSchema.tags,
+                    categoryId: productsSchema.categoryId,
+                    categoryName: categoriesSchema.name,
+                    isActive: productsSchema.isActive,
+                    isFeatured: productsSchema.isFeatured,
+                    weight: productsSchema.weight,
+                    dimensions: productsSchema.dimensions,
+                    material: productsSchema.material,
+                    brand: productsSchema.brand,
+                    seoTitle: productsSchema.seoTitle,
+                    seoDescription: productsSchema.seoDescription,
+                    seoKeywords: productsSchema.seoKeywords,
+                    createdAt: productsSchema.createdAt,
+                    updatedAt: productsSchema.updatedAt
+                })
+                .from(productsSchema)
+                .leftJoin(categoriesSchema, eq(productsSchema.categoryId, categoriesSchema.id))
+                .where(and(
+                    eq(productsSchema.isActive, true),
+                    eq(productsSchema.isFeatured, true)
+                ))
+                .orderBy(desc(productsSchema.createdAt))
+                .limit(limit);
+
+            return commonRes(dbProducts, 200);
         } catch (error) {
-            const response: ApiResponse<null> = {
-                success: false,
-                error: error instanceof Error ? error.message : '获取推荐商品失败'
-            };
-            return response;
+            console.error('获取推荐商品失败:', error);
+            return commonRes(null, 500, '获取推荐商品失败');
         }
     })
 
     // 获取相关商品
     .get('/products/:id/related', async ({ params: { id }, query }) => {
         try {
-            const product = await ProductService.getProductById(id);
-            if (!product || !product.categoryId) {
-                const response: ApiResponse<null> = {
-                    success: false,
-                    error: '商品不存在或无分类信息'
-                };
-                return response;
+            // 先获取当前商品的分类信息
+            const [currentProduct] = await db
+                .select({ categoryId: productsSchema.categoryId })
+                .from(productsSchema)
+                .where(eq(productsSchema.id, parseInt(id)))
+                .limit(1);
+
+            if (!currentProduct || !currentProduct.categoryId) {
+                return commonRes(null, 404, '商品不存在或无分类信息');
             }
+
             const limit = query.limit ? parseInt(query.limit as string) : 4;
-            const relatedProducts = await ProductService.getRelatedProducts(id, product.categoryId, limit);
-            const response: ApiResponse<typeof relatedProducts> = {
-                success: true,
-                data: relatedProducts
-            };
-            return response;
+
+            // 获取同分类的其他商品
+            const dbProducts = await db
+                .select({
+                    id: productsSchema.id,
+                    name: productsSchema.name,
+                    slug: productsSchema.slug,
+                    description: productsSchema.description,
+                    shortDescription: productsSchema.shortDescription,
+                    price: productsSchema.price,
+                    originalPrice: productsSchema.originalPrice,
+                    sku: productsSchema.sku,
+                    stock: productsSchema.stock,
+                    images: productsSchema.images,
+                    colors: productsSchema.colors,
+                    sizes: productsSchema.sizes,
+                    tags: productsSchema.tags,
+                    categoryId: productsSchema.categoryId,
+                    categoryName: categoriesSchema.name,
+                    isActive: productsSchema.isActive,
+                    isFeatured: productsSchema.isFeatured,
+                    weight: productsSchema.weight,
+                    dimensions: productsSchema.dimensions,
+                    material: productsSchema.material,
+                    brand: productsSchema.brand,
+                    seoTitle: productsSchema.seoTitle,
+                    seoDescription: productsSchema.seoDescription,
+                    seoKeywords: productsSchema.seoKeywords,
+                    createdAt: productsSchema.createdAt,
+                    updatedAt: productsSchema.updatedAt
+                })
+                .from(productsSchema)
+                .leftJoin(categoriesSchema, eq(productsSchema.categoryId, categoriesSchema.id))
+                .where(and(
+                    eq(productsSchema.categoryId, currentProduct.categoryId),
+                    eq(productsSchema.isActive, true),
+                    sql`${productsSchema.id} != ${parseInt(id)}`
+                ))
+                .orderBy(desc(productsSchema.createdAt))
+                .limit(limit);
+
+            return commonRes(dbProducts, 200);
         } catch (error) {
-            const response: ApiResponse<null> = {
-                success: false,
-                error: error instanceof Error ? error.message : '获取相关商品失败'
-            };
-            return response;
+            console.error('获取相关商品失败:', error);
+            return commonRes(null, 500, '获取相关商品失败');
         }
     })
 
@@ -162,36 +468,131 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
     .get('/products/search/popular-terms', async ({ query }) => {
         try {
             const limit = query.limit ? parseInt(query.limit as string) : 10;
-            const terms = await ProductService.getPopularSearchTerms(limit);
-            const response: ApiResponse<typeof terms> = {
-                success: true,
-                data: terms
-            };
-            return response;
+
+            // 从商品的标签和名称中提取热门搜索词
+            const dbProducts = await db
+                .select({
+                    name: productsSchema.name,
+                    tags: productsSchema.tags
+                })
+                .from(productsSchema)
+                .where(eq(productsSchema.isActive, true));
+
+            const termCounts = new Map<string, number>();
+
+            dbProducts.forEach(product => {
+                // 从商品名称中提取词汇
+                const nameWords = product.name.toLowerCase().split(/\s+/);
+                nameWords.forEach(word => {
+                    if (word.length > 2) {
+                        termCounts.set(word, (termCounts.get(word) || 0) + 2); // 名称权重更高
+                    }
+                });
+
+                // 从标签中提取词汇
+                if (product.tags && Array.isArray(product.tags)) {
+                    product.tags.forEach((tag: string) => {
+                        if (tag && tag.trim().length > 1) {
+                            const cleanTag = tag.trim().toLowerCase();
+                            termCounts.set(cleanTag, (termCounts.get(cleanTag) || 0) + 1);
+                        }
+                    });
+                }
+            });
+
+            // 按频次排序并取前N个
+            const sortedTerms = Array.from(termCounts.entries())
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, limit)
+                .map(([term]) => term);
+
+            return commonRes(sortedTerms, 200);
         } catch (error) {
-            const response: ApiResponse<null> = {
-                success: false,
-                error: error instanceof Error ? error.message : '获取热门搜索关键词失败'
-            };
-            return response;
+            console.error('获取热门搜索关键词失败:', error);
+            return commonRes(null, 500, '获取热门搜索关键词失败');
         }
     })
 
     // 获取商品筛选选项
     .get('/products/filter-options', async ({ query }) => {
         try {
-            const categoryId = query.categoryId as string;
-            const options = await ProductService.getFilterOptions(categoryId);
-            const response: ApiResponse<typeof options> = {
-                success: true,
-                data: options
+            const categoryId = query.categoryId ? parseInt(query.categoryId as string) : undefined;
+
+            // 构建查询条件
+            const conditions = [eq(productsSchema.isActive, true)];
+            if (categoryId) {
+                conditions.push(eq(productsSchema.categoryId, categoryId));
+            }
+
+            // 获取商品数据
+            const dbProducts = await db
+                .select({
+                    colors: productsSchema.colors,
+                    sizes: productsSchema.sizes,
+                    tags: productsSchema.tags,
+                    price: productsSchema.price
+                })
+                .from(productsSchema)
+                .where(and(...conditions));
+
+            // 提取唯一的颜色、尺寸、标签
+            const colorsSet = new Set<string>();
+            const sizesSet = new Set<string>();
+            const tagsSet = new Set<string>();
+            let minPrice = Infinity;
+            let maxPrice = -Infinity;
+
+            dbProducts.forEach(product => {
+                // 处理颜色
+                if (product.colors && Array.isArray(product.colors)) {
+                    product.colors.forEach((color: string) => {
+                        if (color && color.trim()) {
+                            colorsSet.add(color.trim());
+                        }
+                    });
+                }
+
+                // 处理尺寸
+                if (product.sizes && Array.isArray(product.sizes)) {
+                    product.sizes.forEach((size: string) => {
+                        if (size && size.trim()) {
+                            sizesSet.add(size.trim());
+                        }
+                    });
+                }
+
+                // 处理标签
+                if (product.tags && Array.isArray(product.tags)) {
+                    product.tags.forEach((tag: string) => {
+                        if (tag && tag.trim()) {
+                            tagsSet.add(tag.trim());
+                        }
+                    });
+                }
+
+                // 处理价格范围
+                if (product.price) {
+                    const price = parseFloat(product.price.toString());
+                    if (!isNaN(price)) {
+                        minPrice = Math.min(minPrice, price);
+                        maxPrice = Math.max(maxPrice, price);
+                    }
+                }
+            });
+
+            const options = {
+                colors: Array.from(colorsSet).sort(),
+                sizes: Array.from(sizesSet).sort(),
+                tags: Array.from(tagsSet).sort(),
+                priceRange: {
+                    min: minPrice === Infinity ? 0 : minPrice,
+                    max: maxPrice === -Infinity ? 0 : maxPrice
+                }
             };
-            return response;
+
+            return commonRes(options, 200);
         } catch (error) {
-            const response: ApiResponse<null> = {
-                success: false,
-                error: error instanceof Error ? error.message : '获取筛选选项失败'
-            };
-            return response;
+            console.error('获取筛选选项失败:', error);
+            return commonRes(null, 500, '获取筛选选项失败');
         }
     })

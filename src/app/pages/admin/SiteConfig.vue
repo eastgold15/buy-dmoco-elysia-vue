@@ -205,10 +205,10 @@ const loadConfigs = async () => {
   try {
     loading.value = true
 
-    const { data, error } = await client.api['site-config'].get()
-    if (data) {
+    const response = await client.api['site-config'].get()
+    if (response.data && response.data.code === 200 && Array.isArray(response.data.data)) {
       // 将配置数组转换为对象
-      data.forEach((config: any) => {
+      response.data.data.forEach((config: any) => {
         if (config.key in configs) {
           // 处理数字类型
           if (config.key === 'free_shipping_threshold') {
@@ -221,6 +221,14 @@ const loadConfigs = async () => {
 
       // 保存原始数据
       Object.assign(originalConfigs, configs)
+    } else {
+      console.error('API返回的数据格式错误:', response.data)
+      toast.add({
+        severity: 'error',
+        summary: '错误',
+        detail: '配置数据格式错误',
+        life: 3000
+      })
     }
   } catch (error) {
     console.error('加载配置失败:', error)

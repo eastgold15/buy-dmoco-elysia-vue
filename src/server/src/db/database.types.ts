@@ -1,0 +1,76 @@
+/**
+ * 自动生成的 TypeBox 配置文件
+ * 基于 Schema 文件中的 JSDoc @typebox 注释生成
+ * 请勿手动修改此文件
+ */
+
+import { t } from 'elysia'
+import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
+import { spreads } from '../utils/dizzle.type'
+import { dbSchema, tableNames } from './schema/index'
+
+/**
+ * 数据库 TypeBox 配置
+ */
+export const DbType = {
+  typebox: {
+    insert: {
+      userSchema: createInsertSchema(dbSchema.userSchema, {
+        email: t.String({"format":"email"})
+      }),
+      tokenSchema: createInsertSchema(dbSchema.tokenSchema),
+      categoriesSchema: createInsertSchema(dbSchema.categoriesSchema),
+      productsSchema: createInsertSchema(dbSchema.productsSchema),
+      reviewsSchema: createInsertSchema(dbSchema.reviewsSchema),
+      siteConfigSchema: createInsertSchema(dbSchema.siteConfigSchema),
+      advertisementsSchema: createInsertSchema(dbSchema.advertisementsSchema),
+      headerConfigSchema: createInsertSchema(dbSchema.headerConfigSchema),
+      footerConfigSchema: createInsertSchema(dbSchema.footerConfigSchema),
+      imagesSchema: createInsertSchema(dbSchema.imagesSchema),
+    },
+    select: {
+      userSchema: createSelectSchema(dbSchema.userSchema, {
+        email: t.String({"format":"email"})
+      }),
+      tokenSchema: createSelectSchema(dbSchema.tokenSchema),
+      categoriesSchema: createSelectSchema(dbSchema.categoriesSchema),
+      productsSchema: createSelectSchema(dbSchema.productsSchema),
+      reviewsSchema: createSelectSchema(dbSchema.reviewsSchema),
+      siteConfigSchema: createSelectSchema(dbSchema.siteConfigSchema),
+      advertisementsSchema: createSelectSchema(dbSchema.advertisementsSchema),
+      headerConfigSchema: createSelectSchema(dbSchema.headerConfigSchema),
+      footerConfigSchema: createSelectSchema(dbSchema.footerConfigSchema),
+      imagesSchema: createSelectSchema(dbSchema.imagesSchema),
+    }
+  },
+  spreads: {
+    insert: spreads({
+      userSchema: createInsertSchema(dbSchema.userSchema, {
+        email: t.String({"format":"email"})
+      }),
+      tokenSchema: createInsertSchema(dbSchema.tokenSchema),
+      categoriesSchema: createInsertSchema(dbSchema.categoriesSchema),
+      productsSchema: createInsertSchema(dbSchema.productsSchema),
+      reviewsSchema: createInsertSchema(dbSchema.reviewsSchema),
+      siteConfigSchema: createInsertSchema(dbSchema.siteConfigSchema),
+      advertisementsSchema: createInsertSchema(dbSchema.advertisementsSchema),
+      headerConfigSchema: createInsertSchema(dbSchema.headerConfigSchema),
+      footerConfigSchema: createInsertSchema(dbSchema.footerConfigSchema),
+      imagesSchema: createInsertSchema(dbSchema.imagesSchema),
+    }, 'insert'),
+    select: spreads({
+      userSchema: createSelectSchema(dbSchema.userSchema, {
+        email: t.String({"format":"email"})
+      }),
+      tokenSchema: createSelectSchema(dbSchema.tokenSchema),
+      categoriesSchema: createSelectSchema(dbSchema.categoriesSchema),
+      productsSchema: createSelectSchema(dbSchema.productsSchema),
+      reviewsSchema: createSelectSchema(dbSchema.reviewsSchema),
+      siteConfigSchema: createSelectSchema(dbSchema.siteConfigSchema),
+      advertisementsSchema: createSelectSchema(dbSchema.advertisementsSchema),
+      headerConfigSchema: createSelectSchema(dbSchema.headerConfigSchema),
+      footerConfigSchema: createSelectSchema(dbSchema.footerConfigSchema),
+      imagesSchema: createSelectSchema(dbSchema.imagesSchema),
+    }, 'select')
+  }
+} as const

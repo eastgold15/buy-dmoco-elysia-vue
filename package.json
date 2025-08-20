@@ -16,11 +16,14 @@
     "db:migrate": "drizzle-kit migrate --config=src/server/src/.container/dev/drizzle-dev.config.ts",
     "db:comments": "bun run src/server/src/db/comment/schema-comments.ts",
     "db:schema": "bun run src/server/scripts/schema/cli.ts",
+    "db:schema:typebox": "bunx schema-typebox-gen generate --config ./src/server/scripts/schema-gen.config.ts ",
     "db:push": "bun run db:schema && drizzle-kit push --config=src/server/src/.container/dev/drizzle-dev.config.ts",
     "db:studio": "drizzle-kit studio --config=src/server/src/.container/dev/drizzle-dev.config.ts",
     "db:setup": "bun run docker:dev && sleep 5 && bun run db:push"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/s3-request-presigner": "^3.864.0",
     "@elysiajs/eden": "^1.3.2",
     "@elysiajs/html": "^1.3.1",
     "@elysiajs/swagger": "^1.3.1",
@@ -39,17 +42,18 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "primeicons": "^7.0.0",
-    "@types/bun": "^1.2.20",
-    "@types/pg": "^8.15.5",
     "@domcojs/vercel": "^3.0.0",
     "@iconify-json/ic": "^1.2.4",
+    "@pori15/schema-typebox-generator": "^1.0.4",
     "@robino/tsconfig": "^1.1.0",
+    "@types/bun": "^1.2.20",
+    "@types/pg": "^8.15.5",
     "@vitejs/plugin-vue": "^6.0.1",
     "domco": "^4.3.0",
     "drizzle-kit": "^0.31.4",
+    "primeicons": "^7.0.0",
     "ts-morph": "^26.0.0",
-    "typescript": "^5.8.0",
+    "typescript": "^5.9.2",
     "unocss": "^66.4.2",
     "unocss-preset-animations": "^1.2.1",
     "vite": "^7.1.3"

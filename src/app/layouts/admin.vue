@@ -30,6 +30,7 @@ const currentPageTitle = computed(() => {
 	if (path.includes('/header-config')) return '顶部配置管理';
 	if (path.includes('/footer-config')) return '底部配置管理';
 	if (path.includes('/advertisements')) return '广告管理';
+	if (path.includes('/images')) return '图片管理';
 	if (path.includes('/reports')) return '统计报表';
 	return '仪表盘';
 });
@@ -116,6 +117,11 @@ const menuItems = ref([
 				label: '广告管理',
 				icon: 'pi pi-image',
 				command: () => router.push('/admin/advertisements')
+			},
+			{
+				label: '图片管理',
+				icon: 'pi pi-images',
+				command: () => router.push('/admin/images')
 			},
 			{
 				label: '支付设置',

@@ -11,119 +11,150 @@ import {
 	json
 } from "drizzle-orm/pg-core";
 
-// 商品分类表
+/**
+ * 商品分类表
+ */
 export const categoriesSchema = pgTable("categories", {
-	id: serial("id").primaryKey(), // 分类ID
-	name: varchar("name", { length: 100 }).notNull(), // 分类名称
-	slug: varchar("slug", { length: 100 }).notNull().unique(), // URL友好的标识符
-	description: text("description"), // 分类描述
-	parentId: integer("parent_id"), // 父分类ID，支持树形结构
-	sortOrder: integer("sort_order").default(0), // 排序顺序
-	isVisible: boolean("is_visible").default(true), // 是否显示
-	icon: varchar("icon", { length: 255 }), // 分类图标
-	image: varchar("image", { length: 255 }), // 分类图片
-	createdAt: timestamp("created_at").defaultNow(), // 创建时间
-	updatedAt: timestamp("updated_at").defaultNow(), // 更新时间
+	id: serial("id").primaryKey(),
+	name: varchar("name", { length: 100 }).notNull(),
+	slug: varchar("slug", { length: 100 }).notNull().unique(),
+	description: text("description"),
+	parentId: integer("parent_id"),
+	sortOrder: integer("sort_order").default(0),
+	isVisible: boolean("is_visible").default(true),
+	icon: varchar("icon", { length: 255 }),
+	image: varchar("image", { length: 255 }),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// 商品表
+/**
+ * 商品表
+ */
 export const productsSchema = pgTable("products", {
-	id: serial("id").primaryKey(), // 商品ID
-	name: varchar("name", { length: 255 }).notNull(), // 商品名称
-	slug: varchar("slug", { length: 255 }).notNull().unique(), // URL友好的标识符
-	description: text("description"), // 商品描述
-	shortDescription: text("short_description"), // 简短描述
-	price: decimal("price", { precision: 10, scale: 2 }).notNull(), // 价格
-	comparePrice: decimal("compare_price", { precision: 10, scale: 2 }), // 对比价格
-	cost: decimal("cost", { precision: 10, scale: 2 }), // 成本价
-	sku: varchar("sku", { length: 100 }).unique(), // 商品编码
-	barcode: varchar("barcode", { length: 100 }), // 条形码
-	weight: decimal("weight", { precision: 8, scale: 2 }), // 重量
-	dimensions: json("dimensions"), // 尺寸信息 {length, width, height}
-	images: json("images"), // 商品图片数组
-	videos: json("videos"), // 商品视频数组
-	colors: json("colors"), // 颜色选项
-	sizes: json("sizes"), // 尺寸选项
-	materials: json("materials"), // 材质信息
-	careInstructions: text("care_instructions"), // 护理说明
-	features: json("features"), // 商品特性
-	specifications: json("specifications"), // 规格参数
-	categoryId: integer("category_id").references(() => categoriesSchema.id), // 分类ID
-	stock: integer("stock").default(0), // 库存数量
-	minStock: integer("min_stock").default(0), // 最小库存
-	isActive: boolean("is_active").default(true), // 是否激活
-	isFeatured: boolean("is_featured").default(false), // 是否推荐
-	metaTitle: varchar("meta_title", { length: 255 }), // SEO标题
-	metaDescription: text("meta_description"), // SEO描述
-	metaKeywords: varchar("meta_keywords", { length: 500 }), // SEO关键词
-	createdAt: timestamp("created_at").defaultNow(), // 创建时间
-	updatedAt: timestamp("updated_at").defaultNow(), // 更新时间
+
+	id: serial("id").primaryKey(),
+	name: varchar("name", { length: 255 }).notNull(),
+	slug: varchar("slug", { length: 255 }).notNull().unique(),
+	description: text("description"),
+	shortDescription: text("short_description"),
+	price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+	comparePrice: decimal("compare_price", { precision: 10, scale: 2 }),
+	cost: decimal("cost", { precision: 10, scale: 2 }),
+	sku: varchar("sku", { length: 100 }).unique(),
+	barcode: varchar("barcode", { length: 100 }),
+	weight: decimal("weight", { precision: 8, scale: 2 }),
+	dimensions: json("dimensions"),
+	images: json("images"),
+	videos: json("videos"),
+	colors: json("colors"),
+	sizes: json("sizes"),
+	materials: json("materials"),
+	careInstructions: text("care_instructions"),
+	features: json("features"),
+	specifications: json("specifications"),
+	categoryId: integer("category_id").references(() => categoriesSchema.id),
+	stock: integer("stock").default(0),
+	minStock: integer("min_stock").default(0),
+	isActive: boolean("is_active").default(true),
+	isFeatured: boolean("is_featured").default(false),
+	metaTitle: varchar("meta_title", { length: 255 }),
+	metaDescription: text("meta_description"),
+	metaKeywords: varchar("meta_keywords", { length: 500 }),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// 商品评价表
+/**
+ * 商品评价表
+ */
 export const reviewsSchema = pgTable("reviews", {
-	id: serial("id").primaryKey(), // 评价ID
-	productId: integer("product_id").references(() => productsSchema.id).notNull(), // 商品ID
-	userName: varchar("user_name", { length: 100 }).notNull(), // 用户名
-	userEmail: varchar("user_email", { length: 255 }), // 用户邮箱
-	rating: integer("rating").notNull(), // 评分 1-5
-	title: varchar("title", { length: 255 }), // 评价标题
-	content: text("content").notNull(), // 评价内容
-	isVerified: boolean("is_verified").default(false), // 是否验证购买
-	isApproved: boolean("is_approved").default(false), // 是否审核通过
-	createdAt: timestamp("created_at").defaultNow(), // 创建时间
-	updatedAt: timestamp("updated_at").defaultNow(), // 更新时间
+	id: serial("id").primaryKey(),
+	productId: integer("product_id").references(() => productsSchema.id).notNull(),
+	userName: varchar("user_name", { length: 100 }).notNull(),
+	userEmail: varchar("user_email", { length: 255 }),
+	rating: integer("rating").notNull(),
+	title: varchar("title", { length: 255 }),
+	content: text("content").notNull(),
+	isVerified: boolean("is_verified").default(false),
+	isApproved: boolean("is_approved").default(false),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// 网站配置表
+/**
+ * 网站配置表
+ */
 export const siteConfigSchema = pgTable("site_config", {
-	id: serial("id").primaryKey(), // 配置ID
-	key: varchar("key", { length: 100 }).notNull().unique(), // 配置键
-	value: text("value"), // 配置值
-	description: text("description"), // 配置描述
-	category: varchar("category", { length: 50 }).default("general"), // 配置分类
-	createdAt: timestamp("created_at").defaultNow(), // 创建时间
-	updatedAt: timestamp("updated_at").defaultNow(), // 更新时间
+	id: serial("id").primaryKey(),
+	key: varchar("key", { length: 100 }).notNull().unique(),
+	value: text("value"),
+	description: text("description"),
+	category: varchar("category", { length: 50 }).default("general"),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// 广告管理表
+/**
+ * 广告管理表
+ */
 export const advertisementsSchema = pgTable("advertisements", {
-	id: serial("id").primaryKey(), // 广告ID
-	title: varchar("title", { length: 255 }).notNull(), // 广告标题
-	type: varchar("type", { length: 50 }).notNull(), // 广告类型：banner, carousel
-	image: text("image").notNull(), // 广告图片（支持base64格式）
-	link: varchar("link", { length: 500 }), // 广告链接
-	position: varchar("position", { length: 100 }), // 广告位置
-	sortOrder: integer("sort_order").default(0), // 排序
-	isActive: boolean("is_active").default(true), // 是否激活
-	startDate: timestamp("start_date"), // 开始时间
-	endDate: timestamp("end_date"), // 结束时间
-	createdAt: timestamp("created_at").defaultNow(), // 创建时间
-	updatedAt: timestamp("updated_at").defaultNow(), // 更新时间
+	id: serial("id").primaryKey(),
+	title: varchar("title", { length: 255 }).notNull(),
+	type: varchar("type", { length: 50 }).notNull(),
+	image: text("image").notNull(),
+	link: varchar("link", { length: 500 }),
+	position: varchar("position", { length: 100 }),
+	sortOrder: integer("sort_order").default(0),
+	isActive: boolean("is_active").default(true),
+	startDate: timestamp("start_date"),
+	endDate: timestamp("end_date"),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// 顶部配置表
+/**
+ * 顶部配置表
+ */
 export const headerConfigSchema = pgTable("header_config", {
 	id: serial("id").primaryKey(),
-	shippingText: varchar("shipping_text", { length: 200 }).default("FREE SHIPPING on orders over $59* details"), // 免运费信息
-	trackOrderText: varchar("track_order_text", { length: 100 }).default("Track Order"), // 订单跟踪文本
-	helpText: varchar("help_text", { length: 100 }).default("Help"), // 帮助文本
-	trackOrderUrl: varchar("track_order_url", { length: 255 }).default("#"), // 订单跟踪链接
-	helpUrl: varchar("help_url", { length: 255 }).default("#"), // 帮助链接
-	isActive: boolean("is_active").default(true), // 是否启用
+	shippingText: varchar("shipping_text", { length: 200 }).default("FREE SHIPPING on orders over $59* details"),
+	trackOrderText: varchar("track_order_text", { length: 100 }).default("Track Order"),
+	helpText: varchar("help_text", { length: 100 }).default("Help"),
+	trackOrderUrl: varchar("track_order_url", { length: 255 }).default("#"),
+	helpUrl: varchar("help_url", { length: 255 }).default("#"),
+	isActive: boolean("is_active").default(true),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// 底部配置表
+/**
+ * 底部配置表
+ */
 export const footerConfigSchema = pgTable("footer_config", {
 	id: serial("id").primaryKey(),
-	sectionTitle: varchar("section_title", { length: 100 }).notNull(), // 分区标题 (如 "For You", "Connect with Us")
-	linkText: varchar("link_text", { length: 100 }).notNull(), // 链接文本
-	linkUrl: varchar("link_url", { length: 255 }).notNull(), // 链接地址
-	sortOrder: integer("sort_order").default(0), // 排序
-	isActive: boolean("is_active").default(true), // 是否启用
+	sectionTitle: varchar("section_title", { length: 100 }).notNull(),
+	linkText: varchar("link_text", { length: 100 }).notNull(),
+	linkUrl: varchar("link_url", { length: 255 }).notNull(),
+	sortOrder: integer("sort_order").default(0),
+	isActive: boolean("is_active").default(true),
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * 图片管理表
+ */
+export const imagesSchema = pgTable("images", {
+	id: varchar("id", { length: 21 }).primaryKey(),
+	fileName: varchar("file_name", { length: 255 }).notNull(),
+	originalName: varchar("original_name", { length: 255 }).notNull(),
+	url: text("url").notNull(),
+	category: varchar("category", { length: 50 }).notNull().default("general"),
+	fileSize: integer("file_size").notNull(),
+	mimeType: varchar("mime_type", { length: 100 }).notNull(),
+	altText: text("alt_text").default(""),
+	uploadDate: timestamp("upload_date").defaultNow().notNull(),
+	updatedDate: timestamp("updated_date").defaultNow(),
 });
 
