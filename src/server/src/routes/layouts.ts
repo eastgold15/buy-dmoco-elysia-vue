@@ -1,14 +1,14 @@
+import { eq } from 'drizzle-orm';
 import { Elysia } from 'elysia';
 import { db } from '../db/connection';
-import { headerConfig as headerConfigSchema, footerConfig as footerConfigSchema } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { footerConfigSchema, headerConfigSchema } from '../db/schema';
 import { commonRes } from '../plugins/Res';
-import { layoutsModel, type HeaderConfig, type FooterConfig, type FooterSection } from './layouts.model';
+import { layoutsModel, type FooterSection } from './layouts.model';
 
-export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
+export const layoutsRoute = new Elysia({ prefix: '/layouts', tags: ['Layouts'] })
 	.model(layoutsModel)
 	// 获取顶部配置
-	.get('/layouts/header', async () => {
+	.get('/header', async () => {
 		try {
 			const configs = await db.select().from(headerConfigSchema)
 				.where(eq(headerConfigSchema.isActive, true))
@@ -29,7 +29,7 @@ export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
 	})
 
 	// 更新顶部配置
-	.put('/layouts/header', async ({ body }) => {
+	.put('/header', async ({ body }) => {
 		try {
 			const data = body
 
@@ -75,7 +75,7 @@ export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
 	})
 
 	// 获取所有底部配置
-	.get('/layouts/footer', async () => {
+	.get('/footer', async () => {
 		try {
 			const footerConfigs = await db.select().from(footerConfigSchema)
 				.where(eq(footerConfigSchema.isActive, true))
@@ -95,7 +95,7 @@ export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
 	})
 
 	// 获取分组的底部配置
-	.get('/layouts/footer/sections', async () => {
+	.get('/footer/sections', async () => {
 		try {
 			const configs = await db.select().from(footerConfigSchema)
 				.where(eq(footerConfigSchema.isActive, true))
@@ -127,7 +127,7 @@ export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
 	})
 
 	// 创建底部配置
-	.post('/layouts/footer', async ({ body }) => {
+	.post('/footer', async ({ body }) => {
 		try {
 			const data = body
 			const [created] = await db.insert(footerConfigSchema)
@@ -149,7 +149,7 @@ export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
 	})
 
 	// 更新底部配置
-	.put('/layouts/footer/:id', async ({ params: { id }, body }) => {
+	.put('/footer/:id', async ({ params: { id }, body }) => {
 		try {
 			const data = body
 			const [updated] = await db.update(footerConfigSchema)
@@ -180,7 +180,7 @@ export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
 	})
 
 	// 删除底部配置
-	.delete('/layouts/footer/:id', async ({ params: { id } }) => {
+	.delete('/footer/:id', async ({ params: { id } }) => {
 		try {
 			const [deleted] = await db.update(footerConfigSchema)
 				.set({ isActive: false, updatedAt: new Date() })
@@ -206,7 +206,7 @@ export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
 	})
 
 	// 获取完整的布局配置
-	.get('/layouts/config', async () => {
+	.get('/config', async () => {
 		try {
 			// 获取顶部配置
 			const headerConfigs = await db.select().from(headerConfigSchema)
@@ -266,7 +266,7 @@ export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
 	})
 
 	// 初始化默认底部配置
-	.post('/layouts/footer/initialize', async () => {
+	.post('/footer/initialize', async () => {
 		try {
 			const existingConfigs = await db.select().from(footerConfigSchema)
 				.where(eq(footerConfigSchema.isActive, true));

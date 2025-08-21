@@ -20,10 +20,10 @@ function buildCategoryTree(category: Category, allCategories: Category[]): Categ
     };
 }
 
-export const categoriesRoute = new Elysia({ tags: ['Categories'] })
+export const categoriesRoute = new Elysia({ prefix: '/categories', tags: ['Categories'] })
     .model(categoriesModel)
     // 获取分类树形结构
-    .get('/categories/tree', async () => {
+    .get('/tree', async () => {
         try {
             const dbCategories = await db.select().from(categoriesSchema).orderBy(asc(categoriesSchema.sortOrder));
             const allCategories = dbCategories.map(cat => ({
@@ -50,7 +50,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
         })
 
     // 获取所有分类（管理后台用）
-    .get('/categories', async ({ query: { page, pageSize, sortBy, sortOrder, search, name, parentId, isVisible } }) => {
+    .get('', async ({ query: { page, pageSize, sortBy, sortOrder, search, name, parentId, isVisible } }) => {
         try {
             // 搜索条件构建
             const conditions = [];
@@ -140,7 +140,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
     })
 
     // 根据ID获取分类
-    .get('/categories/:id', async ({ params: { id } }) => {
+    .get('/:id', async ({ params: { id } }) => {
         try {
 
             const dbCategory = await db.select().from(categoriesSchema).where(eq(categoriesSchema.id, parseInt(id))).limit(1);
@@ -161,7 +161,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
     })
 
     // 创建分类
-    .post('/categories', async ({ body }) => {
+    .post('', async ({ body }) => {
         try {
             const result = await db.insert(categoriesSchema).values({
                 name: body.name,
@@ -196,7 +196,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
     })
 
     // 更新分类
-    .put('/categories/:id', async ({ params: { id }, body }) => {
+    .put('/:id', async ({ params: { id }, body }) => {
         try {
             const result = await db.update(categoriesSchema)
                 .set({
@@ -236,7 +236,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
     })
 
     // 删除分类
-    .delete('/categories/:id', async ({ params: { id } }) => {
+    .delete('/:id', async ({ params: { id } }) => {
         try {
             const deleted = await deleteCategory(id);
             if (!deleted) {
@@ -250,7 +250,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
     })
 
     // 获取子分类
-    .get('/categories/:id/children', async ({ params: { id } }) => {
+    .get('/:id/children', async ({ params: { id } }) => {
         try {
             // 获取指定父分类下的所有子分类
             const dbChildren = await db.select().from(categoriesSchema)
@@ -271,7 +271,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
     })
 
     // 更新分类排序
-    .patch('/categories/:id/sort', async ({ params: { id }, body }) => {
+    .patch('/:id/sort', async ({ params: { id }, body }) => {
         try {
             const { sortOrder } = body as { sortOrder: number };
 
@@ -302,7 +302,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
     })
 
     // 切换分类显示状态
-    .patch('/categories/:id/toggle-visibility', async ({ params: { id } }) => {
+    .patch('/:id/toggle-visibility', async ({ params: { id } }) => {
         try {
             // 获取当前分类
             const currentCategory = await db.select().from(categoriesSchema)
@@ -336,7 +336,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
     })
 
     // 分类上移
-    .patch('/categories/:id/move-up', async ({ params: { id } }) => {
+    .patch('/:id/move-up', async ({ params: { id } }) => {
         try {
             // 获取当前分类
             const currentCategory = await db.select().from(categoriesSchema)
@@ -383,7 +383,7 @@ export const categoriesRoute = new Elysia({ tags: ['Categories'] })
     })
 
     // 分类下移
-    .patch('/categories/:id/move-down', async ({ params: { id } }) => {
+    .patch('/:id/move-down', async ({ params: { id } }) => {
         try {
             // 获取当前分类
             const currentCategory = await db.select().from(categoriesSchema)

@@ -3,10 +3,10 @@ import { ossService } from "./oss";
 import { uploadModel, SUPPORTED_IMAGE_TYPES, MAX_FILE_SIZE, type UploadResponse } from './upload.model';
 import { commonRes, errorRes } from '../plugins/Res';
 
-export const uploadRoute = new Elysia({ tags: ['Upload'] })
+export const uploadRoute = new Elysia({ prefix: '/upload', tags: ['Upload'] })
     .model(uploadModel)
     // 上传广告图片
-    .post('/upload/advertisement', async ({ body }) => {
+    .post('/advertisement', async ({ body }) => {
         try {
             const formData = body as any;
             const file = formData.file;
@@ -53,7 +53,7 @@ export const uploadRoute = new Elysia({ tags: ['Upload'] })
     })
 
     // 上传商品图片
-    .post('/upload/product', async ({ body }) => {
+    .post('/product', async ({ body }) => {
         try {
             const formData = body as any;
             const file = formData.file;
@@ -100,7 +100,7 @@ export const uploadRoute = new Elysia({ tags: ['Upload'] })
     })
 
     // 上传分类图片
-    .post('/upload/category', async ({ body }) => {
+    .post('/category', async ({ body }) => {
         try {
             const formData = body as any;
             const file = formData.file;
@@ -147,7 +147,7 @@ export const uploadRoute = new Elysia({ tags: ['Upload'] })
     })
 
     // 上传通用图片
-    .post('/upload/general', async ({ body }) => {
+    .post('/general', async ({ body }) => {
         try {
             const formData = body as any;
             const file = formData.file;

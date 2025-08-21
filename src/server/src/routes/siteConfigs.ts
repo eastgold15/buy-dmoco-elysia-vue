@@ -5,10 +5,10 @@ import { eq } from 'drizzle-orm';
 import { commonRes } from '../plugins/Res';
 import { siteConfigsModel } from './siteConfigs.model';
 
-export const siteConfigsRoute = new Elysia({ prefix: '/api' })
+export const siteConfigsRoute = new Elysia({ prefix: 'site-configs' })
     .model(siteConfigsModel)
     // 获取所有配置
-    .get('/site-configs', async () => {
+    .get('/', async () => {
         try {
             const dbConfigs = await db.select().from(siteConfigSchema);
             return commonRes(dbConfigs, 200);
@@ -23,9 +23,9 @@ export const siteConfigsRoute = new Elysia({ prefix: '/api' })
             description: '获取所有网站配置信息'
         }
     })
-    
+
     // 根据分类获取配置
-    .get('/site-configs/category/:category', async ({ params: { category } }) => {
+    .get('/category/:category', async ({ params: { category } }) => {
         try {
             const dbConfigs = await db.select()
                 .from(siteConfigSchema)
@@ -43,19 +43,19 @@ export const siteConfigsRoute = new Elysia({ prefix: '/api' })
             description: '根据分类获取网站配置信息'
         }
     })
-    
+
     // 根据键获取配置
-    .get('/site-configs/:key', async ({ params: { key } }) => {
+    .get('/:key', async ({ params: { key } }) => {
         try {
             const [dbConfig] = await db.select()
                 .from(siteConfigSchema)
                 .where(eq(siteConfigSchema.key, key))
                 .limit(1);
-            
+
             if (!dbConfig) {
                 return commonRes(null, 404, '配置不存在');
             }
-            
+
             return commonRes(dbConfig, 200);
         } catch (error) {
             console.error('根据键获取配置失败:', error);
@@ -69,9 +69,9 @@ export const siteConfigsRoute = new Elysia({ prefix: '/api' })
             description: '根据配置键获取特定配置信息'
         }
     })
-    
+
     // 创建配置
-    .post('/site-configs', async ({ body }) => {
+    .post('/', async ({ body }) => {
         try {
             const data = body as any;
             const [newConfig] = await db.insert(siteConfigSchema)
@@ -82,7 +82,7 @@ export const siteConfigsRoute = new Elysia({ prefix: '/api' })
                     category: data.category || 'general'
                 })
                 .returning();
-            
+
             return commonRes(newConfig, 201);
         } catch (error) {
             console.error('创建配置失败:', error);
@@ -96,9 +96,9 @@ export const siteConfigsRoute = new Elysia({ prefix: '/api' })
             description: '创建新的网站配置项'
         }
     })
-    
+
     // 更新配置
-    .put('/site-configs/:key', async ({ params: { key }, body }) => {
+    .put('/:key', async ({ params: { key }, body }) => {
         try {
             const data = body as any;
             const [updatedConfig] = await db.update(siteConfigSchema)
@@ -110,40 +110,46 @@ export const siteConfigsRoute = new Elysia({ prefix: '/api' })
                 })
                 .where(eq(siteConfigSchema.key, key))
                 .returning();
-            
+
             if (!updatedConfig) {
                 return commonRes(null, 404, '配置不存在');
             }
-            
+
             return commonRes(updatedConfig, 200);
         } catch (error) {
             console.error('更新配置失败:', error);
             return commonRes(null, 500, '更新配置失败');
         }
     })
-    
+
     // 删除配置
-    .delete('/site-configs/:key', async ({ params: { key } }) => {
+    .delete('/:key', async ({ params: { key } }) => {
         try {
             const result = await db.delete(siteConfigSchema)
                 .where(eq(siteConfigSchema.key, key));
-            
+
             if (result.rowCount === 0) {
                 return commonRes(null, 404, '配置不存在');
             }
-            
+
             return commonRes({ success: true }, 200);
         } catch (error) {
             console.error('删除配置失败:', error);
             return commonRes(null, 500, '删除配置失败');
         }
+    }, {
+        detail: {
+            tags: ['SiteConfigs'],
+            summary: '删除配置',
+            description: '根据键删除特定配置项'
+        }
     })
-    
+
     // 批量更新配置
-    .patch('/site-configs/batch', async ({ body }) => {
+    .patch('/batch', async ({ body }) => {
         try {
             const configs = body as { key: string; value: string }[];
-            
+
             // 使用事务批量更新
             await db.transaction(async (tx) => {
                 for (const config of configs) {
@@ -155,16 +161,16 @@ export const siteConfigsRoute = new Elysia({ prefix: '/api' })
                         .where(eq(siteConfigSchema.key, config.key));
                 }
             });
-            
+
             return commonRes({ success: true }, 200);
         } catch (error) {
             console.error('批量更新配置失败:', error);
             return commonRes(null, 500, '批量更新配置失败');
         }
     })
-    
+
     // 初始化默认配置
-    .post('/site-configs/initialize', async () => {
+    .post('/initialize', async () => {
         try {
             const defaultConfigs = [
                 { key: 'site_name', value: '外贸服装商城', description: '网站名称', category: 'general' },
@@ -185,15 +191,21 @@ export const siteConfigsRoute = new Elysia({ prefix: '/api' })
                     .from(siteConfigSchema)
                     .where(eq(siteConfigSchema.key, config.key))
                     .limit(1);
-                
+
                 if (!existing) {
                     await db.insert(siteConfigSchema).values(config);
                 }
             }
-            
+
             return commonRes({ success: true, message: '默认配置初始化完成' }, 200);
         } catch (error) {
             console.error('初始化默认配置失败:', error);
             return commonRes(null, 500, '初始化默认配置失败');
         }
-    });
+    }, {
+        detail: {
+            tags: ['SiteConfigs'],
+            summary: '初始化默认配置',
+            description: '初始化网站的默认配置项'
+        }
+    })

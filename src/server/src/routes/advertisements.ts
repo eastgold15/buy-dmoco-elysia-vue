@@ -5,7 +5,7 @@ import { commonRes, pageRes } from "../plugins/Res";
 import { advertisementsModel } from "./advertisements.model";
 import { Elysia, t } from "elysia";
 
-export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
+export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags: ['Advertisements'] })
     .model(advertisementsModel)
     .get(
         "/",
@@ -94,7 +94,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
     )
 
     // 获取Banner广告
-    .get('/advertisements/banner', async ({ query: { position } }) => {
+    .get('/banner', async ({ query: { position } }) => {
         try {
             const conditions = [
                 eq(advertisementsSchema.type, 'banner'),
@@ -124,7 +124,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
         })
 
     // 获取轮播图广告
-    .get('/advertisements/carousel', async () => {
+    .get('/carousel', async () => {
         try {
             const advertisements = await db
                 .select()
@@ -145,7 +145,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
     })
 
     // 根据ID获取广告
-    .get('/advertisements/:id', async ({ params: { id } }) => {
+    .get('/:id', async ({ params: { id } }) => {
         try {
             const [advertisement] = await db
                 .select()
@@ -164,7 +164,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
     })
 
     // 创建广告
-    .post('/advertisements', async ({ body }) => {
+    .post('/', async ({ body }) => {
         try {
             const [advertisement] = await db
                 .insert(advertisementsSchema)
@@ -198,7 +198,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
     })
 
     // 更新广告
-    .put('/advertisements/:id', async ({ params: { id }, body }) => {
+    .put('/:id', async ({ params: { id }, body }) => {
         try {
             const [advertisement] = await db
                 .update(advertisementsSchema)
@@ -224,7 +224,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
         })
 
     // 删除广告
-    .delete('/advertisements/:id', async ({ params: { id } }) => {
+    .delete('/:id', async ({ params: { id } }) => {
         try {
             const [deleted] = await db
                 .delete(advertisementsSchema)
@@ -243,7 +243,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
     })
 
     // 切换广告状态
-    .patch('/advertisements/:id/toggle', async ({ params: { id } }) => {
+    .patch('/:id/toggle', async ({ params: { id } }) => {
         try {
             // 先获取当前状态
             const [current] = await db
@@ -272,8 +272,8 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
         }
     })
 
-    // 获取活跃广告（前台展示用）
-    .get('/advertisements/active', async ({ query: { type, position } }) => {
+    // 获取激活的广告
+    .get('/active', async ({ query: { type, position } }) => {
         try {
             const conditions = [eq(advertisementsSchema.isActive, true)];
 
@@ -309,7 +309,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
     })
 
     // 更新广告排序
-    .patch('/advertisements/:id/sort', async ({ params: { id }, body: { sortOrder } }) => {
+    .patch('/:id/sort', async ({ params: { id }, body: { sortOrder } }) => {
         try {
 
             const [advertisement] = await db

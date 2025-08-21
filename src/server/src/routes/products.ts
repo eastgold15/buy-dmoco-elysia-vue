@@ -5,10 +5,10 @@ import { productsSchema, categoriesSchema } from '../db/schema';
 import { commonRes, pageRes } from '../plugins/Res';
 import { productsModel } from './products.model';
 
-export const productsRoute = new Elysia({ tags: ['Products'] })
+export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products'] })
     .model(productsModel)
     // 获取所有商品
-    .get('/products', async ({ query }) => {
+    .get('/', async ({ query }) => {
         try {
             const page = query.page ? parseInt(query.page as string) : 1;
             const limit = query.limit ? parseInt(query.limit as string) : 20;
@@ -40,24 +40,24 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
                     description: productsSchema.description,
                     shortDescription: productsSchema.shortDescription,
                     price: productsSchema.price,
-                    originalPrice: productsSchema.originalPrice,
+                    comparePrice: productsSchema.comparePrice,
                     sku: productsSchema.sku,
                     stock: productsSchema.stock,
                     images: productsSchema.images,
                     colors: productsSchema.colors,
                     sizes: productsSchema.sizes,
-                    tags: productsSchema.tags,
+                    // tags: productsSchema.tags, // 字段不存在于schema中
                     categoryId: productsSchema.categoryId,
                     categoryName: categoriesSchema.name,
                     isActive: productsSchema.isActive,
                     isFeatured: productsSchema.isFeatured,
                     weight: productsSchema.weight,
                     dimensions: productsSchema.dimensions,
-                    material: productsSchema.material,
-                    brand: productsSchema.brand,
-                    seoTitle: productsSchema.seoTitle,
-                    seoDescription: productsSchema.seoDescription,
-                    seoKeywords: productsSchema.seoKeywords,
+                    materials: productsSchema.materials,
+                    // brand: productsSchema.brand, // 字段不存在于schema中
+                    metaTitle: productsSchema.metaTitle,
+                    metaDescription: productsSchema.metaDescription,
+                    metaKeywords: productsSchema.metaKeywords,
                     createdAt: productsSchema.createdAt,
                     updatedAt: productsSchema.updatedAt
                 })
@@ -94,7 +94,7 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
     })
 
     // 根据ID获取商品详情
-    .get('/products/:id', async ({ params: { id } }) => {
+    .get('/:id', async ({ params: { id } }) => {
         try {
             const [dbProduct] = await db
                 .select({
@@ -104,24 +104,24 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
                     description: productsSchema.description,
                     shortDescription: productsSchema.shortDescription,
                     price: productsSchema.price,
-                    originalPrice: productsSchema.originalPrice,
+                    comparePrice: productsSchema.comparePrice,
                     sku: productsSchema.sku,
                     stock: productsSchema.stock,
                     images: productsSchema.images,
                     colors: productsSchema.colors,
                     sizes: productsSchema.sizes,
-                    tags: productsSchema.tags,
+                    // tags: productsSchema.tags, // 字段不存在于schema中
                     categoryId: productsSchema.categoryId,
                     categoryName: categoriesSchema.name,
                     isActive: productsSchema.isActive,
                     isFeatured: productsSchema.isFeatured,
                     weight: productsSchema.weight,
                     dimensions: productsSchema.dimensions,
-                    material: productsSchema.material,
-                    brand: productsSchema.brand,
-                    seoTitle: productsSchema.seoTitle,
-                    seoDescription: productsSchema.seoDescription,
-                    seoKeywords: productsSchema.seoKeywords,
+                    materials: productsSchema.materials,
+                    // brand: productsSchema.brand, // 字段不存在于schema中
+                    metaTitle: productsSchema.metaTitle,
+                    metaDescription: productsSchema.metaDescription,
+                    metaKeywords: productsSchema.metaKeywords,
                     createdAt: productsSchema.createdAt,
                     updatedAt: productsSchema.updatedAt
                 })
@@ -149,7 +149,7 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
     })
 
     // 根据slug获取商品详情
-    .get('/products/slug/:slug', async ({ params: { slug } }) => {
+    .get('/slug/:slug', async ({ params: { slug } }) => {
         try {
             const [dbProduct] = await db
                 .select({
@@ -172,11 +172,11 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
                     isFeatured: productsSchema.isFeatured,
                     weight: productsSchema.weight,
                     dimensions: productsSchema.dimensions,
-                    material: productsSchema.material,
-                    brand: productsSchema.brand,
-                    seoTitle: productsSchema.seoTitle,
-                    seoDescription: productsSchema.seoDescription,
-                    seoKeywords: productsSchema.seoKeywords,
+                    materials: productsSchema.materials,
+                    // brand: productsSchema.brand, // 字段不存在
+                    metaTitle: productsSchema.metaTitle,
+                    metaDescription: productsSchema.metaDescription,
+                    metaKeywords: productsSchema.metaKeywords,
                     createdAt: productsSchema.createdAt,
                     updatedAt: productsSchema.updatedAt
                 })
@@ -204,7 +204,7 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
     })
 
     // 搜索商品
-    .get('/products/search', async ({ query }) => {
+    .get('/search', async ({ query }) => {
         try {
             const searchQuery = query.q as string;
             const categoryId = query.categoryId as string;
@@ -310,11 +310,11 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
                     isFeatured: productsSchema.isFeatured,
                     weight: productsSchema.weight,
                     dimensions: productsSchema.dimensions,
-                    material: productsSchema.material,
-                    brand: productsSchema.brand,
-                    seoTitle: productsSchema.seoTitle,
-                    seoDescription: productsSchema.seoDescription,
-                    seoKeywords: productsSchema.seoKeywords,
+                    materials: productsSchema.materials,
+                    // brand: productsSchema.brand, // 字段不存在
+                    metaTitle: productsSchema.metaTitle,
+                    metaDescription: productsSchema.metaDescription,
+                    metaKeywords: productsSchema.metaKeywords,
                     createdAt: productsSchema.createdAt,
                     updatedAt: productsSchema.updatedAt
                 })
@@ -352,7 +352,7 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
     })
 
     // 获取推荐商品
-    .get('/products/featured', async ({ query }) => {
+    .get('/featured', async ({ query }) => {
         try {
             const limit = query.limit ? parseInt(query.limit as string) : 8;
 
@@ -377,11 +377,11 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
                     isFeatured: productsSchema.isFeatured,
                     weight: productsSchema.weight,
                     dimensions: productsSchema.dimensions,
-                    material: productsSchema.material,
-                    brand: productsSchema.brand,
-                    seoTitle: productsSchema.seoTitle,
-                    seoDescription: productsSchema.seoDescription,
-                    seoKeywords: productsSchema.seoKeywords,
+                    materials: productsSchema.materials,
+                    // brand: productsSchema.brand, // 字段不存在
+                    metaTitle: productsSchema.metaTitle,
+                    metaDescription: productsSchema.metaDescription,
+                    metaKeywords: productsSchema.metaKeywords,
                     createdAt: productsSchema.createdAt,
                     updatedAt: productsSchema.updatedAt
                 })
@@ -402,7 +402,7 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
     })
 
     // 获取相关商品
-    .get('/products/:id/related', async ({ params: { id }, query }) => {
+    .get('/:id/related', async ({ params: { id }, query }) => {
         try {
             // 先获取当前商品的分类信息
             const [currentProduct] = await db
@@ -439,11 +439,11 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
                     isFeatured: productsSchema.isFeatured,
                     weight: productsSchema.weight,
                     dimensions: productsSchema.dimensions,
-                    material: productsSchema.material,
-                    brand: productsSchema.brand,
-                    seoTitle: productsSchema.seoTitle,
-                    seoDescription: productsSchema.seoDescription,
-                    seoKeywords: productsSchema.seoKeywords,
+                    materials: productsSchema.materials,
+                    // brand: productsSchema.brand, // 字段不存在
+                    metaTitle: productsSchema.metaTitle,
+                    metaDescription: productsSchema.metaDescription,
+                    metaKeywords: productsSchema.metaKeywords,
                     createdAt: productsSchema.createdAt,
                     updatedAt: productsSchema.updatedAt
                 })
@@ -465,7 +465,7 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
     })
 
     // 获取热门搜索关键词
-    .get('/products/search/popular-terms', async ({ query }) => {
+    .get('/search/popular-terms', async ({ query }) => {
         try {
             const limit = query.limit ? parseInt(query.limit as string) : 10;
 
@@ -514,7 +514,7 @@ export const productsRoute = new Elysia({ tags: ['Products'] })
     })
 
     // 获取商品筛选选项
-    .get('/products/filter-options', async ({ query }) => {
+    .get('/filter-options', async ({ query }) => {
         try {
             const categoryId = query.categoryId ? parseInt(query.categoryId as string) : undefined;
 
