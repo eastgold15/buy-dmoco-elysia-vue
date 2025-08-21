@@ -3,6 +3,7 @@ import * as page from "client:page";
 import { Elysia } from "elysia";
 import { renderToString } from "vue/server-renderer";
 import { api } from "./src";
+// console.log(Bun.s3)
 const app = new Elysia()
     .onRequest(async ({ request }) => {
         const { pathname } = new URL(request.url)

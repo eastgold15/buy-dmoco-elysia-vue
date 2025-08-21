@@ -33,6 +33,36 @@ export const layoutsModel = {
   })
 };
 
+// 额外的类型定义
+export interface HeaderConfig {
+  id: number;
+  logoUrl?: string;
+  logoText?: string;
+  navigationItems?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface FooterConfig {
+  id: number;
+  sectionTitle: string;
+  linkText: string;
+  linkUrl: string;
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface FooterSection {
+  sectionTitle: string;
+  links: {
+    text: string;
+    url: string;
+  }[];
+}
+
 // 导出类型
 export type CreateHeaderConfigDto = typeof layoutsModel.CreateHeaderConfigDto;
 export type UpdateHeaderConfigDto = typeof layoutsModel.UpdateHeaderConfigDto;

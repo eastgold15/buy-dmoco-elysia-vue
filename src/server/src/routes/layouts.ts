@@ -3,14 +3,7 @@ import { db } from '../db/connection';
 import { headerConfig as headerConfigSchema, footerConfig as footerConfigSchema } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { commonRes } from '../plugins/Res';
-import { layoutsModel } from './layouts.model';
-import type {
-	HeaderConfig,
-	FooterConfig,
-	FooterSection,
-
-
-} from '../types/layout';
+import { layoutsModel, type HeaderConfig, type FooterConfig, type FooterSection } from './layouts.model';
 
 export const layoutsRoute = new Elysia({ tags: ['Layouts'] })
 	.model(layoutsModel)

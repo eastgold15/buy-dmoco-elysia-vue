@@ -433,7 +433,7 @@ export const imagesRoutes = new Elysia({ prefix: '/images' })
       const key = `${category}/${uniqueFileName}`;
 
       // 生成预签名URL
-      const presignedUrl = await ossService.generatePresignedUrl(key, 'PUT', 3600); // 1小时有效期
+      const presignedUrl = await ossService.generatePresignedUploadUrl(key, 3600, 'application/octet-stream'); // 1小时有效期
       const publicUrl = ossService.getPublicUrl(key);
 
       return {
