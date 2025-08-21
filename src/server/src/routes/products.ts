@@ -159,13 +159,13 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     description: productsSchema.description,
                     shortDescription: productsSchema.shortDescription,
                     price: productsSchema.price,
-                    originalPrice: productsSchema.originalPrice,
+                    comparePrice: productsSchema.comparePrice,
                     sku: productsSchema.sku,
                     stock: productsSchema.stock,
                     images: productsSchema.images,
                     colors: productsSchema.colors,
                     sizes: productsSchema.sizes,
-                    tags: productsSchema.tags,
+                    features: productsSchema.features,
                     categoryId: productsSchema.categoryId,
                     categoryName: categoriesSchema.name,
                     isActive: productsSchema.isActive,
@@ -212,7 +212,7 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
             const maxPrice = query.maxPrice ? parseFloat(query.maxPrice as string) : undefined;
             const colors = query.colors ? (query.colors as string).split(',') : [];
             const sizes = query.sizes ? (query.sizes as string).split(',') : [];
-            const tags = query.tags ? (query.tags as string).split(',') : [];
+            const features = query.features ? (query.features as string).split(',') : [];
             const isActive = query.isActive !== undefined ? query.isActive === 'true' : true;
             const isFeatured = query.isFeatured !== undefined ? query.isFeatured === 'true' : undefined;
             const sortBy = (query.sortBy as 'price' | 'name' | 'createdAt') || 'createdAt';
@@ -263,12 +263,12 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                 conditions.push(or(...sizeConditions));
             }
 
-            // 标签筛选
-            if (tags.length > 0) {
-                const tagConditions = tags.map(tag =>
-                    sql`${productsSchema.tags} @> ${JSON.stringify([tag])}`
+            // 特性筛选
+            if (features.length > 0) {
+                const featureConditions = features.map(feature =>
+                    sql`${productsSchema.features} @> ${JSON.stringify([feature])}`
                 );
-                conditions.push(or(...tagConditions));
+                conditions.push(or(...featureConditions));
             }
 
             // 推荐商品筛选
@@ -297,13 +297,13 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     description: productsSchema.description,
                     shortDescription: productsSchema.shortDescription,
                     price: productsSchema.price,
-                    originalPrice: productsSchema.originalPrice,
+                    comparePrice: productsSchema.comparePrice,
                     sku: productsSchema.sku,
                     stock: productsSchema.stock,
                     images: productsSchema.images,
                     colors: productsSchema.colors,
                     sizes: productsSchema.sizes,
-                    tags: productsSchema.tags,
+                    features: productsSchema.features,
                     categoryId: productsSchema.categoryId,
                     categoryName: categoriesSchema.name,
                     isActive: productsSchema.isActive,
@@ -364,13 +364,13 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     description: productsSchema.description,
                     shortDescription: productsSchema.shortDescription,
                     price: productsSchema.price,
-                    originalPrice: productsSchema.originalPrice,
+                    comparePrice: productsSchema.comparePrice,
                     sku: productsSchema.sku,
                     stock: productsSchema.stock,
                     images: productsSchema.images,
                     colors: productsSchema.colors,
                     sizes: productsSchema.sizes,
-                    tags: productsSchema.tags,
+                    features: productsSchema.features,
                     categoryId: productsSchema.categoryId,
                     categoryName: categoriesSchema.name,
                     isActive: productsSchema.isActive,
@@ -426,13 +426,13 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     description: productsSchema.description,
                     shortDescription: productsSchema.shortDescription,
                     price: productsSchema.price,
-                    originalPrice: productsSchema.originalPrice,
+                    comparePrice: productsSchema.comparePrice,
                     sku: productsSchema.sku,
                     stock: productsSchema.stock,
                     images: productsSchema.images,
                     colors: productsSchema.colors,
                     sizes: productsSchema.sizes,
-                    tags: productsSchema.tags,
+                    features: productsSchema.features,
                     categoryId: productsSchema.categoryId,
                     categoryName: categoriesSchema.name,
                     isActive: productsSchema.isActive,

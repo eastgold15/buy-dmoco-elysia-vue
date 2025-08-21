@@ -27,7 +27,7 @@ import FooterConfig from "./pages/admin/FooterConfig.vue";
 import AdvertisementManagement from "./pages/admin/AdvertisementManagement.vue";
 import ImageManager from "./pages/admin/ImageManager.vue";
 import Search from "./pages/Search.vue";
-
+import Index from "./pages/index.vue";
 
 export const createApp = async () => {
 	const app = createSSRApp(App);
@@ -36,6 +36,11 @@ export const createApp = async () => {
 		routes: [
 			{
 				path: "/",
+				name: "index",
+				component: Index,
+			},
+			{
+				path: "/home",
 				name: "home",
 				component: Home,
 			},

@@ -27,6 +27,9 @@ export const DbType = {
       headerConfigSchema: createInsertSchema(dbSchema.headerConfigSchema),
       footerConfigSchema: createInsertSchema(dbSchema.footerConfigSchema),
       imagesSchema: createInsertSchema(dbSchema.imagesSchema),
+      ordersSchema: createInsertSchema(dbSchema.ordersSchema),
+      orderItemsSchema: createInsertSchema(dbSchema.orderItemsSchema),
+      refundsSchema: createInsertSchema(dbSchema.refundsSchema),
     },
     select: {
       userSchema: createSelectSchema(dbSchema.userSchema, {
@@ -41,6 +44,9 @@ export const DbType = {
       headerConfigSchema: createSelectSchema(dbSchema.headerConfigSchema),
       footerConfigSchema: createSelectSchema(dbSchema.footerConfigSchema),
       imagesSchema: createSelectSchema(dbSchema.imagesSchema),
+      ordersSchema: createSelectSchema(dbSchema.ordersSchema),
+      orderItemsSchema: createSelectSchema(dbSchema.orderItemsSchema),
+      refundsSchema: createSelectSchema(dbSchema.refundsSchema),
     }
   },
   spreads: {
@@ -57,6 +63,9 @@ export const DbType = {
       headerConfigSchema: createInsertSchema(dbSchema.headerConfigSchema),
       footerConfigSchema: createInsertSchema(dbSchema.footerConfigSchema),
       imagesSchema: createInsertSchema(dbSchema.imagesSchema),
+      ordersSchema: createInsertSchema(dbSchema.ordersSchema),
+      orderItemsSchema: createInsertSchema(dbSchema.orderItemsSchema),
+      refundsSchema: createInsertSchema(dbSchema.refundsSchema),
     }, 'insert'),
     select: spreads({
       userSchema: createSelectSchema(dbSchema.userSchema, {
@@ -71,6 +80,9 @@ export const DbType = {
       headerConfigSchema: createSelectSchema(dbSchema.headerConfigSchema),
       footerConfigSchema: createSelectSchema(dbSchema.footerConfigSchema),
       imagesSchema: createSelectSchema(dbSchema.imagesSchema),
+      ordersSchema: createSelectSchema(dbSchema.ordersSchema),
+      orderItemsSchema: createSelectSchema(dbSchema.orderItemsSchema),
+      refundsSchema: createSelectSchema(dbSchema.refundsSchema),
     }, 'select')
   }
 } as const

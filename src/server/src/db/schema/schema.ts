@@ -158,3 +158,68 @@ export const imagesSchema = pgTable("images", {
 	updatedDate: timestamp("updated_date").defaultNow(),
 });
 
+/**
+ * 订单表
+ */
+export const ordersSchema = pgTable("orders", {
+	id: serial("id").primaryKey(),
+	orderNumber: varchar("order_number", { length: 50 }).notNull().unique(),
+	customerName: varchar("customer_name", { length: 100 }).notNull(),
+	customerEmail: varchar("customer_email", { length: 255 }).notNull(),
+	customerPhone: varchar("customer_phone", { length: 20 }),
+	shippingAddress: json("shipping_address").notNull(),
+	billingAddress: json("billing_address"),
+	subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
+	shippingCost: decimal("shipping_cost", { precision: 10, scale: 2 }).default("0.00"),
+	taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).default("0.00"),
+	discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }).default("0.00"),
+	totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+	currency: varchar("currency", { length: 3 }).default("USD"),
+	status: varchar("status", { length: 20 }).default("pending"), // pending, confirmed, processing, shipped, delivered, cancelled
+	paymentStatus: varchar("payment_status", { length: 20 }).default("pending"), // pending, paid, failed, refunded
+	paymentMethod: varchar("payment_method", { length: 50 }),
+	paymentId: varchar("payment_id", { length: 255 }),
+	trackingNumber: varchar("tracking_number", { length: 100 }),
+	shippingMethod: varchar("shipping_method", { length: 50 }),
+	notes: text("notes"),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * 订单项表
+ */
+export const orderItemsSchema = pgTable("order_items", {
+	id: serial("id").primaryKey(),
+	orderId: integer("order_id").references(() => ordersSchema.id).notNull(),
+	productId: integer("product_id").references(() => productsSchema.id).notNull(),
+	productName: varchar("product_name", { length: 255 }).notNull(),
+	productSku: varchar("product_sku", { length: 100 }),
+	productImage: text("product_image"),
+	unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+	quantity: integer("quantity").notNull(),
+	totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+	selectedColor: varchar("selected_color", { length: 50 }),
+	selectedSize: varchar("selected_size", { length: 50 }),
+	productOptions: json("product_options"), // 其他商品选项
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * 退款表
+ */
+export const refundsSchema = pgTable("refunds", {
+	id: serial("id").primaryKey(),
+	orderId: integer("order_id").references(() => ordersSchema.id).notNull(),
+	refundNumber: varchar("refund_number", { length: 50 }).notNull().unique(),
+	amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+	reason: text("reason").notNull(),
+	status: varchar("status", { length: 20 }).default("pending"), // pending, approved, rejected, processed
+	refundMethod: varchar("refund_method", { length: 50 }),
+	processedAt: timestamp("processed_at"),
+	notes: text("notes"),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
+});
+
