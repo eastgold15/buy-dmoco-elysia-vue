@@ -1,5 +1,5 @@
 import { Elysia, t } from 'elysia';
-import { ossService } from '../oss';
+import { ossService } from './oss';
 import { db } from '../db/connection';
 import { imagesSchema as images } from '../db/schema';
 import { eq, inArray, like, and } from 'drizzle-orm';

@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { eq, desc, asc, and, or, sql, ilike } from 'drizzle-orm';
 import { db } from '../db/connection';
-import { productsSchema, categoriesSchema } from '../db/schema/schema';
+import { productsSchema, categoriesSchema } from '../db/schema';
 import { commonRes, pageRes } from '../plugins/Res';
 import { productsModel } from './products.model';
 

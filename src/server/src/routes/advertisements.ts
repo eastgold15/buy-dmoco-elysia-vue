@@ -1,56 +1,97 @@
-import { Elysia } from 'elysia';
-import { db } from '../db/connection';
-import { advertisements as advertisementsSchema } from '../db/schema';
-import { eq, and, desc, sql } from 'drizzle-orm';
-import { commonRes, pageRes } from '../plugins/Res';
-import { advertisementsModel, type CreateAdvertisementRequest, type UpdateAdvertisementRequest, type AdvertisementType } from './advertisements.model'
+import { and, asc, count, desc, eq, like, or } from "drizzle-orm";
+import { db } from "../db/connection";
+import { advertisementsSchema } from "../db/schema/schema";
+import { commonRes, pageRes } from "../plugins/Res";
+import { advertisementsModel } from "./advertisements.model";
+import { Elysia, t } from "elysia";
+
 export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
     .model(advertisementsModel)
-    // 获取广告列表
-    .get('/advertisements', async ({ query: { type, position, isActive, page, limit } }) => {
-        try {
-            const pageNum = Number(page) || 1;
-            const limitNum = Number(limit) || 10;
-            const offset = (pageNum - 1) * limitNum;
+    .get(
+        "/",
+        async ({ query: { page, pageSize, sortBy, sortOrder, search, type, position, isActive } }) => {
+            try {
+                // 搜索条件：支持标题和描述搜索
+                const conditions = [];
+                if (search) {
+                    conditions.push(
+                        or(
+                            like(advertisementsSchema.title, `%${search}%`),
+                            like(advertisementsSchema.link, `%${search}%`),
+                        ),
+                    );
+                }
+                if (type) {
+                    conditions.push(eq(advertisementsSchema.type, type));
+                }
+                if (position) {
+                    conditions.push(eq(advertisementsSchema.position, position));
+                }
+                if (isActive !== undefined) {
+                    conditions.push(eq(advertisementsSchema.isActive, isActive));
+                }
 
-            // 构建查询条件
-            const conditions = [];
-            if (type) {
-                conditions.push(eq(advertisementsSchema.type, type as AdvertisementType));
-            }
-            if (position) {
-                conditions.push(eq(advertisementsSchema.position, position));
-            }
-            if (isActive !== undefined) {
-                conditions.push(eq(advertisementsSchema.isActive, isActive === 'true'));
-            }
+                // 允许的排序字段
+                const allowedSortFields = {
+                    title: advertisementsSchema.title,
+                    sortOrder: advertisementsSchema.sortOrder,
+                    createdAt: advertisementsSchema.createdAt,
+                    updatedAt: advertisementsSchema.updatedAt,
+                };
 
-            // 查询广告列表
-            const [advertisements, totalResult] = await Promise.all([
-                db.select()
+                // 确定排序字段和方向
+                const sortFields =
+                    allowedSortFields[sortBy as keyof typeof allowedSortFields] ||
+                    advertisementsSchema.sortOrder;
+                const sortOrderValue =
+                    sortOrder === "desc" ? desc(sortFields) : asc(sortFields);
+
+                // 构建查询
+                const queryBuilder = db
+                    .select()
                     .from(advertisementsSchema)
                     .where(conditions.length > 0 ? and(...conditions) : undefined)
-                    .orderBy(desc(advertisementsSchema.sortOrder), desc(advertisementsSchema.createdAt))
-                    .limit(limitNum)
-                    .offset(offset),
-                db.select({ count: sql<number>`count(*)` })
+                    .orderBy(sortOrderValue);
+
+                // 分页处理
+                if (page && pageSize) {
+                    const offsetValue = ((Number(page) || 1) - 1) * pageSize;
+                    queryBuilder.limit(pageSize).offset(offsetValue);
+                }
+
+                // 执行查询
+                const result = await queryBuilder;
+
+                // 获取总数
+                const total = await db
+                    .select({ value: count() })
                     .from(advertisementsSchema)
-                    .where(conditions.length > 0 ? and(...conditions) : undefined)
-            ]);
+                    .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-            return pageRes(advertisements, Number(totalResult[0]?.count), pageNum, limitNum, '获取广告列表成功');
-        } catch (error) {
-            console.error('获取广告列表失败:', error);
-            return commonRes(null, 500, '获取广告列表失败');
-        }
-    }, {
-        query: 'AdvertisementListQueryDto',
-        detail: {
-            summary: '获取广告列表',
-            description: '根据查询参数获取广告列表',
-        }
-
-    })
+                // 返回结果
+                return page
+                    ? pageRes(
+                        result,
+                        total[0]?.value || 0,
+                        page,
+                        pageSize,
+                        "分页获取广告列表成功",
+                    )
+                    : commonRes(result, 200, "获取广告列表成功");
+            } catch (error) {
+                console.error("获取广告列表出错:", error);
+                throw new Error("获取广告列表失败");
+            }
+        },
+        {
+            query: "AdvertisementListQueryDto",
+            detail: {
+                tags: ["Advertisements"],
+                summary: "获取广告列表",
+                description: "获取广告列表，支持分页、搜索和排序",
+            },
+        },
+    )
 
     // 获取Banner广告
     .get('/advertisements/banner', async ({ query: { position } }) => {
@@ -75,7 +116,12 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
             console.error('获取Banner广告失败:', error);
             return commonRes(null, 500, '获取Banner广告失败');
         }
-    })
+    },
+        {
+            query: t.Object({
+                position: t.Optional(t.String()),
+            }),
+        })
 
     // 获取轮播图广告
     .get('/advertisements/carousel', async () => {
@@ -172,7 +218,10 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
             console.error('更新广告失败:', error);
             return commonRes(null, 500, '更新广告失败');
         }
-    })
+    },
+        {
+            body: 'UpdateAdvertisementDto',
+        })
 
     // 删除广告
     .delete('/advertisements/:id', async ({ params: { id } }) => {
@@ -224,7 +273,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
     })
 
     // 获取活跃广告（前台展示用）
-    .get('/advertisements/active', async ({ query: { type, position, limit } }) => {
+    .get('/advertisements/active', async ({ query: { type, position } }) => {
         try {
             const conditions = [eq(advertisementsSchema.isActive, true)];
 
@@ -235,7 +284,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
                 conditions.push(eq(advertisementsSchema.position, position));
             }
 
-            const limitNum = limit ? parseInt(limit as string) : undefined;
+
 
             let query = db
                 .select()
@@ -243,9 +292,7 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
                 .where(and(...conditions))
                 .orderBy(desc(advertisementsSchema.sortOrder));
 
-            if (limitNum) {
-                query = query.limit(limitNum);
-            }
+
 
             const advertisements = await query;
 
@@ -254,12 +301,17 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
             console.error('获取活跃广告失败:', error);
             return commonRes(null, 500, '获取活跃广告失败');
         }
+    }, {
+        query: t.Object({
+            type: t.Optional(t.String()),
+            position: t.Optional(t.String()),
+        }),
     })
 
     // 更新广告排序
-    .patch('/advertisements/:id/sort', async ({ params: { id }, body }) => {
+    .patch('/advertisements/:id/sort', async ({ params: { id }, body: { sortOrder } }) => {
         try {
-            const { sortOrder } = body as { sortOrder: number };
+
             const [advertisement] = await db
                 .update(advertisementsSchema)
                 .set({
@@ -278,4 +330,6 @@ export const advertisementsRoute = new Elysia({ tags: ['Advertisements'] })
             console.error('更新广告排序失败:', error);
             return commonRes(null, 500, '更新广告排序失败');
         }
+    }, {
+        body: 'UpdateSortRequest',
     })

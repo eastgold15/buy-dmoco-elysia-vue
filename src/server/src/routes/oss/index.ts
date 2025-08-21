@@ -4,7 +4,7 @@
  */
 
 // import { env, S3Client } from "bun";
-import { envConfig } from "../config/env";
+import { envConfig } from "../../config/env";
 
 // 使用条件导入避免SSR错误
 let S3Client: any;
@@ -42,11 +42,13 @@ const createOSSClient = () => {
   const config = getOSSConfig();
 
   if (!config.accessKeyId || !config.secretAccessKey || !config.bucket || !config.endpoint) {
-    throw new Error("华为云OSS配置不完整，请检查环境变量");
+    console.warn("华为云OSS配置不完整，将使用模拟模式");
+    return null;
   }
 
   if (!S3Client) {
-    throw new Error("S3Client不可用，可能在SSR环境中");
+    console.warn("S3Client不可用，可能在SSR环境中，将使用模拟模式");
+    return null;
   }
 
   return new S3Client({
@@ -60,7 +62,7 @@ const createOSSClient = () => {
 
 // OSS服务类
 export class HuaweiOSSService {
-  private client: S3Client;
+  private client: S3Client | null;
   private config: HuaweiOSSConfig;
 
   constructor() {
@@ -68,8 +70,8 @@ export class HuaweiOSSService {
     try {
       this.client = createOSSClient();
     } catch (error) {
-      console.warn('OSS客户端初始化失败:', error);
-      this.client = null as any;
+      console.warn('OSS客户端初始化失败，将使用模拟模式:', error);
+      this.client = null;
     }
   }
 
@@ -86,7 +88,8 @@ export class HuaweiOSSService {
     contentType?: string
   ): Promise<string> {
     if (!this.client) {
-      throw new Error('OSS客户端不可用');
+      console.warn('OSS客户端未初始化，返回模拟URL');
+      return `/uploads/${key}`;
     }
     
     try {
@@ -117,6 +120,14 @@ export class HuaweiOSSService {
     folder: string,
     filename?: string
   ): Promise<string> {
+    if (!this.client) {
+      console.warn('OSS客户端未初始化，返回模拟URL');
+      const timestamp = Date.now();
+      const randomStr = Math.random().toString(36).substring(2, 8);
+      const finalFilename = filename || `${timestamp}_${randomStr}.jpg`;
+      return `/uploads/images/${folder}/${finalFilename}`;
+    }
+    
     // 生成文件名
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 8);
@@ -153,7 +164,8 @@ export class HuaweiOSSService {
    */
   async deleteFile(key: string): Promise<void> {
     if (!this.client) {
-      throw new Error('OSS客户端不可用');
+      console.warn('OSS客户端未初始化，跳过删除操作');
+      return;
     }
     
     try {
@@ -172,7 +184,8 @@ export class HuaweiOSSService {
    */
   async fileExists(key: string): Promise<boolean> {
     if (!this.client) {
-      throw new Error('OSS客户端不可用');
+      console.warn('OSS客户端未初始化，返回false');
+      return false;
     }
     
     try {
@@ -197,7 +210,8 @@ export class HuaweiOSSService {
     contentType?: string
   ): string {
     if (!this.client) {
-      throw new Error('OSS客户端不可用');
+      console.warn('OSS客户端未初始化，返回模拟URL');
+      return `/uploads/${key}`;
     }
     
     const s3File = this.client.file(key);
@@ -219,7 +233,8 @@ export class HuaweiOSSService {
     expiresIn: number = 3600
   ): string {
     if (!this.client) {
-      throw new Error('OSS客户端不可用');
+      console.warn('OSS客户端未初始化，返回公共URL');
+      return this.getPublicUrl(key);
     }
     
     const s3File = this.client.file(key);
@@ -247,7 +262,12 @@ export class HuaweiOSSService {
    */
   async getFileStats(key: string) {
     if (!this.client) {
-      throw new Error('OSS客户端不可用');
+      console.warn('OSS客户端未初始化，返回模拟文件信息');
+      return {
+        size: 0,
+        lastModified: new Date(),
+        etag: 'mock-etag'
+      };
     }
     
     try {

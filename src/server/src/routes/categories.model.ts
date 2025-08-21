@@ -23,13 +23,7 @@ export interface CategoryTree extends Category {
   children: CategoryTree[];
 }
 
-// API响应格式
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-}
+
 
 
 // Elysia模型定义
@@ -38,7 +32,9 @@ export const categoriesModel = {
   CreateCategoryDto: DbType.typebox.insert.categoriesSchema,
 
   // 更新分类请求参数
-  UpdateCategoryDto: t.Partial(DbType.typebox.insert.categoriesSchema),
+  UpdateCategoryDto: t.Object({
+    ...DbType.spreads.insert.categoriesSchema
+  }),
 
   // 排序更新请求
   UpdateSortRequest: t.Object({

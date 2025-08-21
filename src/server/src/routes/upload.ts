@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { ossService } from "../oss";
+import { ossService } from "./oss";
 import { uploadModel, SUPPORTED_IMAGE_TYPES, MAX_FILE_SIZE, type UploadResponse } from './upload.model';
 import { commonRes, errorRes } from '../plugins/Res';
 

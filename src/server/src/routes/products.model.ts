@@ -8,7 +8,9 @@ export const productsModel = {
   CreateProductDto: DbType.typebox.insert.productsSchema,
 
   // 更新商品请求参数
-  UpdateProductDto: t.Partial(DbType.typebox.insert.productsSchema),
+  UpdateProductDto: t.Object({
+    ...DbType.spreads.insert.productsSchema
+  }),
 
   // 商品列表查询参数
   ProductListQueryDto: t.Object({
@@ -16,14 +18,7 @@ export const productsModel = {
     categoryId: t.Optional(t.String()),
     isActive: t.Optional(t.Boolean()),
     isFeatured: t.Optional(t.Boolean()),
-    minPrice: t.Optional(t.Number()),
-    maxPrice: t.Optional(t.Number()),
-    colors: t.Optional(t.Array(t.String())),
-    sizes: t.Optional(t.Array(t.String())),
-    tags: t.Optional(t.Array(t.String())),
-    brand: t.Optional(t.String()),
-    material: t.Optional(t.String()),
-    inStock: t.Optional(t.Boolean())
+    limit: t.Optional(t.Number({ minimum: 1, maximum: 100, default: 20 }))
   }),
 
   // 商品搜索查询参数

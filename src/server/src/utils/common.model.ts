@@ -1,12 +1,10 @@
 import { t } from "elysia";
 
 // 公共查询列表类型
-export const UnoQuery = t.Partial(
-	t.Object({
-		search: t.String(),
-		page: t.Number(),
-		pageSize: t.Number(),
-		sortBy: t.String(),
-		sortOrder: t.String(),
-	}),
-);
+export const UnoQuery = t.Object({
+	search: t.Optional(t.String()),
+	page: t.Optional(t.Number()),
+	pageSize: t.Optional(t.Number()),
+	sortBy: t.Optional(t.String()),
+	sortOrder: t.Optional(t.String()),
+});

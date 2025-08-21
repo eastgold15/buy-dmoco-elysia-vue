@@ -8,13 +8,17 @@ export const layoutsModel = {
   CreateHeaderConfigDto: DbType.typebox.insert.headerConfigSchema,
 
   // 更新头部配置请求参数
-  UpdateHeaderConfigDto: t.Partial(DbType.typebox.insert.headerConfigSchema),
+  UpdateHeaderConfigDto: t.Object({
+    ...DbType.spreads.insert.headerConfigSchema
+  }),
 
   // 创建底部配置请求参数
   CreateFooterConfigDto: DbType.typebox.insert.footerConfigSchema,
 
   // 更新底部配置请求参数
-  UpdateFooterConfigDto: t.Partial(DbType.typebox.insert.footerConfigSchema),
+  UpdateFooterConfigDto: t.Object({
+    ...DbType.spreads.insert.footerConfigSchema
+  }),
 
   // 底部配置查询参数
   FooterConfigQueryDto: t.Object({

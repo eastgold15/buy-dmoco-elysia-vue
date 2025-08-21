@@ -8,9 +8,11 @@ export const imagesModel = {
   CreateImageDto: DbType.typebox.insert.imagesSchema,
 
   // 更新图片请求参数
-  UpdateImageDto: t.Partial(DbType.typebox.insert.imagesSchema),
+  UpdateImageDto: t.Object({
+    ...DbType.spreads.insert.imagesSchema
+  }),
 
-  // 图片列表查询参数
+  // 图片列表查询参数 
   ImageListQueryDto: t.Object({
     ...UnoQuery.properties,
     category: t.Optional(t.String()),

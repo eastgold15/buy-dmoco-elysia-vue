@@ -8,7 +8,9 @@ export const siteConfigsModel = {
   CreateSiteConfigDto: DbType.typebox.insert.siteConfigSchema,
 
   // 更新配置请求参数
-  UpdateSiteConfigDto: t.Partial(DbType.typebox.insert.siteConfigSchema),
+  UpdateSiteConfigDto: t.Object({
+    ...DbType.spreads.insert.siteConfigSchema
+  }),
 
   // 批量更新配置请求参数
   BatchUpdateSiteConfigDto: t.Array(

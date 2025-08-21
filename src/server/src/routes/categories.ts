@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { eq, desc, asc, and, isNull, sql, like, or } from 'drizzle-orm';
 import { db } from '../db/connection';
-import { categoriesSchema } from '../db/schema/schema';
+import { categoriesSchema } from '../db/schema';
 import { commonRes, pageRes } from '../plugins/Res';
 import { categoriesModel, type Category, type CategoryTree } from './categories.model';
 

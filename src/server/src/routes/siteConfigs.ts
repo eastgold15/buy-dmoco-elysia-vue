@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia';
 import { db } from '../db/connection';
-import { siteConfigSchema } from '../db/schema/schema';
+import { siteConfigSchema } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { commonRes } from '../plugins/Res';
 import { siteConfigsModel } from './siteConfigs.model';
