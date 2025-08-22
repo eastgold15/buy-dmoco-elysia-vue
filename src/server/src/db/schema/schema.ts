@@ -113,34 +113,6 @@ export const advertisementsSchema = pgTable("advertisements", {
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-/**
- * 顶部配置表
- */
-export const headerConfigSchema = pgTable("header_config", {
-	id: serial("id").primaryKey(),
-	shippingText: varchar("shipping_text", { length: 200 }).default("FREE SHIPPING on orders over $59* details"),
-	trackOrderText: varchar("track_order_text", { length: 100 }).default("Track Order"),
-	helpText: varchar("help_text", { length: 100 }).default("Help"),
-	trackOrderUrl: varchar("track_order_url", { length: 255 }).default("#"),
-	helpUrl: varchar("help_url", { length: 255 }).default("#"),
-	isActive: boolean("is_active").default(true),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-/**
- * 底部配置表
- */
-export const footerConfigSchema = pgTable("footer_config", {
-	id: serial("id").primaryKey(),
-	sectionTitle: varchar("section_title", { length: 100 }).notNull(),
-	linkText: varchar("link_text", { length: 100 }).notNull(),
-	linkUrl: varchar("link_url", { length: 255 }).notNull(),
-	sortOrder: integer("sort_order").default(0),
-	isActive: boolean("is_active").default(true),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
-});
 
 /**
  * 图片管理表

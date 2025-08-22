@@ -126,11 +126,6 @@ const loadingProducts = ref(false);
 const latestNews = ref<any[]>([]);
 
 // 方法
-
-
-
-
-
 /**
  * 加载热门商品
  */
