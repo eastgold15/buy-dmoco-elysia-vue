@@ -315,7 +315,7 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
     .put('/:id', async ({ params: { id }, body }) => {
         try {
             const updateData: any = {};
-            
+
             // 只更新提供的字段
             if (body.name !== undefined) updateData.name = body.name;
             if (body.slug !== undefined) updateData.slug = body.slug;
@@ -344,7 +344,7 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
             if (body.metaTitle !== undefined) updateData.metaTitle = body.metaTitle;
             if (body.metaDescription !== undefined) updateData.metaDescription = body.metaDescription;
             if (body.metaKeywords !== undefined) updateData.metaKeywords = body.metaKeywords;
-            
+
             // 添加更新时间
             updateData.updatedAt = new Date();
 
@@ -794,5 +794,12 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
         } catch (error) {
             console.error('获取筛选选项失败:', error);
             return commonRes(null, 500, '获取筛选选项失败');
+        }
+    }, {
+        query: 'FilterOptionsQueryDto',
+        detail: {
+            tags: ['Products'],
+            summary: '获取商品筛选选项',
+            description: '获取商品的筛选选项，包括颜色、尺寸、标签和价格范围'
         }
     })

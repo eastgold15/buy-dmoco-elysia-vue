@@ -61,16 +61,49 @@ INSERT INTO reviews (product_id, user_name, user_email, rating, title, content, 
 
 -- 插入网站配置数据
 INSERT INTO site_config (key, value, description, category) VALUES
-('site_name', 'Fashion Store', '网站名称', 'general'),
-('site_logo', '/images/logo.png', '网站Logo', 'general'),
-('site_description', '专业的时尚服装在线商店', '网站描述', 'general'),
-('site_keywords', '服装,时尚,在线购物,T恤,衬衫,连衣裙', '网站关键词', 'seo'),
-('contact_email', 'info@fashionstore.com', '联系邮箱', 'contact'),
-('contact_phone', '+1-234-567-8900', '联系电话', 'contact'),
-('company_address', '123 Fashion Street, Style City, SC 12345', '公司地址', 'contact'),
-('copyright_text', '© 2024 Fashion Store. All rights reserved.', '版权信息', 'general'),
-('icp_number', '京ICP备12345678号', '备案号', 'legal'),
-('currency', 'USD', '默认货币', 'general');
+-- 基本设置
+('site_name', '外贸服装商城', '网站名称', 'general'),
+('site_logo', '', '网站Logo URL', 'general'),
+('site_keywords', '外贸,服装,时尚,购物', '网站关键词', 'seo'),
+('site_description', '专业的外贸服装购物平台', '网站描述', 'seo'),
+('contact_email', '', '联系邮箱', 'contact'),
+('contact_phone', '', '联系电话', 'contact'),
+('contact_address', '', '联系地址', 'contact'),
+('icp_number', '', 'ICP备案号', 'legal'),
+('copyright', '© 2024 外贸服装商城 All Rights Reserved', '版权信息', 'legal'),
+('header_notice', 'FREE SHIPPING on orders over $59* details', '顶部通知', 'general'),
+('free_shipping_threshold', '59', '免费配送门槛', 'general'),
+('currency', 'USD', '货币单位', 'general'),
+
+-- 导航页配置
+('nav_home_enabled', 'true', '是否显示首页导航', 'navigation'),
+('nav_products_enabled', 'true', '是否显示产品导航', 'navigation'),
+('nav_categories_enabled', 'true', '是否显示分类导航', 'navigation'),
+('nav_about_enabled', 'true', '是否显示关于我们导航', 'navigation'),
+('nav_contact_enabled', 'true', '是否显示联系我们导航', 'navigation'),
+
+-- 网站顶部配置
+('header_banner_text', 'FREE SHIPPING on orders over $59* details', '顶部横幅文本', 'header'),
+('header_banner_link', '/shipping-info', '顶部横幅链接', 'header'),
+('header_track_order_text', 'Track Order', '追踪订单文本', 'header'),
+('header_track_order_link', '/track-order', '追踪订单链接', 'header'),
+('header_help_links', '[{"text":"Help","url":"/help"},{"text":"Contact","url":"/contact"}]', '帮助链接JSON', 'header'),
+('header_search_enabled', 'true', '是否显示搜索框', 'header'),
+('header_cart_enabled', 'true', '是否显示购物车图标', 'header'),
+('header_user_menu_enabled', 'true', '是否显示用户菜单', 'header'),
+
+-- 底部配置
+('footer_copyright', '© 2024 WWW.APPARELCITY.COM.CN All Rights Reserved 赣ICP备2024041550号-5', '版权信息', 'footer'),
+('footer_back_to_top_text', 'Back to top', '返回顶部文本', 'footer'),
+('footer_sections', '[{"title":"For You","links":[{"text":"Favorites","url":"/favorites"},{"text":"Gift Cards","url":"/gift-cards"}]},{"title":"Connect with Us","links":[{"text":"Customer Service","url":"/customer-service"},{"text":"Social Media","url":"/social"}]},{"title":"Legal","links":[{"text":"Terms of Use","url":"/terms"},{"text":"Privacy Policy","url":"/privacy"}]}]', '底部栏目JSON', 'footer'),
+('footer_company_name', '外贸服装商城有限公司', '公司名称', 'footer'),
+('footer_company_address', '', '公司地址', 'footer'),
+('footer_company_phone', '', '公司电话', 'footer'),
+('footer_company_email', '', '公司邮箱', 'footer'),
+('footer_social_facebook', '', 'Facebook链接', 'footer'),
+('footer_social_twitter', '', 'Twitter链接', 'footer'),
+('footer_social_instagram', '', 'Instagram链接', 'footer'),
+('footer_social_youtube', '', 'YouTube链接', 'footer');
 
 -- 插入广告数据
 INSERT INTO advertisements (title, type, image, link, position, sort_order, is_active, start_date, end_date) VALUES

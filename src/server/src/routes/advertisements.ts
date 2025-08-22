@@ -50,37 +50,41 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
                 const queryBuilder = db
                     .select()
                     .from(advertisementsSchema)
-                    .where(conditions.length > 0 ? and(...conditions) : undefined)
                     .orderBy(sortOrderValue);
 
-                // 分页处理
-                if (page && pageSize) {
-                    const offsetValue = ((Number(page) || 1) - 1) * pageSize;
-                    queryBuilder.limit(pageSize).offset(offsetValue);
+                if (conditions.length > 0) {
+                    queryBuilder.where(and(...conditions));
                 }
 
-                // 执行查询
-                const result = await queryBuilder;
+                // 分页
+                const offset = (page - 1) * pageSize;
+                const advertisements = await queryBuilder.limit(pageSize).offset(offset);
 
                 // 获取总数
-                const total = await db
-                    .select({ value: count() })
-                    .from(advertisementsSchema)
-                    .where(conditions.length > 0 ? and(...conditions) : undefined);
+                const totalQueryBuilder = db
+                    .select({ count: count() })
+                    .from(advertisementsSchema);
 
-                // 返回结果
-                return page
-                    ? pageRes(
-                        result,
-                        total[0]?.value || 0,
+                if (conditions.length > 0) {
+                    totalQueryBuilder.where(and(...conditions));
+                }
+
+                const [{ count: total }] = await totalQueryBuilder;
+
+                return pageRes(
+                    advertisements,
+                    200,
+                    "获取广告列表成功",
+                    {
                         page,
                         pageSize,
-                        "分页获取广告列表成功",
-                    )
-                    : commonRes(result, 200, "获取广告列表成功");
+                        total,
+                        totalPages: Math.ceil(total / pageSize),
+                    },
+                );
             } catch (error) {
-                console.error("获取广告列表出错:", error);
-                throw new Error("获取广告列表失败");
+                console.error("获取广告列表失败:", error);
+                return commonRes(null, 500, "获取广告列表失败");
             }
         },
         {
@@ -98,9 +102,9 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
         try {
             const conditions = [
                 eq(advertisementsSchema.type, 'banner'),
-                eq(advertisementsSchema.isActive, true),
+                eq(advertisementsSchema.isActive, true)
             ];
-
+            
             if (position) {
                 conditions.push(eq(advertisementsSchema.position, position));
             }
@@ -116,12 +120,16 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
             console.error('获取Banner广告失败:', error);
             return commonRes(null, 500, '获取Banner广告失败');
         }
-    },
-        {
-            query: t.Object({
-                position: t.Optional(t.String()),
-            }),
-        })
+    }, {
+        query: t.Object({
+            position: t.Optional(t.String()),
+        }),
+        detail: {
+            tags: ["Advertisements"],
+            summary: "获取Banner广告",
+            description: "根据位置获取Banner广告",
+        },
+    })
 
     // 获取轮播图广告
     .get('/carousel', async () => {
@@ -142,6 +150,12 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
             console.error('获取轮播图广告失败:', error);
             return commonRes(null, 500, '获取轮播图广告失败');
         }
+    }, {
+        detail: {
+            tags: ["Advertisements"],
+            summary: "获取轮播图广告",
+            description: "获取所有激活的轮播图广告",
+        },
     })
 
     // 根据ID获取广告
@@ -161,6 +175,12 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
             console.error('获取广告详情失败:', error);
             return commonRes(null, 500, '获取广告详情失败');
         }
+    }, {
+        detail: {
+            tags: ["Advertisements"],
+            summary: "获取广告详情",
+            description: "根据ID获取广告详情",
+        },
     })
 
     // 创建广告
@@ -169,21 +189,13 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
             const [advertisement] = await db
                 .insert(advertisementsSchema)
                 .values({
-                    title: body.title,
-                    type: body.type,
-                    image: body.image,
-                    link: body.link,
-                    position: body.position,
-                    sortOrder: body.sortOrder || 0,
-                    isActive: body.isActive ?? true,
-                    startDate: body.startDate,
-                    endDate: body.endDate,
+                    ...body,
                     createdAt: new Date(),
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
                 })
                 .returning();
 
-            return commonRes(advertisement, 201, '广告创建成功');
+            return commonRes(advertisement, 201, '创建广告成功');
         } catch (error) {
             console.error('创建广告失败:', error);
             return commonRes(null, 500, '创建广告失败');
@@ -194,7 +206,7 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
             tags: ['Advertisements'],
             summary: '创建广告',
             description: '创建新的广告',
-        }
+        },
     })
 
     // 更新广告
@@ -213,45 +225,55 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
                 return commonRes(null, 404, '广告不存在');
             }
 
-            return commonRes(advertisement, 200, '广告更新成功');
+            return commonRes(advertisement, 200, '更新广告成功');
         } catch (error) {
             console.error('更新广告失败:', error);
             return commonRes(null, 500, '更新广告失败');
         }
-    },
-        {
-            body: 'UpdateAdvertisementDto',
-        })
+    }, {
+        body: 'UpdateAdvertisementDto',
+        detail: {
+            tags: ["Advertisements"],
+            summary: "更新广告",
+            description: "更新指定ID的广告信息",
+        },
+    })
 
     // 删除广告
     .delete('/:id', async ({ params: { id } }) => {
         try {
-            const [deleted] = await db
+            const [advertisement] = await db
                 .delete(advertisementsSchema)
                 .where(eq(advertisementsSchema.id, parseInt(id)))
                 .returning();
 
-            if (!deleted) {
+            if (!advertisement) {
                 return commonRes(null, 404, '广告不存在');
             }
 
-            return commonRes(null, 200, '广告删除成功');
+            return commonRes(null, 200, '删除广告成功');
         } catch (error) {
             console.error('删除广告失败:', error);
             return commonRes(null, 500, '删除广告失败');
         }
+    }, {
+        detail: {
+            tags: ["Advertisements"],
+            summary: "删除广告",
+            description: "删除指定ID的广告",
+        },
     })
 
     // 切换广告状态
     .patch('/:id/toggle', async ({ params: { id } }) => {
         try {
             // 先获取当前状态
-            const [current] = await db
+            const [currentAd] = await db
                 .select({ isActive: advertisementsSchema.isActive })
                 .from(advertisementsSchema)
                 .where(eq(advertisementsSchema.id, parseInt(id)));
 
-            if (!current) {
+            if (!currentAd) {
                 return commonRes(null, 404, '广告不存在');
             }
 
@@ -259,24 +281,30 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
             const [advertisement] = await db
                 .update(advertisementsSchema)
                 .set({
-                    isActive: !current.isActive,
+                    isActive: !currentAd.isActive,
                     updatedAt: new Date(),
                 })
                 .where(eq(advertisementsSchema.id, parseInt(id)))
                 .returning();
 
-            return commonRes(advertisement, 200, '广告状态更新成功');
+            return commonRes(advertisement, 200, '切换广告状态成功');
         } catch (error) {
-            console.error('更新广告状态失败:', error);
-            return commonRes(null, 500, '更新广告状态失败');
+            console.error('切换广告状态失败:', error);
+            return commonRes(null, 500, '切换广告状态失败');
         }
+    }, {
+        detail: {
+            tags: ["Advertisements"],
+            summary: "切换广告状态",
+            description: "切换广告的激活/停用状态",
+        },
     })
 
     // 获取激活的广告
     .get('/active', async ({ query: { type, position } }) => {
         try {
             const conditions = [eq(advertisementsSchema.isActive, true)];
-
+            
             if (type) {
                 conditions.push(eq(advertisementsSchema.type, type));
             }
@@ -284,34 +312,32 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
                 conditions.push(eq(advertisementsSchema.position, position));
             }
 
-
-
-            let query = db
+            const advertisements = await db
                 .select()
                 .from(advertisementsSchema)
                 .where(and(...conditions))
                 .orderBy(desc(advertisementsSchema.sortOrder));
 
-
-
-            const advertisements = await query;
-
-            return commonRes(advertisements, 200, '获取活跃广告成功');
+            return commonRes(advertisements, 200, '获取激活广告成功');
         } catch (error) {
-            console.error('获取活跃广告失败:', error);
-            return commonRes(null, 500, '获取活跃广告失败');
+            console.error('获取激活广告失败:', error);
+            return commonRes(null, 500, '获取激活广告失败');
         }
     }, {
         query: t.Object({
             type: t.Optional(t.String()),
             position: t.Optional(t.String()),
         }),
+        detail: {
+            tags: ["Advertisements"],
+            summary: "获取激活广告",
+            description: "获取所有激活状态的广告",
+        },
     })
 
     // 更新广告排序
     .patch('/:id/sort', async ({ params: { id }, body: { sortOrder } }) => {
         try {
-
             const [advertisement] = await db
                 .update(advertisementsSchema)
                 .set({
@@ -325,11 +351,16 @@ export const advertisementsRoute = new Elysia({ prefix: '/advertisements', tags:
                 return commonRes(null, 404, '广告不存在');
             }
 
-            return commonRes(advertisement, 200, '广告排序更新成功');
+            return commonRes(advertisement, 200, '更新排序成功');
         } catch (error) {
-            console.error('更新广告排序失败:', error);
-            return commonRes(null, 500, '更新广告排序失败');
+            console.error('更新排序失败:', error);
+            return commonRes(null, 500, '更新排序失败');
         }
     }, {
         body: 'UpdateSortRequest',
+        detail: {
+            tags: ["Advertisements"],
+            summary: "更新广告排序",
+            description: "更新广告的排序顺序",
+        },
     })

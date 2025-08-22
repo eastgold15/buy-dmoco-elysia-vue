@@ -120,6 +120,14 @@ export const siteConfigsRoute = new Elysia({ prefix: 'site-configs' })
             console.error('更新配置失败:', error);
             return commonRes(null, 500, '更新配置失败');
         }
+    }, {
+        params: 'KeyParams',
+        body: 'UpdateSiteConfigDto',
+        detail: {
+            tags: ['SiteConfigs'],
+            summary: '更新配置',
+            description: '根据键更新特定配置项'
+        }
     })
 
     // 删除配置
@@ -166,6 +174,13 @@ export const siteConfigsRoute = new Elysia({ prefix: 'site-configs' })
         } catch (error) {
             console.error('批量更新配置失败:', error);
             return commonRes(null, 500, '批量更新配置失败');
+        }
+    }, {
+        body: 'BatchUpdateConfigDto',
+        detail: {
+            tags: ['SiteConfigs'],
+            summary: '批量更新配置',
+            description: '批量更新多个配置项'
         }
     })
 
