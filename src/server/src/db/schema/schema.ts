@@ -223,3 +223,18 @@ export const refundsSchema = pgTable("refunds", {
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+/**
+ * 合作伙伴表
+ */
+export const partnersSchema = pgTable("partners", {
+	id: serial("id").primaryKey(),
+	name: varchar("name", { length: 255 }).notNull(),
+	description: text("description").notNull(),
+	image: text("image").notNull(),
+	url: varchar("url", { length: 500 }).notNull(),
+	sortOrder: integer("sort_order").default(0),
+	isActive: boolean("is_active").default(true),
+	createdAt: timestamp("created_at").defaultNow(),
+	updatedAt: timestamp("updated_at").defaultNow(),
+});
+

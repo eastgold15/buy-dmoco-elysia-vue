@@ -11,6 +11,7 @@ import { imagesRoute } from './routes/images';
 import { ordersRoute } from './routes/orders';
 import { usersRoute } from './routes/users';
 import { statisticsRoute } from './routes/statistics';
+import { partnersRoute } from './routes/partners';
 import { err_handler } from "./utils/err.global";
 import { swaggerPlugin } from "./plugins/swagger";
 import { logPlugin } from "./plugins/logger";
@@ -34,6 +35,7 @@ export const api = new Elysia({ prefix: '/api' })
     .use(ordersRoute)
     .use(usersRoute)
     .use(statisticsRoute)
+    .use(partnersRoute)
 
 
     //全局错误

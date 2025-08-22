@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue';
-import Sidebar from 'primevue/sidebar';
+import { ref, computed, onMounted } from 'vue';
+import Drawer from 'primevue/drawer';
 import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
 import Menu from 'primevue/menu';
@@ -22,15 +22,24 @@ const currentUser = ref({
 // 当前页面标题
 const currentPageTitle = computed(() => {
 	const path = route.path;
+	if (path.includes('/dashboard')) return '仪表盘';
+	if (path.includes('/partners')) return '合作伙伴管理';
 	if (path.includes('/categories')) return '商品分类管理';
+	if (path.includes('/products/add')) return '添加商品';
 	if (path.includes('/products')) return '商品管理';
 	if (path.includes('/orders')) return '订单管理';
+	if (path.includes('/refunds')) return '退款管理';
 	if (path.includes('/users')) return '用户管理';
+	if (path.includes('/admins')) return '管理员管理';
 	if (path.includes('/settings')) return '网站设置';
 	if (path.includes('/header-config')) return '顶部配置管理';
 	if (path.includes('/footer-config')) return '底部配置管理';
 	if (path.includes('/advertisements')) return '广告管理';
 	if (path.includes('/images')) return '图片管理';
+	if (path.includes('/payment-settings')) return '支付设置';
+	if (path.includes('/shipping-settings')) return '物流设置';
+	if (path.includes('/sales-reports')) return '销售统计';
+	if (path.includes('/users-reports')) return '用户统计';
 	if (path.includes('/reports')) return '统计报表';
 	return '仪表盘';
 });
@@ -40,6 +49,11 @@ const menuItems = ref([
 		label: '仪表盘',
 		icon: 'pi pi-home',
 		command: () => router.push('/admin/dashboard')
+	},
+	{
+		label: '合作伙伴管理',
+		icon: 'pi pi-briefcase',
+		command: () => router.push('/admin/partners')
 	},
 	{
 		label: '商品管理',
@@ -126,12 +140,12 @@ const menuItems = ref([
 			{
 				label: '支付设置',
 				icon: 'pi pi-credit-card',
-				command: () => router.push('/admin/payment')
+				command: () => router.push('/admin/payment-settings')
 			},
 			{
 				label: '物流设置',
 				icon: 'pi pi-truck',
-				command: () => router.push('/admin/shipping')
+				command: () => router.push('/admin/shipping-settings')
 			}
 		]
 	},
@@ -142,12 +156,12 @@ const menuItems = ref([
 			{
 				label: '销售统计',
 				icon: 'pi pi-chart-line',
-				command: () => router.push('/admin/reports/sales')
+				command: () => router.push('/admin/sales-reports')
 			},
 			{
 				label: '用户统计',
 				icon: 'pi pi-chart-pie',
-				command: () => router.push('/admin/reports/users')
+				command: () => router.push('/admin/users-reports')
 			}
 		]
 	}
@@ -186,6 +200,27 @@ const toggleSidebar = () => {
 const toggleUserMenu = (event) => {
 	userMenuVisible.value = !userMenuVisible.value;
 };
+const isDarkMode = ref(false);
+const toggleTheme = () => {
+	isDarkMode.value = !isDarkMode.value;
+	if (isDarkMode.value) {
+		document.documentElement.classList.add('dark');
+		localStorage.setItem('theme', 'dark');
+	} else {
+		document.documentElement.classList.remove('dark');
+		localStorage.setItem('theme', 'light');
+	}
+};
+
+// 初始化主题
+onMounted(() => {
+	const savedTheme = localStorage.getItem('theme');
+	if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+		isDarkMode.value = true;
+		document.documentElement.classList.add('dark');
+	}
+});
+
 </script>
 
 <template>
@@ -209,6 +244,10 @@ const toggleUserMenu = (event) => {
 					<i class="pi pi-bell"></i>
 					<Badge value="3" severity="danger" class="notification-badge" />
 				</Button>
+				<!-- 主题切换按钮 -->
+				<button @click="toggleTheme" class="theme-btn" :title="isDarkMode ? '切换到白天模式' : '切换到夜间模式'">
+					<div :class="isDarkMode ? 'i-ic:baseline-light-mode' : 'i-ic:baseline-dark-mode'"></div>
+				</button>
 
 				<!-- 用户菜单 -->
 				<div class="user-menu">
@@ -223,7 +262,7 @@ const toggleUserMenu = (event) => {
 		</header>
 
 		<!-- 侧边栏 -->
-		<Sidebar v-model:visible="sidebarVisible" class="admin-sidebar" position="left">
+		<Drawer v-model:visible="sidebarVisible" class="admin-sidebar" position="left">
 			<template #header>
 				<div class="sidebar-header">
 					<h3>导航菜单</h3>
@@ -233,7 +272,7 @@ const toggleUserMenu = (event) => {
 			<div class="sidebar-content">
 				<PanelMenu :model="menuItems" class="admin-panel-menu" />
 			</div>
-		</Sidebar>
+		</Drawer>
 
 		<!-- 主要内容区域 -->
 		<main class="admin-main" :class="{ 'sidebar-open': sidebarVisible }">
@@ -251,7 +290,7 @@ const toggleUserMenu = (event) => {
 
 			<!-- 页面内容 -->
 			<div class="page-content">
-				<slot />
+				<RouterView />
 			</div>
 		</main>
 	</div>
@@ -419,5 +458,17 @@ const toggleUserMenu = (event) => {
 	.page-content {
 		@apply p-4;
 	}
+}
+
+.theme-btn {
+	@apply flex items-center justify-center p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-all duration-200 bg-transparent border-none cursor-pointer;
+}
+
+.theme-btn div {
+	@apply w-5 h-5;
+}
+
+.dark .theme-btn {
+	@apply text-gray-300 hover:text-blue-400 hover:bg-gray-800;
 }
 </style>

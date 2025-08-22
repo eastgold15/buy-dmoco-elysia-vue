@@ -81,17 +81,29 @@
                 </div>
             </section>
 
-            <!-- 特色产品区域 -->
+            <!-- 合作伙伴区域 -->
             <section class="py-16 bg-white/10 backdrop-blur-sm">
                 <div class="max-w-7xl mx-auto px-4">
-                    <h3 class="text-3xl font-bold text-white text-center mb-12">热门产品</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div v-for="product in featuredProducts" :key="product.id"
-                            class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                            <img :src="product.image" :alt="product.name" class="w-full h-48 object-cover">
-                            <div class="p-4">
-                                <h4 class="font-semibold text-gray-800 mb-2">{{ product.name }}</h4>
-                                <p class="text-red-600 font-bold text-lg">${{ product.price }}</p>
+                    <h3 class="text-3xl font-bold text-white text-center mb-12">合作伙伴</h3>
+                    <div class="space-y-6">
+                        <div v-for="partner in partners" :key="partner.id"
+                            class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            <div class="flex flex-col md:flex-row">
+                                <!-- 左侧图片 -->
+                                <div class="md:w-1/2">
+                                    <img :src="partner.image" :alt="partner.name" class="w-full h-64 md:h-48 object-cover">
+                                </div>
+                                <!-- 右侧内容 -->
+                                <div class="md:w-1/2 p-6 flex flex-col justify-center">
+                                    <h4 class="text-2xl font-bold text-gray-800 mb-4">{{ partner.name }}</h4>
+                                    <p class="text-gray-600 mb-6 leading-relaxed">{{ partner.description }}</p>
+                                    <div class="text-center">
+                                        <a :href="partner.url" target="_blank" rel="noopener noreferrer"
+                                            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-300">
+                                            访问官网
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -100,9 +112,42 @@
         </main>
 
         <!-- 页脚 -->
-        <footer class="bg-black/20 backdrop-blur-sm text-white py-8">
-            <div class="max-w-7xl mx-auto px-4 text-center">
-                <p>&copy; 2024 Catalyst Brands. 保留所有权利。</p>
+        <footer class="bg-black/20 backdrop-blur-sm text-white py-12">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <!-- 公司信息 -->
+                    <div>
+                        <h4 class="text-xl font-bold mb-4">{{ footerConfig.footer_about_title || '关于我们' }}</h4>
+                        <p class="text-gray-300 leading-relaxed">{{ footerConfig.footer_about_content || '专注于外贸服装行业多年，我们拥有丰富的经验和专业的团队。' }}</p>
+                    </div>
+                    <!-- 联系信息 -->
+                    <div>
+                        <h4 class="text-xl font-bold mb-4">联系我们</h4>
+                        <div class="space-y-2 text-gray-300">
+                            <p v-if="footerConfig.footer_company_phone">电话: {{ footerConfig.footer_company_phone }}</p>
+                            <p v-if="footerConfig.footer_company_email">邮箱: {{ footerConfig.footer_company_email }}</p>
+                            <p v-if="footerConfig.footer_company_address">地址: {{ footerConfig.footer_company_address }}</p>
+                        </div>
+                    </div>
+                    <!-- 社交媒体 -->
+                    <div>
+                        <h4 class="text-xl font-bold mb-4">关注我们</h4>
+                        <div class="flex space-x-4">
+                            <a v-if="footerConfig.footer_social_facebook" :href="footerConfig.footer_social_facebook" target="_blank" class="text-gray-300 hover:text-white transition-colors">
+                                <i class="fab fa-facebook-f text-xl"></i>
+                            </a>
+                            <a v-if="footerConfig.footer_social_twitter" :href="footerConfig.footer_social_twitter" target="_blank" class="text-gray-300 hover:text-white transition-colors">
+                                <i class="fab fa-twitter text-xl"></i>
+                            </a>
+                            <a v-if="footerConfig.footer_social_instagram" :href="footerConfig.footer_social_instagram" target="_blank" class="text-gray-300 hover:text-white transition-colors">
+                                <i class="fab fa-instagram text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-600 pt-6 text-center">
+                    <p class="text-gray-300">&copy; 2024 {{ footerConfig.footer_company_name || 'Catalyst Brands' }}. {{ footerConfig.copyright || '保留所有权利。' }}</p>
+                </div>
             </div>
         </footer>
     </div>
@@ -110,39 +155,50 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { $fetch } from 'ofetch'
 
-// 特色产品数据
-const featuredProducts = ref([
-    {
-        id: 1,
-        name: '时尚上衣',
-        price: 89.99,
-        image: '01.jpg'
+// 合作伙伴数据
+const partners = ref([])
 
-    },
-    {
-        id: 2,
-        name: '夏季连衣裙',
-        price: 129.99,
-        image: '01.jpg'
-    },
-    {
-        id: 3,
-        name: '商务衬衫',
-        price: 79.99,
-        image: '01.jpg'
-    },
-    {
-        id: 4,
-        name: '休闲裤装',
-        price: 99.99,
-        image: '01.jpg'
+// 页脚配置数据
+const footerConfig = ref({})
+
+// 加载合作伙伴数据
+const loadPartners = async () => {
+    try {
+        const response = await $fetch('/api/partners/list')
+        if (response.success && response.data) {
+            partners.value = response.data
+        }
+    } catch (error) {
+        console.error('获取合作伙伴数据失败:', error)
     }
-])
+}
+
+// 加载页脚配置数据
+const loadFooterConfig = async () => {
+    try {
+        const response = await $fetch('/api/site-configs/category/footer')
+        if (response.success && response.data) {
+            // 将配置数组转换为对象，便于模板使用
+            const configObj = {}
+            response.data.forEach(config => {
+                configObj[config.key] = config.value
+            })
+            footerConfig.value = configObj
+        }
+    } catch (error) {
+        console.error('获取页脚配置失败:', error)
+    }
+}
 
 // 页面加载时的初始化
-onMounted(() => {
+onMounted(async () => {
     console.log('首页已加载')
+    await Promise.all([
+        loadPartners(),
+        loadFooterConfig()
+    ])
 })
 </script>
 

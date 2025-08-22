@@ -30,6 +30,7 @@ export const DbType = {
       ordersSchema: createInsertSchema(dbSchema.ordersSchema),
       orderItemsSchema: createInsertSchema(dbSchema.orderItemsSchema),
       refundsSchema: createInsertSchema(dbSchema.refundsSchema),
+      partnersSchema: createInsertSchema(dbSchema.partnersSchema),
     },
     select: {
       userSchema: createSelectSchema(dbSchema.userSchema, {
@@ -47,6 +48,7 @@ export const DbType = {
       ordersSchema: createSelectSchema(dbSchema.ordersSchema),
       orderItemsSchema: createSelectSchema(dbSchema.orderItemsSchema),
       refundsSchema: createSelectSchema(dbSchema.refundsSchema),
+      partnersSchema: createSelectSchema(dbSchema.partnersSchema),
     }
   },
   spreads: {
@@ -66,6 +68,7 @@ export const DbType = {
       ordersSchema: createInsertSchema(dbSchema.ordersSchema),
       orderItemsSchema: createInsertSchema(dbSchema.orderItemsSchema),
       refundsSchema: createInsertSchema(dbSchema.refundsSchema),
+      partnersSchema: createInsertSchema(dbSchema.partnersSchema),
     }, 'insert'),
     select: spreads({
       userSchema: createSelectSchema(dbSchema.userSchema, {
@@ -83,6 +86,7 @@ export const DbType = {
       ordersSchema: createSelectSchema(dbSchema.ordersSchema),
       orderItemsSchema: createSelectSchema(dbSchema.orderItemsSchema),
       refundsSchema: createSelectSchema(dbSchema.refundsSchema),
+      partnersSchema: createSelectSchema(dbSchema.partnersSchema),
     }, 'select')
   }
 } as const

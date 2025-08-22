@@ -1,27 +1,114 @@
+import { and, asc, desc, eq, isNull, like, or, sql } from 'drizzle-orm';
 import { Elysia } from "elysia";
-import { eq, desc, asc, and, isNull, sql, like, or } from 'drizzle-orm';
 import { db } from '../db/connection';
 import { categoriesSchema } from '../db/schema';
 import { commonRes, pageRes } from '../plugins/Res';
-import { categoriesModel, type Category, type CategoryTree } from './categories.model';
+import { buildTree } from "../utils/buildTree";
+import { categoriesModel } from './categories.model';
 
 
 
-// 获取所有分类
-// 构建单个分类的树形结构
-function buildCategoryTree(category: Category, allCategories: Category[]): CategoryTree {
-    const children = allCategories
-        .filter(cat => cat.parentId === category.id && cat.isVisible)
-        .map(cat => buildCategoryTree(cat, allCategories));
 
-    return {
-        ...category,
-        children
-    };
-}
+
 
 export const categoriesRoute = new Elysia({ prefix: '/categories', tags: ['Categories'] })
     .model(categoriesModel)
+
+    .guard({
+        transform({ body }) {
+            // 处理parentId：如果是对象格式{"key":true}，提取key作为parentId
+
+
+            if (body.parentId) {
+                if (typeof body.parentId === 'object' && body.parentId !== null) {
+                    // 从对象中提取第一个key作为parentId
+                    const keys = Object.keys(body.parentId);
+                    if (keys.length > 0) {
+                        body.parentId = parseInt(keys[0]);
+                    }
+                } else {
+                    body.parentId = parseInt(body.parentId.toString());
+                }
+            }
+        }
+
+    }, (app) => app
+        // 创建分类
+        .post('', async ({ body }) => {
+            console.log(body,"xxxxxx")
+            try {
+                const result = await db.insert(categoriesSchema).values({
+                    name: body.name,
+                    slug: body.slug,
+                    description: body.description,
+                    parentId: body.parentId || null,
+                    sortOrder: body.sortOrder || 0,
+                    isVisible: body.isVisible ?? true,
+                    icon: body.icon,
+                    image: body.image,
+                    updatedAt: new Date()
+                }).returning();
+                const newCategory = {
+                    ...result[0],
+                    id: result[0]?.id.toString(),
+                    parentId: result[0]?.parentId?.toString(),
+                }
+                return commonRes(newCategory, 201, '分类创建成功');
+            } catch (error) {
+                console.error('创建分类失败:', error);
+                return commonRes(null, 500, '创建分类失败');
+            }
+        }, {
+            body: 'CreateCategoryDto',
+            detail: {
+                tags: ["Categories"],
+                summary: "创建分类",
+                description: '创建分类',
+            }
+        })
+
+        // 更新分类
+        .put('/:id', async ({ params: { id }, body }) => {
+            try {
+                const result = await db.update(categoriesSchema)
+                    .set({
+                        ...body,
+                        updatedAt: new Date()
+                    })
+                    .where(eq(categoriesSchema.id, parseInt(id)))
+                    .returning();
+
+                if (result.length === 0) {
+                    return commonRes(null, 404, '分类不存在');
+                }
+
+                const updatedCategory = {
+                    ...result[0],
+                    id: result[0]?.id.toString(),
+                    parentId: result[0]?.parentId?.toString(),
+                    level: 0
+                };
+                if (!updatedCategory) {
+                    return commonRes(null, 404, '分类不存在');
+                }
+                return commonRes(updatedCategory, 200, '分类更新成功');
+            } catch (error) {
+                console.error('更新分类失败:', error);
+                return commonRes(null, 500, '更新分类失败');
+            }
+        }, {
+            body: 'UpdateCategoryDto',
+            detail: {
+                tags: ["Categories"],
+                summary: "更新分类",
+                description: '更新分类',
+            }
+
+
+        })
+
+
+    )
     // 获取分类树形结构
     .get('/tree', async () => {
         try {
@@ -30,18 +117,14 @@ export const categoriesRoute = new Elysia({ prefix: '/categories', tags: ['Categ
                 ...cat,
                 id: cat.id.toString(),
                 parentId: cat.parentId?.toString(),
-                level: 0
             }));
-            const rootCategories = allCategories.filter(cat => !cat.parentId && cat.isVisible);
-            const categoryTree = rootCategories.map(cat => buildCategoryTree(cat, allCategories));
-            return commonRes(categoryTree, 200, '获取分类树成功');
+            return commonRes(buildTree(allCategories), 200, '获取分类树成功');
         } catch (error) {
             console.error('获取分类树失败:', error);
             return commonRes(null, 500, '获取分类树失败');
         }
     },
         {
-
             detail: {
                 tags: ["Categories"],
                 summary: "获取分类树形结构",
@@ -54,7 +137,6 @@ export const categoriesRoute = new Elysia({ prefix: '/categories', tags: ['Categ
         try {
             // 搜索条件构建
             const conditions = [];
-
             // search参数：使用or连接多个字段搜索
             if (search) {
                 conditions.push(
@@ -146,8 +228,8 @@ export const categoriesRoute = new Elysia({ prefix: '/categories', tags: ['Categ
             const dbCategory = await db.select().from(categoriesSchema).where(eq(categoriesSchema.id, parseInt(id))).limit(1);
             const category = dbCategory.length > 0 ? {
                 ...dbCategory[0],
-                id: dbCategory[0].id.toString(),
-                parentId: dbCategory[0].parentId?.toString(),
+                id: dbCategory[0]?.id.toString(),
+                parentId: dbCategory[0]?.parentId?.toString(),
                 level: 0
             } : null;
             if (!category) {
@@ -158,88 +240,35 @@ export const categoriesRoute = new Elysia({ prefix: '/categories', tags: ['Categ
             console.error('获取分类失败:', error);
             return commonRes(null, 500, '获取分类失败');
         }
-    })
-
-    // 创建分类
-    .post('', async ({ body }) => {
-        try {
-            const result = await db.insert(categoriesSchema).values({
-                name: body.name,
-                slug: body.slug,
-                description: body.description,
-                parentId: body.parentId || null,
-                sortOrder: body.sortOrder || 0,
-                isVisible: body.isVisible ?? true,
-                icon: body.icon,
-                image: body.image,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            }).returning();
-            const newCategory = {
-                ...result[0],
-                id: result[0].id.toString(),
-                parentId: result[0].parentId?.toString(),
-                level: 0
-            }
-            return commonRes(newCategory, 201, '分类创建成功');
-        } catch (error) {
-            console.error('创建分类失败:', error);
-            return commonRes(null, 500, '创建分类失败');
-        }
     }, {
-        body: 'CreateCategoryDto',
         detail: {
             tags: ["Categories"],
-            summary: "创建分类",
-            description: '创建分类',
+            summary: "删除分类",
+            description: '删除指定分类，删除前会检查是否有子分类',
         }
     })
 
-    // 更新分类
-    .put('/:id', async ({ params: { id }, body }) => {
-        try {
-            const result = await db.update(categoriesSchema)
-                .set({
-                    ...body,
-                    updatedAt: new Date()
-                })
-                .where(eq(categoriesSchema.id, parseInt(id)))
-                .returning();
-
-            if (result.length === 0) {
-                return commonRes(null, 404, '分类不存在');
-            }
-
-            const updatedCategory = {
-                ...result[0],
-                id: result[0].id.toString(),
-                parentId: result[0].parentId?.toString(),
-                level: 0
-            };
-            if (!updatedCategory) {
-                return commonRes(null, 404, '分类不存在');
-            }
-            return commonRes(updatedCategory, 200, '分类更新成功');
-        } catch (error) {
-            console.error('更新分类失败:', error);
-            return commonRes(null, 500, '更新分类失败');
-        }
-    }, {
-        body: 'UpdateCategoryDto',
-        detail: {
-            tags: ["Categories"],
-            summary: "更新分类",
-            description: '更新分类',
-        }
 
 
-    })
 
     // 删除分类
     .delete('/:id', async ({ params: { id } }) => {
         try {
-            const deleted = await deleteCategory(id);
-            if (!deleted) {
+            // 首先检查是否有子分类
+            const children = await db.select().from(categoriesSchema)
+                .where(eq(categoriesSchema.parentId, parseInt(id)))
+                .limit(1);
+
+            if (children.length > 0) {
+                return commonRes(null, 400, '该分类下还有子分类，无法删除');
+            }
+
+            // 删除分类
+            const deleted = await db.delete(categoriesSchema)
+                .where(eq(categoriesSchema.id, parseInt(id)))
+                .returning();
+
+            if (deleted.length === 0) {
                 return commonRes(null, 404, '分类不存在');
             }
             return commonRes(null, 200, '分类删除成功');

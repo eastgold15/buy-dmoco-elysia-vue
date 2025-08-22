@@ -1,26 +1,12 @@
 <template>
-  <component :is="currentLayout">
+  <div id="app">
+    <!-- 使用嵌套路由，布局由路由配置决定 -->
     <router-view />
-  </component>
+  </div>
 </template>
 
-<script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import DefaultLayout from './layouts/default.vue'
-import AdminLayout from './layouts/admin.vue'
-
-const route = useRoute()
-
-// 根据路由路径动态选择布局
-const currentLayout = computed(() => {
-  // 如果路径以 /admin 开头，使用后台管理布局
-  if (route.path.startsWith('/admin')) {
-    return AdminLayout
-  }
-  // 否则使用默认前端购物布局
-  return DefaultLayout
-})
+<script setup lang="ts">
+// 简化的App.vue，布局管理交给嵌套路由
 </script>
 
 <style>
