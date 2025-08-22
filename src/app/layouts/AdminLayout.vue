@@ -117,16 +117,7 @@ const menuItems = ref([
 				icon: 'pi pi-info-circle',
 				command: () => router.push('/admin/settings')
 			},
-			{
-				label: '顶部配置',
-				icon: 'pi pi-window-maximize',
-				command: () => router.push('/admin/header-config')
-			},
-			{
-				label: '底部配置',
-				icon: 'pi pi-window-minimize',
-				command: () => router.push('/admin/footer-config')
-			},
+
 			{
 				label: '广告管理',
 				icon: 'pi pi-image',

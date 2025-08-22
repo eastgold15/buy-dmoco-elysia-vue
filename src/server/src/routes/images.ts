@@ -11,7 +11,7 @@ import { imagesModel } from './images.model';
 /**
  * 图片管理路由
  */
-export const imagesRoutes = new Elysia({ prefix: '/images' })
+export const imagesRoute = new Elysia({ prefix: '/images' })
   .model(imagesModel)
   // 获取图片列表
   .get('/', async ({ query }) => {

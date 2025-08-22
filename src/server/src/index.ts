@@ -4,7 +4,7 @@ import { envConfig } from './config/env'
 import { categoriesRoute } from './routes/categories';
 import { productsRoute } from './routes/products';
 import { siteConfigsRoute } from './routes/siteConfigs';
-import { layoutsRoute } from './routes/layouts';
+
 import { advertisementsRoute } from './routes/advertisements';
 import { uploadRoute } from './routes/upload';
 import { imagesRoute } from './routes/images';
@@ -28,7 +28,7 @@ export const api = new Elysia({ prefix: '/api' })
     .use(categoriesRoute)
     .use(productsRoute)
     .use(siteConfigsRoute)
-    .use(layoutsRoute)
+    
     .use(advertisementsRoute)
     .use(uploadRoute)
     .use(imagesRoute)

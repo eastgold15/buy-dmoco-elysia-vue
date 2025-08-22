@@ -36,8 +36,7 @@ import OrdersManagement from "./pages/admin/OrdersManagement.vue";
 import UsersManagement from "./pages/admin/UsersManagement.vue";
 import AdminsManagement from "./pages/admin/AdminsManagement.vue";
 import SiteConfig from "./pages/admin/SiteConfig.vue";
-import HeaderConfig from "./pages/admin/HeaderConfig.vue";
-import FooterConfig from "./pages/admin/FooterConfig.vue";
+
 import AdvertisementManagement from "./pages/admin/AdvertisementManagement.vue";
 import ImageManager from "./pages/admin/ImageManager.vue";
 import PartnersManagement from "./pages/admin/PartnersManagement.vue";
@@ -107,10 +106,10 @@ export const createApp = async () => {
 						component: AddProduct,
 					},
 					{
-					path: "orders",
-					name: "orders-management",
-					component: OrdersManagement,
-				},
+						path: "orders",
+						name: "orders-management",
+						component: OrdersManagement,
+					},
 					{
 						path: "refunds",
 						name: "refunds-management",
@@ -141,16 +140,7 @@ export const createApp = async () => {
 						name: "site-config",
 						component: SiteConfig,
 					},
-					{
-						path: "header-config",
-						name: "header-config",
-						component: HeaderConfig,
-					},
-					{
-						path: "footer-config",
-						name: "footer-config",
-						component: FooterConfig,
-					},
+
 					{
 						path: "advertisements",
 						name: "admin-advertisements",
@@ -185,6 +175,8 @@ export const createApp = async () => {
 			},
 		],
 	});
+
+
 
 	app.use(router);
 	app.use(PrimeVue, {

@@ -4,7 +4,7 @@
     <div class="flex justify-between items-center mb-6">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">网站配置</h1>
-        <p class="text-gray-600 mt-1">管理网站的基本信息和设置</p>
+        <p class="text-gray-600 mt-1">管理网站的基本信息、导航、顶部和底部配置</p>
       </div>
       <div class="flex gap-2">
         <Button label="重置" icon="pi pi-refresh" severity="secondary" @click="resetConfigs" />
@@ -123,6 +123,211 @@
         </div>
       </TabPanel>
 
+      <!-- 导航页配置 -->
+      <TabPanel header="导航页配置">
+        <div class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  导航菜单显示设置
+                </label>
+                <div class="space-y-3">
+                  <div class="flex items-center">
+                    <Checkbox id="nav_home" v-model="configs.nav_home_enabled" :binary="true" />
+                    <label for="nav_home" class="ml-2">显示首页导航</label>
+                  </div>
+                  <div class="flex items-center">
+                    <Checkbox id="nav_products" v-model="configs.nav_products_enabled" :binary="true" />
+                    <label for="nav_products" class="ml-2">显示产品导航</label>
+                  </div>
+                  <div class="flex items-center">
+                    <Checkbox id="nav_categories" v-model="configs.nav_categories_enabled" :binary="true" />
+                    <label for="nav_categories" class="ml-2">显示分类导航</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-4">
+              <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  其他导航设置
+                </label>
+                <div class="space-y-3">
+                  <div class="flex items-center">
+                    <Checkbox id="nav_about" v-model="configs.nav_about_enabled" :binary="true" />
+                    <label for="nav_about" class="ml-2">显示关于我们导航</label>
+                  </div>
+                  <div class="flex items-center">
+                    <Checkbox id="nav_contact" v-model="configs.nav_contact_enabled" :binary="true" />
+                    <label for="nav_contact" class="ml-2">显示联系我们导航</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </TabPanel>
+
+      <!-- 网站顶部配置 -->
+      <TabPanel header="网站顶部配置">
+        <div class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div class="field">
+                <label for="header_banner_text" class="block text-sm font-medium text-gray-700 mb-2">
+                  顶部横幅文本
+                </label>
+                <InputText id="header_banner_text" v-model="configs.header_banner_text"
+                  placeholder="FREE SHIPPING on orders over $59* details" class="w-full" />
+                <small class="text-gray-500">显示在网站顶部的横幅信息</small>
+              </div>
+
+              <div class="field">
+                <label for="header_banner_link" class="block text-sm font-medium text-gray-700 mb-2">
+                  横幅链接
+                </label>
+                <InputText id="header_banner_link" v-model="configs.header_banner_link" placeholder="/shipping-info"
+                  class="w-full" />
+                <small class="text-gray-500">点击横幅时跳转的链接地址</small>
+              </div>
+
+              <div class="field">
+                <label for="header_track_order_text" class="block text-sm font-medium text-gray-700 mb-2">
+                  追踪订单文本
+                </label>
+                <InputText id="header_track_order_text" v-model="configs.header_track_order_text" placeholder="Track Order"
+                  class="w-full" />
+              </div>
+
+              <div class="field">
+                <label for="header_track_order_link" class="block text-sm font-medium text-gray-700 mb-2">
+                  追踪订单链接
+                </label>
+                <InputText id="header_track_order_link" v-model="configs.header_track_order_link" placeholder="/track-order"
+                  class="w-full" />
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  帮助链接
+                </label>
+                <div class="space-y-3">
+                  <div v-for="(link, index) in configs.header_help_links" :key="index" class="flex gap-2">
+                    <InputText v-model="link.text" placeholder="链接文本" class="flex-1" />
+                    <InputText v-model="link.url" placeholder="链接地址" class="flex-1" />
+                    <Button type="button" icon="pi pi-trash" severity="danger" outlined
+                      @click="removeHeaderHelpLink(index)" :disabled="configs.header_help_links.length <= 1" />
+                  </div>
+                  <Button type="button" icon="pi pi-plus" label="添加帮助链接" outlined @click="addHeaderHelpLink"
+                    class="w-full" />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  顶部功能设置
+                </label>
+                <div class="space-y-3">
+                  <div class="flex items-center">
+                    <Checkbox id="header_search" v-model="configs.header_search_enabled" :binary="true" />
+                    <label for="header_search" class="ml-2">显示搜索框</label>
+                  </div>
+                  <div class="flex items-center">
+                    <Checkbox id="header_cart" v-model="configs.header_cart_enabled" :binary="true" />
+                    <label for="header_cart" class="ml-2">显示购物车图标</label>
+                  </div>
+                  <div class="flex items-center">
+                    <Checkbox id="header_user_menu" v-model="configs.header_user_menu_enabled" :binary="true" />
+                    <label for="header_user_menu" class="ml-2">显示用户菜单</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </TabPanel>
+
+      <!-- 底部配置 -->
+      <TabPanel header="底部配置">
+        <div class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div class="field">
+                <label for="footer_copyright" class="block text-sm font-medium text-gray-700 mb-2">
+                  版权信息
+                </label>
+                <Textarea id="footer_copyright" v-model="configs.footer_copyright"
+                  placeholder="© 2024 WWW.APPARELCITY.COM.CN All Rights Reserved" rows="3" class="w-full" />
+                <small class="text-gray-500">显示在网站底部的版权信息</small>
+              </div>
+
+              <div class="field">
+                <label for="footer_back_to_top_text" class="block text-sm font-medium text-gray-700 mb-2">
+                  返回顶部文本
+                </label>
+                <InputText id="footer_back_to_top_text" v-model="configs.footer_back_to_top_text" placeholder="Back to top"
+                  class="w-full" />
+              </div>
+
+              <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  社交媒体链接
+                </label>
+                <div class="space-y-2">
+                  <InputText v-model="configs.footer_social_facebook" placeholder="Facebook链接" class="w-full" />
+                  <InputText v-model="configs.footer_social_twitter" placeholder="Twitter链接" class="w-full" />
+                  <InputText v-model="configs.footer_social_instagram" placeholder="Instagram链接" class="w-full" />
+                  <InputText v-model="configs.footer_social_youtube" placeholder="YouTube链接" class="w-full" />
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <div class="field">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  底部栏目
+                </label>
+                <div class="space-y-4">
+                  <div v-for="(section, sectionIndex) in configs.footer_sections" :key="sectionIndex"
+                    class="border rounded-lg p-4">
+                    <div class="flex justify-between items-center mb-3">
+                      <h4 class="font-medium text-gray-800">栏目 {{ sectionIndex + 1 }}</h4>
+                      <Button type="button" icon="pi pi-trash" severity="danger" outlined size="small"
+                        @click="removeFooterSection(sectionIndex)" :disabled="configs.footer_sections.length <= 1" />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="block text-sm font-medium text-gray-600 mb-1">栏目标题</label>
+                      <InputText v-model="section.title" placeholder="例如：For You" class="w-full" />
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-600 mb-2">栏目链接</label>
+                      <div class="space-y-2">
+                        <div v-for="(link, linkIndex) in section.links" :key="linkIndex" class="flex gap-2">
+                          <InputText v-model="link.text" placeholder="链接文本" class="flex-1" />
+                          <InputText v-model="link.url" placeholder="链接地址" class="flex-1" />
+                          <Button type="button" icon="pi pi-trash" severity="danger" outlined size="small"
+                            @click="removeFooterLink(sectionIndex, linkIndex)" :disabled="section.links.length <= 1" />
+                        </div>
+                        <Button type="button" icon="pi pi-plus" label="添加链接" outlined size="small"
+                          @click="addFooterLink(sectionIndex)" class="w-full" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button type="button" icon="pi pi-plus" label="添加栏目" outlined @click="addFooterSection"
+                    class="w-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </TabPanel>
+
       <!-- 法律信息 -->
       <TabPanel header="法律信息">
         <div class="space-y-6">
@@ -156,6 +361,7 @@ import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Textarea from 'primevue/textarea'
 import Dropdown from 'primevue/dropdown'
+import Checkbox from 'primevue/checkbox'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
 
@@ -169,6 +375,7 @@ const loading = ref(false)
 
 // 配置数据
 const configs = reactive({
+  // 基本设置
   site_name: '',
   site_logo: '',
   site_keywords: '',
@@ -180,7 +387,38 @@ const configs = reactive({
   copyright: '',
   header_notice: '',
   free_shipping_threshold: 59,
-  currency: 'USD'
+  currency: 'USD',
+  
+  // 导航页配置
+  nav_home_enabled: true,
+  nav_products_enabled: true,
+  nav_categories_enabled: true,
+  nav_about_enabled: true,
+  nav_contact_enabled: true,
+  
+  // 网站顶部配置
+  header_banner_text: '',
+  header_banner_link: '',
+  header_track_order_text: '',
+  header_track_order_link: '',
+  header_help_links: [{ text: 'Help', url: '/help' }],
+  header_search_enabled: true,
+  header_cart_enabled: true,
+  header_user_menu_enabled: true,
+  
+  // 底部配置
+  footer_copyright: '',
+  footer_back_to_top_text: '',
+  footer_sections: [
+    {
+      title: 'For You',
+      links: [{ text: 'Favorites', url: '/favorites' }]
+    }
+  ],
+  footer_social_facebook: '',
+  footer_social_twitter: '',
+  footer_social_instagram: '',
+  footer_social_youtube: ''
 })
 
 // 原始配置数据（用于重置）
@@ -200,19 +438,72 @@ const currencyOptions = [
   { label: '英镑 (GBP)', value: 'GBP' }
 ]
 
+// 添加顶部帮助链接
+const addHeaderHelpLink = () => {
+  configs.header_help_links.push({ text: '', url: '' })
+}
+
+// 删除顶部帮助链接
+const removeHeaderHelpLink = (index: number) => {
+  if (configs.header_help_links.length > 1) {
+    configs.header_help_links.splice(index, 1)
+  }
+}
+
+// 添加底部栏目
+const addFooterSection = () => {
+  configs.footer_sections.push({
+    title: '',
+    links: [{ text: '', url: '' }]
+  })
+}
+
+// 删除底部栏目
+const removeFooterSection = (index: number) => {
+  if (configs.footer_sections.length > 1) {
+    configs.footer_sections.splice(index, 1)
+  }
+}
+
+// 添加底部链接
+const addFooterLink = (sectionIndex: number) => {
+  configs.footer_sections[sectionIndex].links.push({ text: '', url: '' })
+}
+
+// 删除底部链接
+const removeFooterLink = (sectionIndex: number, linkIndex: number) => {
+  const section = configs.footer_sections[sectionIndex]
+  if (section.links.length > 1) {
+    section.links.splice(linkIndex, 1)
+  }
+}
+
 // 加载配置数据
 const loadConfigs = async () => {
   try {
     loading.value = true
 
-    const response = await client.api['site-config'].get()
+    const response = await client.api['site-configs'].get()
     if (response.data && response.data.code === 200 && Array.isArray(response.data.data)) {
       // 将配置数组转换为对象
       response.data.data.forEach((config: any) => {
         if (config.key in configs) {
-          // 处理数字类型
+          // 处理特殊类型
           if (config.key === 'free_shipping_threshold') {
             configs[config.key as keyof typeof configs] = Number(config.value) || 59
+          } else if (config.key === 'header_help_links' || config.key === 'footer_sections') {
+            try {
+              configs[config.key as keyof typeof configs] = JSON.parse(config.value || '[]')
+            } catch {
+              // 如果解析失败，使用默认值
+              if (config.key === 'header_help_links') {
+                configs.header_help_links = [{ text: 'Help', url: '/help' }]
+              } else if (config.key === 'footer_sections') {
+                configs.footer_sections = [{ title: 'For You', links: [{ text: 'Favorites', url: '/favorites' }] }]
+              }
+            }
+          } else if (config.key.includes('_enabled')) {
+            configs[config.key as keyof typeof configs] = config.value === 'true'
           } else {
             configs[config.key as keyof typeof configs] = config.value || ''
           }
@@ -282,12 +573,23 @@ const saveConfigs = async () => {
     saving.value = true
 
     // 准备批量更新数据
-    const updateData = Object.entries(configs).map(([key, value]) => ({
-      key,
-      value: String(value)
-    }))
+    const updateData = Object.entries(configs).map(([key, value]) => {
+      let stringValue = String(value)
+      
+      // 处理特殊类型
+      if (key === 'header_help_links' || key === 'footer_sections') {
+        stringValue = JSON.stringify(value)
+      } else if (typeof value === 'boolean') {
+        stringValue = value ? 'true' : 'false'
+      }
+      
+      return {
+        key,
+        value: stringValue
+      }
+    })
 
-    const { data, error } = await client.api['site-config'].batch.patch(updateData)
+    const { data, error } = await client.api['site-configs'].batch.patch(updateData)
 
     if (data) {
       toast.add({
@@ -300,7 +602,7 @@ const saveConfigs = async () => {
       // 更新原始数据
       Object.assign(originalConfigs, configs)
     } else {
-      throw new Error(response.error || '保存失败')
+      throw new Error(error || '保存失败')
     }
   } catch (error) {
     console.error('保存配置失败:', error)
@@ -334,7 +636,7 @@ const resetConfigs = () => {
 // 初始化默认配置
 const initializeConfigs = async () => {
   try {
-    const { data, error } = await client.api['site-config'].initialize.post()
+    const { data, error } = await client.api['site-configs'].initialize.post()
 
     if (data) {
       await loadConfigs()
