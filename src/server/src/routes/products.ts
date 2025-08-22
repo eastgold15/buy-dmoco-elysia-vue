@@ -7,6 +7,89 @@ import { productsModel } from './products.model';
 
 export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products'] })
     .model(productsModel)
+    .guard({
+        transform({ body }) {
+            console.log(body)
+            // 处理parentId：如果是对象格式{"key":true}，提取key作为parentId
+            if (body.parentId) {
+                if (typeof body.parentId === 'object' && body.parentId !== null) {
+                    // 从对象中提取第一个key作为parentId
+                    const keys = Object.keys(body.parentId);
+                    if (keys.length > 0) {
+                        body.parentId = parseInt(keys[0]);
+                    }
+                } else {
+                    body.parentId = parseInt(body.parentId.toString());
+                }
+            }
+
+            body.price = '' + body.price
+            body.comparePrice = '' + body.comparePrice
+            body.cost = '' + body.cost
+            body.weight = '' + body.weight
+        }
+
+    }, (app) => app
+        // 创建商品
+        .post('/', async ({ body }) => {
+            try {
+                const productData = {
+                    name: body.name,
+                    slug: body.slug,
+                    description: body.description,
+                    shortDescription: body.shortDescription,
+                    price: body.price,
+                    comparePrice: body.comparePrice,
+                    cost: body.cost,
+                    sku: body.sku,
+                    barcode: body.barcode,
+                    weight: body.weight,
+                    dimensions: body.dimensions,
+                    images: body.images,
+                    videos: body.videos,
+                    colors: body.colors,
+                    sizes: body.sizes,
+                    materials: body.materials,
+                    careInstructions: body.careInstructions,
+                    features: body.features,
+                    specifications: body.specifications,
+                    categoryId: body.categoryId,
+                    stock: body.stock,
+                    minStock: body.minStock,
+                    isActive: body.isActive,
+                    isFeatured: body.isFeatured,
+                    metaTitle: body.metaTitle,
+                    metaDescription: body.metaDescription,
+                    metaKeywords: body.metaKeywords
+                };
+
+                const [newProduct] = await db
+                    .insert(productsSchema)
+                    .values(productData)
+                    .returning();
+
+                return commonRes(newProduct, 201, '商品创建成功');
+            } catch (error) {
+                console.error('创建商品失败:', error);
+                if (error.code === '23505') { // 唯一约束违反
+                    if (error.constraint?.includes('slug')) {
+                        return commonRes(null, 400, 'URL标识符已存在');
+                    }
+                    if (error.constraint?.includes('sku')) {
+                        return commonRes(null, 400, 'SKU已存在');
+                    }
+                }
+                return commonRes(null, 500, '创建商品失败');
+            }
+        }, {
+            body: 'CreateProductDto',
+            detail: {
+                tags: ['Products'],
+                summary: '创建商品',
+                description: '创建新的商品'
+            }
+        })
+    )
     // 获取所有商品
     .get('/', async ({ query }) => {
         try {

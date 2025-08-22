@@ -56,37 +56,48 @@ export const uploadRoute = new Elysia({ prefix: '/upload', tags: ['Upload'] })
     .post('/product', async ({ body }) => {
         try {
             const formData = body as any;
-            const file = formData.file;
+            const files = formData.file;
 
-            if (!file) {
+            if (!files) {
                 return errorRes(400, '没有上传文件');
             }
 
-            // 验证文件类型
-            if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
-                return errorRes(400, '不支持的文件类型，请上传 JPG、PNG、GIF 或 WebP 格式的图片');
+            // 处理单个文件或多个文件，统一转换为数组
+            const fileArray = Array.isArray(files) ? files : [files];
+            const uploadResults = [];
+
+            for (const file of fileArray) {
+                // 验证文件类型
+                if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
+                    return errorRes(400, `文件 ${file.name} 不支持的文件类型，请上传 JPG、PNG、GIF 或 WebP 格式的图片`);
+                }
+
+                // 验证文件大小
+                if (file.size > MAX_FILE_SIZE) {
+                    return errorRes(400, `文件 ${file.name} 大小不能超过 5MB`);
+                }
+
+                // 读取文件内容并上传到OSS
+                const fileBuffer = await file.arrayBuffer();
+                const buffer = new Uint8Array(fileBuffer);
+
+                const imageUrl = await ossService.uploadImage(
+                    buffer,
+                    'products',
+                    file.name
+                );
+
+                uploadResults.push({
+                    url: imageUrl,
+                    fileName: file.name
+                });
             }
 
-            // 验证文件大小
-            if (file.size > MAX_FILE_SIZE) {
-                return errorRes(400, '文件大小不能超过 5MB');
-            }
-
-            // 读取文件内容并上传到OSS
-            const fileBuffer = await file.arrayBuffer();
-            const buffer = new Uint8Array(fileBuffer);
-
-            const imageUrl = await ossService.uploadImage(
-                buffer,
-                'products',
-                file.name
-            );
-
-            // 返回文件URL
+            // 返回文件URL数组
             return commonRes({
-                url: imageUrl,
-                fileName: file.name
-            }, 200, '文件上传成功');
+                urls: uploadResults.map(result => result.url),
+                files: uploadResults
+            }, 200, `成功上传 ${uploadResults.length} 个文件`);
         } catch (error) {
             return errorRes(500, error instanceof Error ? error.message : '文件上传失败');
         }

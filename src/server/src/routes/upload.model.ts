@@ -25,7 +25,7 @@ export interface UploadResponse {
 export const uploadModel = {
   // 文件上传请求参数
   FileUploadDto: t.Object({
-    file: t.File({
+    file: t.Files({
       type: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
       maxSize: 5 * 1024 * 1024 // 5MB
     })

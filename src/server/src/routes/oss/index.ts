@@ -12,7 +12,8 @@ const createOSSClient = () => {
   const accessKeyId = envConfig.get('HUAWEI_ACCESS_KEY_ID') || "";
   const secretAccessKey = envConfig.get('HUAWEI_SECRET_ACCESS_KEY') || "";
   const bucket = envConfig.get('HUAWEI_BUCKET') || "";
-  const endpoint = envConfig.get('HUAWEI_ENDPOINT') || "";
+
+  const endpoint = envConfig.get('HUAWEI_ENDPOINT') || `https://obs.${region}.myhuaweicloud.com`;
   const region = envConfig.get('HUAWEI_REGION') || "cn-north-4";
 
   console.log("华为云OSS配置:", { accessKeyId, secretAccessKey, bucket, endpoint, region });
@@ -283,7 +284,20 @@ export class HuaweiOSSService {
    */
   getPublicUrl(key: string): string {
     const endpoint = envConfig.get('HUAWEI_ENDPOINT') || "";
+
+
+    // 域名
+    const domain = envConfig.get('HUAWEI_DOMAIN') || "";
     const bucket = envConfig.get('HUAWEI_BUCKET') || "";
+
+
+    console.log(111, domain, key, endpoint)
+    // 如果OSS客户端未初始化或者endpoint是自定义域名，直接返回自定义域名的URL
+    if (!this.client || endpoint.includes('myhuaweicloud.com')) {
+      console.log(111, domain, key)
+      return `${domain}/${key}`;
+    }
+
     return `${endpoint}/${bucket}/${key}`;
   }
 
