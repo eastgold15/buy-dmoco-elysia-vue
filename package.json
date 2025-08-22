@@ -19,7 +19,9 @@
     "db:schema:typebox": "bunx schema-typebox-gen generate --config ./src/server/scripts/schema-gen.config.ts ",
     "db:push": "bun run db:schema && drizzle-kit push --config=src/server/src/.container/dev/drizzle-dev.config.ts",
     "db:studio": "drizzle-kit studio --config=src/server/src/.container/dev/drizzle-dev.config.ts",
-    "db:setup": "bun run docker:dev && sleep 5 && bun run db:push"
+    "db:setup": "bun run docker:dev && sleep 5 && bun run db:push",
+    "db:init-data": "bun run src/server/scripts/run-init-data.js --force",
+    "db:reset": "bun run db:push && bun run db:init-data"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",

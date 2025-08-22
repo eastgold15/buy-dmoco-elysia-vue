@@ -8,9 +8,7 @@ export const productsModel = {
   CreateProductDto: DbType.typebox.insert.productsSchema,
 
   // 更新商品请求参数
-  UpdateProductDto: t.Object({
-    ...DbType.spreads.insert.productsSchema
-  }),
+  UpdateProductDto: t.Partial(DbType.typebox.insert.productsSchema),
 
   // 商品列表查询参数
   ProductListQueryDto: t.Object({
@@ -18,7 +16,6 @@ export const productsModel = {
     categoryId: t.Optional(t.String()),
     isActive: t.Optional(t.Boolean()),
     isFeatured: t.Optional(t.Boolean()),
-    limit: t.Optional(t.Number({ minimum: 1, maximum: 100, default: 20 }))
   }),
 
   // 商品搜索查询参数
@@ -43,7 +40,7 @@ export const productsModel = {
 
   // 热门搜索词查询参数
   PopularTermsQueryDto: t.Object({
-    limit: t.Optional(t.Number({ minimum: 1, maximum: 50, default: 10 }))
+    pageSize: t.Optional(t.Number({ minimum: 1, maximum: 50, default: 10 }))
   }),
 
   // 筛选选项查询参数
@@ -53,7 +50,7 @@ export const productsModel = {
 
   // 相关商品查询参数
   RelatedProductsQueryDto: t.Object({
-    limit: t.Optional(t.Number({ minimum: 1, maximum: 20, default: 8 }))
+    pageSize: t.Optional(t.Number({ minimum: 1, maximum: 20, default: 8 }))
   }),
 
   // 路径参数

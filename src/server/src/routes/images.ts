@@ -16,16 +16,16 @@ export const imagesRoutes = new Elysia({ prefix: '/images' })
   // 获取图片列表
   .get('/', async ({ query }) => {
     try {
-      const { category, search, page = '1', limit = '12' } = query as {
+      const { category, search, page = '1', pageSize = '12' } = query as {
         category?: string;
         search?: string;
         page?: string;
-        limit?: string;
+        pageSize?: string;
       };
 
       const pageNum = parseInt(page);
-      const limitNum = parseInt(limit);
-      const offset = (pageNum - 1) * limitNum;
+      const pageSizeNum = parseInt(pageSize);
+      const offset = (pageNum - 1) * pageSizeNum;
 
       // 构建查询条件
       const conditions = [];
@@ -46,7 +46,7 @@ export const imagesRoutes = new Elysia({ prefix: '/images' })
         .from(images)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(images.uploadDate)
-        .limit(limitNum)
+        .limit(pageSizeNum)
         .offset(offset);
 
       // 查询总数
@@ -62,9 +62,9 @@ export const imagesRoutes = new Elysia({ prefix: '/images' })
         data: imageList,
         pagination: {
           page: pageNum,
-          limit: limitNum,
+          pageSize: pageSizeNum,
           total,
-          totalPages: Math.ceil(total / limitNum)
+          totalPages: Math.ceil(total / pageSizeNum)
         }
       };
     } catch (error) {

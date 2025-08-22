@@ -35,7 +35,7 @@ export const ordersRoute = new Elysia({ prefix: 'orders', tags: ['Orders'] })
     .get('/', async ({ query }) => {
         try {
             const page = query.page ? parseInt(query.page as string) : 1;
-            const limit = query.limit ? parseInt(query.limit as string) : 20;
+            const pageSize = query.pageSize ? parseInt(query.pageSize as string) : 20;
             const status = query.status as string;
             const paymentStatus = query.paymentStatus as string;
             const customerEmail = query.customerEmail as string;
@@ -43,7 +43,7 @@ export const ordersRoute = new Elysia({ prefix: 'orders', tags: ['Orders'] })
             const sortBy = query.sortBy as string || 'createdAt';
             const sortOrder = query.sortOrder as string || 'desc';
 
-            const offset = (page - 1) * limit;
+            const offset = (page - 1) * pageSize;
             const conditions = [];
 
             // 筛选条件
@@ -97,7 +97,7 @@ export const ordersRoute = new Elysia({ prefix: 'orders', tags: ['Orders'] })
                 .from(ordersSchema)
                 .where(whereClause)
                 .orderBy(orderBy)
-                .limit(limit)
+                .limit(pageSize)
                 .offset(offset);
 
             // 获取总数
@@ -110,7 +110,7 @@ export const ordersRoute = new Elysia({ prefix: 'orders', tags: ['Orders'] })
                 orders: dbOrders,
                 total,
                 page,
-                limit
+                pageSize: pageSize
             });
         } catch (error) {
             console.error('获取订单列表失败:', error);
@@ -119,7 +119,7 @@ export const ordersRoute = new Elysia({ prefix: 'orders', tags: ['Orders'] })
     }, {
         query: t.Object({
             page: t.Optional(t.String()),
-            limit: t.Optional(t.String()),
+            pageSize: t.Optional(t.String()),
             status: t.Optional(t.String()),
             paymentStatus: t.Optional(t.String()),
             customerEmail: t.Optional(t.String()),
@@ -282,11 +282,11 @@ export const ordersRoute = new Elysia({ prefix: 'orders', tags: ['Orders'] })
     .get('/refunds', async ({ query }) => {
         try {
             const page = query.page ? parseInt(query.page as string) : 1;
-            const limit = query.limit ? parseInt(query.limit as string) : 20;
+            const pageSize = query.pageSize ? parseInt(query.pageSize as string) : 20;
             const status = query.status as string;
             const orderId = query.orderId as string;
 
-            const offset = (page - 1) * limit;
+            const offset = (page - 1) * pageSize;
             const conditions = [];
 
             if (status) {
@@ -320,7 +320,7 @@ export const ordersRoute = new Elysia({ prefix: 'orders', tags: ['Orders'] })
                 .leftJoin(ordersSchema, eq(refundsSchema.orderId, ordersSchema.id))
                 .where(whereClause)
                 .orderBy(desc(refundsSchema.createdAt))
-                .limit(limit)
+                .limit(pageSize)
                 .offset(offset);
 
             // 获取总数
@@ -333,7 +333,7 @@ export const ordersRoute = new Elysia({ prefix: 'orders', tags: ['Orders'] })
                 refunds: dbRefunds,
                 total,
                 page,
-                limit
+                pageSize: pageSize
             });
         } catch (error) {
             console.error('获取退款列表失败:', error);
@@ -342,7 +342,7 @@ export const ordersRoute = new Elysia({ prefix: 'orders', tags: ['Orders'] })
     }, {
         query: t.Object({
             page: t.Optional(t.String()),
-            limit: t.Optional(t.String()),
+            pageSize: t.Optional(t.String()),
             status: t.Optional(t.String()),
             orderId: t.Optional(t.String())
         }),

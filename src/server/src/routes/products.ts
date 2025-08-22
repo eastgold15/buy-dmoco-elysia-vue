@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import { eq, desc, asc, and, or, sql, ilike } from 'drizzle-orm';
+import { eq, desc, asc, and, or, sql, ilike, like, count } from 'drizzle-orm';
 import { db } from '../db/connection';
 import { productsSchema, categoriesSchema } from '../db/schema';
 import { commonRes, pageRes } from '../plugins/Res';
@@ -9,6 +9,8 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
     .model(productsModel)
     .guard({
         transform({ body }) {
+
+
             console.log(body)
             // 处理parentId：如果是对象格式{"key":true}，提取key作为parentId
             if (body.parentId) {
@@ -91,31 +93,47 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
         })
     )
     // 获取所有商品
-    .get('/', async ({ query }) => {
+    .get('/', async ({ query: { page, pageSize, sortBy, sortOrder, search, categoryId, isActive, isFeatured } }) => {
         try {
-            const page = query.page ? parseInt(query.page as string) : 1;
-            const limit = query.limit ? parseInt(query.limit as string) : 20;
-            const categoryId = query.categoryId as string;
-            const isActive = query.isActive !== undefined ? query.isActive === 'true' : undefined;
-            const isFeatured = query.isFeatured !== undefined ? query.isFeatured === 'true' : undefined;
-
-            const offset = (page - 1) * limit;
+            // 搜索条件：支持商品名称、SKU和描述搜索
             const conditions = [];
+            if (search) {
+                conditions.push(
+                    or(
+                        like(productsSchema.name, `%${search}%`),
+                        like(productsSchema.sku, `%${search}%`),
+                        like(productsSchema.description, `%${search}%`)
+                    )
+                );
+            }
 
             if (categoryId) {
-                conditions.push(eq(productsSchema.categoryId, parseInt(categoryId)));
+                conditions.push(eq(productsSchema.categoryId, parseInt(categoryId as string)));
             }
+
+
             if (isActive !== undefined) {
-                conditions.push(eq(productsSchema.isActive, isActive));
+                conditions.push(eq(productsSchema.isActive, isActive === true));
             }
             if (isFeatured !== undefined) {
-                conditions.push(eq(productsSchema.isFeatured, isFeatured));
+                conditions.push(eq(productsSchema.isFeatured, isFeatured === true));
             }
 
-            const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+            // 允许的排序字段
+            const allowedSortFields = {
+                name: productsSchema.name,
+                price: productsSchema.price,
+                stock: productsSchema.stock,
+                createdAt: productsSchema.createdAt,
+                updatedAt: productsSchema.updatedAt
+            };
 
-            // 获取商品列表
-            const dbProducts = await db
+            // 确定排序字段和方向
+            const sortFields = allowedSortFields[sortBy as keyof typeof allowedSortFields] || productsSchema.createdAt;
+            const sortOrderValue = sortOrder === 'asc' ? asc(sortFields) : desc(sortFields);
+
+            // 构建查询
+            const queryBuilder = db
                 .select({
                     id: productsSchema.id,
                     name: productsSchema.name,
@@ -129,7 +147,6 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     images: productsSchema.images,
                     colors: productsSchema.colors,
                     sizes: productsSchema.sizes,
-                    // tags: productsSchema.tags, // 字段不存在于schema中
                     categoryId: productsSchema.categoryId,
                     categoryName: categoriesSchema.name,
                     isActive: productsSchema.isActive,
@@ -137,7 +154,6 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     weight: productsSchema.weight,
                     dimensions: productsSchema.dimensions,
                     materials: productsSchema.materials,
-                    // brand: productsSchema.brand, // 字段不存在于schema中
                     metaTitle: productsSchema.metaTitle,
                     metaDescription: productsSchema.metaDescription,
                     metaKeywords: productsSchema.metaKeywords,
@@ -146,23 +162,34 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                 })
                 .from(productsSchema)
                 .leftJoin(categoriesSchema, eq(productsSchema.categoryId, categoriesSchema.id))
-                .where(whereClause)
-                .orderBy(desc(productsSchema.createdAt))
-                .limit(limit)
-                .offset(offset);
+                .where(conditions.length > 0 ? and(...conditions) : undefined)
+                .orderBy(sortOrderValue);
+
+            // 分页处理
+            if (page && pageSize) {
+                const offsetValue = ((Number(page) || 1) - 1) * pageSize;
+                queryBuilder.limit(pageSize).offset(offsetValue);
+            }
+
+            // 执行查询
+            const result = await queryBuilder;
 
             // 获取总数
-            const [{ count }] = await db
-                .select({ count: sql<number>`count(*)` })
+            const total = await db
+                .select({ value: count() })
                 .from(productsSchema)
-                .where(whereClause);
+                .where(conditions.length > 0 ? and(...conditions) : undefined);
 
-            return pageRes({
-                products: dbProducts,
-                total: count,
-                page,
-                limit
-            });
+            // 返回结果
+            return page
+                ? pageRes(
+                    result,
+                    total[0]?.value || 0,
+                    page,
+                    pageSize,
+                    "分页获取商品成功"
+                )
+                : commonRes(result, 200, "获取商品列表成功");
         } catch (error) {
             console.error('获取商品列表失败:', error);
             return commonRes(null, 500, '获取商品列表失败');
@@ -172,7 +199,7 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
         detail: {
             tags: ['Products'],
             summary: '获取商品列表',
-            description: '获取商品列表，支持分页、排序和筛选'
+            description: '获取商品列表，支持分页、搜索和排序'
         }
     })
 
@@ -193,7 +220,6 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     images: productsSchema.images,
                     colors: productsSchema.colors,
                     sizes: productsSchema.sizes,
-                    // tags: productsSchema.tags, // 字段不存在于schema中
                     categoryId: productsSchema.categoryId,
                     categoryName: categoriesSchema.name,
                     isActive: productsSchema.isActive,
@@ -201,7 +227,6 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     weight: productsSchema.weight,
                     dimensions: productsSchema.dimensions,
                     materials: productsSchema.materials,
-                    // brand: productsSchema.brand, // 字段不存在于schema中
                     metaTitle: productsSchema.metaTitle,
                     metaDescription: productsSchema.metaDescription,
                     metaKeywords: productsSchema.metaKeywords,
@@ -286,6 +311,76 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
         }
     })
 
+    // 更新商品
+    .put('/:id', async ({ params: { id }, body }) => {
+        try {
+            const updateData: any = {};
+            
+            // 只更新提供的字段
+            if (body.name !== undefined) updateData.name = body.name;
+            if (body.slug !== undefined) updateData.slug = body.slug;
+            if (body.description !== undefined) updateData.description = body.description;
+            if (body.shortDescription !== undefined) updateData.shortDescription = body.shortDescription;
+            if (body.price !== undefined) updateData.price = body.price;
+            if (body.comparePrice !== undefined) updateData.comparePrice = body.comparePrice;
+            if (body.cost !== undefined) updateData.cost = body.cost;
+            if (body.sku !== undefined) updateData.sku = body.sku;
+            if (body.barcode !== undefined) updateData.barcode = body.barcode;
+            if (body.weight !== undefined) updateData.weight = body.weight;
+            if (body.dimensions !== undefined) updateData.dimensions = body.dimensions;
+            if (body.images !== undefined) updateData.images = body.images;
+            if (body.videos !== undefined) updateData.videos = body.videos;
+            if (body.colors !== undefined) updateData.colors = body.colors;
+            if (body.sizes !== undefined) updateData.sizes = body.sizes;
+            if (body.materials !== undefined) updateData.materials = body.materials;
+            if (body.careInstructions !== undefined) updateData.careInstructions = body.careInstructions;
+            if (body.features !== undefined) updateData.features = body.features;
+            if (body.specifications !== undefined) updateData.specifications = body.specifications;
+            if (body.categoryId !== undefined) updateData.categoryId = body.categoryId;
+            if (body.stock !== undefined) updateData.stock = body.stock;
+            if (body.minStock !== undefined) updateData.minStock = body.minStock;
+            if (body.isActive !== undefined) updateData.isActive = body.isActive;
+            if (body.isFeatured !== undefined) updateData.isFeatured = body.isFeatured;
+            if (body.metaTitle !== undefined) updateData.metaTitle = body.metaTitle;
+            if (body.metaDescription !== undefined) updateData.metaDescription = body.metaDescription;
+            if (body.metaKeywords !== undefined) updateData.metaKeywords = body.metaKeywords;
+            
+            // 添加更新时间
+            updateData.updatedAt = new Date();
+
+            const [updatedProduct] = await db
+                .update(productsSchema)
+                .set(updateData)
+                .where(eq(productsSchema.id, parseInt(id)))
+                .returning();
+
+            if (!updatedProduct) {
+                return commonRes(null, 404, '商品不存在');
+            }
+
+            return commonRes(updatedProduct, 200, '商品更新成功');
+        } catch (error) {
+            console.error('更新商品失败:', error);
+            if (error.code === '23505') { // 唯一约束违反
+                if (error.constraint?.includes('slug')) {
+                    return commonRes(null, 400, 'URL标识符已存在');
+                }
+                if (error.constraint?.includes('sku')) {
+                    return commonRes(null, 400, 'SKU已存在');
+                }
+            }
+            return commonRes(null, 500, '更新商品失败');
+        }
+    }, {
+        params: 'IdParams',
+        body: 'UpdateProductDto',
+        detail: {
+            tags: ['Products'],
+            summary: '更新商品',
+            description: '根据商品ID更新商品信息'
+        }
+    })
+
     // 搜索商品
     .get('/search', async ({ query }) => {
         try {
@@ -301,9 +396,9 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
             const sortBy = (query.sortBy as 'price' | 'name' | 'createdAt') || 'createdAt';
             const sortOrder = (query.sortOrder as 'asc' | 'desc') || 'desc';
             const page = query.page ? parseInt(query.page as string) : 1;
-            const limit = query.limit ? parseInt(query.limit as string) : 20;
+            const pageSize = query.pageSize ? parseInt(query.pageSize as string) : 20;
 
-            const offset = (page - 1) * limit;
+            const offset = (page - 1) * pageSize;
             const conditions = [eq(productsSchema.isActive, isActive)];
 
             // 搜索条件
@@ -394,7 +489,6 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     weight: productsSchema.weight,
                     dimensions: productsSchema.dimensions,
                     materials: productsSchema.materials,
-                    // brand: productsSchema.brand, // 字段不存在
                     metaTitle: productsSchema.metaTitle,
                     metaDescription: productsSchema.metaDescription,
                     metaKeywords: productsSchema.metaKeywords,
@@ -405,12 +499,14 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                 .leftJoin(categoriesSchema, eq(productsSchema.categoryId, categoriesSchema.id))
                 .where(whereClause)
                 .orderBy(orderBy)
-                .limit(limit)
+                .limit(pageSize)
                 .offset(offset);
 
+
+
             // 获取总数
-            const [{ count }] = await db
-                .select({ count: sql<number>`count(*)` })
+            const total = await db
+                .select({ value: count() })
                 .from(productsSchema)
                 .where(whereClause);
 
@@ -418,8 +514,8 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                 products: dbProducts,
                 total: count,
                 page,
-                limit,
-                hasMore: offset + limit < count
+                pageSize,
+                hasMore: offset + pageSize < count
             }, 200);
         } catch (error) {
             console.error('搜索商品失败:', error);
@@ -437,7 +533,7 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
     // 获取推荐商品
     .get('/featured', async ({ query }) => {
         try {
-            const limit = query.limit ? parseInt(query.limit as string) : 8;
+            const pageSize = query.pageSize ? parseInt(query.pageSize as string) : 8;
 
             const dbProducts = await db
                 .select({
@@ -475,12 +571,19 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     eq(productsSchema.isFeatured, true)
                 ))
                 .orderBy(desc(productsSchema.createdAt))
-                .limit(limit);
+                .limit(pageSize);
 
             return commonRes(dbProducts, 200);
         } catch (error) {
             console.error('获取推荐商品失败:', error);
             return commonRes(null, 500, '获取推荐商品失败');
+        }
+    }, {
+        query: 'RelatedProductsQueryDto',
+        detail: {
+            tags: ['Products'],
+            summary: '获取推荐商品',
+            description: '获取推荐的特色商品列表'
         }
     })
 
@@ -498,7 +601,7 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                 return commonRes(null, 404, '商品不存在或无分类信息');
             }
 
-            const limit = query.limit ? parseInt(query.limit as string) : 4;
+            const pageSize = query.pageSize ? parseInt(query.pageSize as string) : 4;
 
             // 获取同分类的其他商品
             const dbProducts = await db
@@ -538,19 +641,26 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
                     sql`${productsSchema.id} != ${parseInt(id)}`
                 ))
                 .orderBy(desc(productsSchema.createdAt))
-                .limit(limit);
+                .limit(pageSize);
 
             return commonRes(dbProducts, 200);
         } catch (error) {
             console.error('获取相关商品失败:', error);
             return commonRes(null, 500, '获取相关商品失败');
         }
+    }, {
+        query: 'RelatedProductsQueryDto',
+        detail: {
+            tags: ['Products'],
+            summary: '获取相关商品',
+            description: '根据商品ID获取同分类的相关商品'
+        }
     })
 
     // 获取热门搜索关键词
     .get('/search/popular-terms', async ({ query }) => {
         try {
-            const limit = query.limit ? parseInt(query.limit as string) : 10;
+            const pageSize = query.pageSize ? parseInt(query.pageSize as string) : 10;
 
             // 从商品的标签和名称中提取热门搜索词
             const dbProducts = await db
@@ -586,13 +696,20 @@ export const productsRoute = new Elysia({ prefix: 'products', tags: ['Products']
             // 按频次排序并取前N个
             const sortedTerms = Array.from(termCounts.entries())
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, limit)
+                .slice(0, pageSize)
                 .map(([term]) => term);
 
             return commonRes(sortedTerms, 200);
         } catch (error) {
             console.error('获取热门搜索关键词失败:', error);
             return commonRes(null, 500, '获取热门搜索关键词失败');
+        }
+    }, {
+        query: 'PopularTermsQueryDto',
+        detail: {
+            tags: ['Products'],
+            summary: '获取热门搜索关键词',
+            description: '获取基于商品数据的热门搜索关键词'
         }
     })
 

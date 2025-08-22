@@ -154,7 +154,7 @@ export const statisticsRoute = new Elysia({ prefix: "/statistics" })
   // 获取热门商品统计
   .get("/popular-products", async ({ query }) => {
     try {
-      const { limit = 10 } = query;
+      const { pageSize = 10 } = query;
       
       // 这里需要根据实际的订单商品关联表来查询
       // 暂时返回基础的商品统计
@@ -171,7 +171,7 @@ export const statisticsRoute = new Elysia({ prefix: "/statistics" })
         .from(productsSchema)
         .where(eq(productsSchema.isActive, true))
         .orderBy(desc(productsSchema.createdAt))
-        .limit(Number(limit));
+        .limit(Number(pageSize));
 
       return commonRes({
         products: popularProducts,
@@ -183,7 +183,7 @@ export const statisticsRoute = new Elysia({ prefix: "/statistics" })
     }
   }, {
     query: t.Object({
-      limit: t.Optional(t.Number({ minimum: 1, maximum: 50 }))
+      pageSize: t.Optional(t.Number({ minimum: 1, maximum: 50 }))
     }),
     detail: {
       tags: ['Statistics'],

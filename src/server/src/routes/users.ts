@@ -27,14 +27,14 @@ export const usersRoute = new Elysia({ prefix: "/users" })
     try {
       const {
         page = 1,
-        limit = 10,
+        pageSize = 10,
         search = '',
         status,
         sortBy = 'createdAt',
         sortOrder = 'desc'
       } = query;
 
-      const offset = (Number(page) - 1) * Number(limit);
+      const offset = (Number(page) - 1) * Number(pageSize);
       
       // 构建查询条件
       const conditions = [];
@@ -71,7 +71,7 @@ export const usersRoute = new Elysia({ prefix: "/users" })
         .from(userSchema)
         .where(whereClause)
         .orderBy(orderBy)
-        .limit(Number(limit))
+        .limit(Number(pageSize))
         .offset(offset);
       
       // 查询总数
@@ -87,8 +87,8 @@ export const usersRoute = new Elysia({ prefix: "/users" })
           users,
           total,
           page: Number(page),
-          limit: Number(limit),
-          totalPages: Math.ceil(total / Number(limit))
+          pageSize: Number(pageSize),
+          totalPages: Math.ceil(total / Number(pageSize))
         }
       };
     } catch (error) {
@@ -102,7 +102,7 @@ export const usersRoute = new Elysia({ prefix: "/users" })
   }, {
     query: t.Object({
       page: t.Optional(t.Number({ minimum: 1 })),
-      limit: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
+      pageSize: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
       search: t.Optional(t.String()),
       status: t.Optional(t.Number()),
       sortBy: t.Optional(t.String()),
@@ -422,11 +422,11 @@ export const usersRoute = new Elysia({ prefix: "/users" })
     try {
       const {
         page = 1,
-        limit = 10,
+        pageSize = 10,
         search = ''
       } = query;
 
-      const offset = (Number(page) - 1) * Number(limit);
+      const offset = (Number(page) - 1) * Number(pageSize);
       
       // 构建查询条件（这里假设管理员是通过某种业务逻辑识别的）
       const conditions = [eq(userSchema.status, UserStatus.ACTIVE)];
@@ -454,7 +454,7 @@ export const usersRoute = new Elysia({ prefix: "/users" })
         .from(userSchema)
         .where(whereClause)
         .orderBy(desc(userSchema.createdAt))
-        .limit(Number(limit))
+        .limit(Number(pageSize))
         .offset(offset);
       
       // 查询总数
@@ -470,8 +470,8 @@ export const usersRoute = new Elysia({ prefix: "/users" })
           admins,
           total,
           page: Number(page),
-          limit: Number(limit),
-          totalPages: Math.ceil(total / Number(limit))
+          pageSize: Number(pageSize),
+          totalPages: Math.ceil(total / Number(pageSize))
         }
       };
     } catch (error) {
@@ -485,7 +485,7 @@ export const usersRoute = new Elysia({ prefix: "/users" })
   }, {
     query: t.Object({
       page: t.Optional(t.Number({ minimum: 1 })),
-      limit: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
+      pageSize: t.Optional(t.Number({ minimum: 1, maximum: 100 })),
       search: t.Optional(t.String())
     })
   })
