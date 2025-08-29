@@ -108,14 +108,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import CarouselAds from '../components/CarouselAds.vue';
-import BannerAds from '../components/BannerAds.vue';
-import CategoryNavigation from '@/app/components/CategoryNavigation.vue';
 import Rating from 'primevue/rating';
-import type { Product } from '../types/product';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import CategoryNavigation from '@/app/components/CategoryNavigation.vue';
 import { client } from '@/share/useTreaty';
+import BannerAds from '../components/BannerAds.vue';
+import CarouselAds from '../components/CarouselAds.vue';
+import type { Product } from '../types/product';
+
 // 路由
 const router = useRouter();
 

@@ -1,14 +1,6 @@
 <script setup lang="ts">
-import { client } from '@/share/useTreaty'
-import { zodResolver } from '@primevue/forms/resolvers/zod'
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
-import { computed, onMounted, reactive, ref } from 'vue'
-import { z } from 'zod'
-
-// PrimeVue 组件
-import type { Category, CategoryTree } from '@/app/types/category'
 import { Form, FormField } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
 import Button from 'primevue/button'
 import Checkbox from 'primevue/checkbox'
 import Column from 'primevue/column'
@@ -23,6 +15,13 @@ import Textarea from 'primevue/textarea'
 import ToggleSwitch from 'primevue/toggleswitch'
 import TreeSelect from 'primevue/treeselect'
 import TreeTable from 'primevue/treetable'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { z } from 'zod'
+// PrimeVue 组件
+import type { Category, CategoryTree } from '@/app/types/category'
+import { client } from '@/share/useTreaty'
 
 
 
@@ -355,7 +354,7 @@ const onFormSubmit = async ({ valid, values }: { valid: boolean; values: any }) 
     loading.value = true // 添加加载状态
     
     // 处理TreeSelect的parentId格式 - 从对象{key: true}转换为字符串key
-    let parentId = undefined
+    let parentId 
     if (values.parentId && typeof values.parentId === 'object') {
       const keys = Object.keys(values.parentId)
       parentId = keys.length > 0 ? keys[0] : undefined

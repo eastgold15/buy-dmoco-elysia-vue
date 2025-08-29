@@ -166,19 +166,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import { useConfirm } from 'primevue/useconfirm';
-import Dropdown from 'primevue/dropdown';
-import InputText from 'primevue/inputtext';
+import { $fetch } from 'ofetch';
 import Button from 'primevue/button';
 import Checkbox from 'primevue/checkbox';
-import Dialog from 'primevue/dialog';
-import ProgressSpinner from 'primevue/progressspinner';
-import Paginator from 'primevue/paginator';
 import ConfirmDialog from 'primevue/confirmdialog';
+import Dialog from 'primevue/dialog';
+import Dropdown from 'primevue/dropdown';
+import InputText from 'primevue/inputtext';
+import Paginator from 'primevue/paginator';
+import ProgressSpinner from 'primevue/progressspinner';
+import { useConfirm } from 'primevue/useconfirm';
+import { useToast } from 'primevue/usetoast';
+import { computed, onMounted, ref } from 'vue';
 import ImageUpload from '../../components/ImageUpload.vue';
-import { $fetch } from 'ofetch';
 
 // 图片数据类型
 interface ImageData {
@@ -564,7 +564,7 @@ const formatFileSize = (bytes: number): string => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i];
 };
 
 /**

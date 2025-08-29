@@ -17,13 +17,13 @@ class SchemaValidator {
 	 * 生成临时 schema 内容
 	 */
 	private async generateTempSchema(): Promise<string> {
-		const generator = new SchemaGenerator({
-			...this.config,
-			outputFile: "/tmp/temp-schema.ts", // 临时文件路径
-		});
+		// const generator = new SchemaGenerator({
+		// 	...this.config,
+		// 	outputFile: "/tmp/temp-schema.ts", // 临时文件路径
+		// });
 
 		// 重写生成方法以返回内容而不是写入文件
-		const originalGenerate = generator.generate.bind(generator);
+		// const originalGenerate = generator.generate.bind(generator);
 
 		// 创建一个临时的生成器来获取内容
 		const tempGenerator = new (class extends SchemaGenerator {

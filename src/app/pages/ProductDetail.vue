@@ -272,10 +272,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import BannerAds from '../components/BannerAds.vue'
 import { client } from '@/share/useTreaty'
+import BannerAds from '../components/BannerAds.vue'
 import type { Product, ProductColor, ProductSize } from '../types/product'
 
 // 路由相关

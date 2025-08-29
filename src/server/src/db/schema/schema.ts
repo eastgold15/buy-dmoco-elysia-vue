@@ -1,14 +1,13 @@
-
 import {
 	boolean,
+	decimal,
 	integer,
+	json,
 	pgTable,
 	serial,
 	text,
 	timestamp,
 	varchar,
-	decimal,
-	json
 } from "drizzle-orm/pg-core";
 
 /**
@@ -32,7 +31,6 @@ export const categoriesSchema = pgTable("categories", {
  * 商品表
  */
 export const productsSchema = pgTable("products", {
-
 	id: serial("id").primaryKey(),
 	name: varchar("name", { length: 255 }).notNull(),
 	slug: varchar("slug", { length: 255 }).notNull().unique(),
@@ -70,7 +68,9 @@ export const productsSchema = pgTable("products", {
  */
 export const reviewsSchema = pgTable("reviews", {
 	id: serial("id").primaryKey(),
-	productId: integer("product_id").references(() => productsSchema.id).notNull(),
+	productId: integer("product_id")
+		.references(() => productsSchema.id)
+		.notNull(),
 	userName: varchar("user_name", { length: 100 }).notNull(),
 	userEmail: varchar("user_email", { length: 255 }),
 	rating: integer("rating").notNull(),
@@ -113,7 +113,6 @@ export const advertisementsSchema = pgTable("advertisements", {
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-
 /**
  * 图片管理表
  */
@@ -142,9 +141,14 @@ export const ordersSchema = pgTable("orders", {
 	shippingAddress: json("shipping_address").notNull(),
 	billingAddress: json("billing_address"),
 	subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
-	shippingCost: decimal("shipping_cost", { precision: 10, scale: 2 }).default("0.00"),
+	shippingCost: decimal("shipping_cost", { precision: 10, scale: 2 }).default(
+		"0.00",
+	),
 	taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).default("0.00"),
-	discountAmount: decimal("discount_amount", { precision: 10, scale: 2 }).default("0.00"),
+	discountAmount: decimal("discount_amount", {
+		precision: 10,
+		scale: 2,
+	}).default("0.00"),
 	totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
 	currency: varchar("currency", { length: 3 }).default("USD"),
 	status: varchar("status", { length: 20 }).default("pending"), // pending, confirmed, processing, shipped, delivered, cancelled
@@ -163,8 +167,12 @@ export const ordersSchema = pgTable("orders", {
  */
 export const orderItemsSchema = pgTable("order_items", {
 	id: serial("id").primaryKey(),
-	orderId: integer("order_id").references(() => ordersSchema.id).notNull(),
-	productId: integer("product_id").references(() => productsSchema.id).notNull(),
+	orderId: integer("order_id")
+		.references(() => ordersSchema.id)
+		.notNull(),
+	productId: integer("product_id")
+		.references(() => productsSchema.id)
+		.notNull(),
 	productName: varchar("product_name", { length: 255 }).notNull(),
 	productSku: varchar("product_sku", { length: 100 }),
 	productImage: text("product_image"),
@@ -183,7 +191,9 @@ export const orderItemsSchema = pgTable("order_items", {
  */
 export const refundsSchema = pgTable("refunds", {
 	id: serial("id").primaryKey(),
-	orderId: integer("order_id").references(() => ordersSchema.id).notNull(),
+	orderId: integer("order_id")
+		.references(() => ordersSchema.id)
+		.notNull(),
 	refundNumber: varchar("refund_number", { length: 50 }).notNull().unique(),
 	amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
 	reason: text("reason").notNull(),
@@ -209,4 +219,3 @@ export const partnersSchema = pgTable("partners", {
 	createdAt: timestamp("created_at").defaultNow(),
 	updatedAt: timestamp("updated_at").defaultNow(),
 });
-

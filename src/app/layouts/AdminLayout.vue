@@ -1,12 +1,12 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import Drawer from 'primevue/drawer';
-import Button from 'primevue/button';
 import Avatar from 'primevue/avatar';
-import Menu from 'primevue/menu';
 import Badge from 'primevue/badge';
+import Button from 'primevue/button';
+import Drawer from 'primevue/drawer';
+import Menu from 'primevue/menu';
 import PanelMenu from 'primevue/panelmenu';
-import { useRouter, useRoute } from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();

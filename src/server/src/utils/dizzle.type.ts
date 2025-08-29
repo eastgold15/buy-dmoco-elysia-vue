@@ -23,8 +23,8 @@ type Spread<
 			? BuildSchema<"select", T["_"]["columns"], undefined>["properties"]
 			: Mode extends "insert"
 				? BuildSchema<"insert", T["_"]["columns"], undefined>["properties"]
-				: {}
-		: {};
+				: Record<string, never>
+		: Record<string, never>;
 
 /**
  * 将 Drizzle 模式展开为一个普通对象
@@ -37,8 +37,7 @@ export const spread = <
 	mode?: Mode,
 ): Spread<T, Mode> => {
 	const newSchema: Record<string, unknown> = {};
-	// biome-ignore lint/suspicious/noImplicitAnyLet: table
-	let table;
+	let table: any;
 
 	switch (mode) {
 		case "insert":
@@ -85,7 +84,8 @@ export const spreads = <
 	const newSchema: Record<string, unknown> = {};
 	const keys = Object.keys(models);
 
-	for (const key of keys) newSchema[key] = spread(models[key] as TObject | Table, mode);
+	for (const key of keys)
+		newSchema[key] = spread(models[key] as TObject | Table, mode);
 
 	return newSchema as any;
 };

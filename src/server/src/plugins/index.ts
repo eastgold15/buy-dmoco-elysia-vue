@@ -1,3 +1,8 @@
+// OAuth 插件导出
+
+export { authPlugin } from "./auth";
+export { oauthPlugin } from "./oauth";
+
 // /**
 //  * 基于 Drizzle ORM 的 .$dynamic() 函数实现的自定义分页功能
 //  *

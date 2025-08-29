@@ -492,21 +492,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
-
 // PrimeVue 组件
 import Button from 'primevue/button'
 import Card from 'primevue/card'
-import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
-import ToggleSwitch from 'primevue/toggleswitch'
 import Dropdown from 'primevue/dropdown'
-import MultiSelect from 'primevue/multiselect'
-import Textarea from 'primevue/textarea'
-import Password from 'primevue/password'
 import FileUpload from 'primevue/fileupload'
+import InputNumber from 'primevue/inputnumber'
+import InputText from 'primevue/inputtext'
+import MultiSelect from 'primevue/multiselect'
+import Password from 'primevue/password'
+import Textarea from 'primevue/textarea'
+import ToggleSwitch from 'primevue/toggleswitch'
+import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
+import { onMounted, reactive, ref } from 'vue'
 
 // 类型定义
 interface PaymentSettings {

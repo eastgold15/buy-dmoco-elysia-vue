@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { client } from '@/share/useTreaty';
 import type { Advertisement } from '../types/advertisement';
 

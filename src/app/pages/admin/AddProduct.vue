@@ -1,26 +1,25 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useToast } from 'primevue/usetoast'
-import { client } from '@/share/useTreaty'
-import { zodResolver } from '@primevue/forms/resolvers/zod'
-import { z } from 'zod'
-
 // PrimeVue 组件
 import { Form, FormField } from '@primevue/forms'
+import { zodResolver } from '@primevue/forms/resolvers/zod'
+import Badge from 'primevue/badge'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
-import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
-import Textarea from 'primevue/textarea'
-import Dropdown from 'primevue/dropdown'
-import TreeSelect from 'primevue/treeselect'
 import Checkbox from 'primevue/checkbox'
-import Message from 'primevue/message'
+import Dropdown from 'primevue/dropdown'
 import FileUpload from 'primevue/fileupload'
-import Toast from 'primevue/toast'
+import InputNumber from 'primevue/inputnumber'
+import InputText from 'primevue/inputtext'
+import Message from 'primevue/message'
 import ProgressBar from 'primevue/progressbar'
-import Badge from 'primevue/badge'
+import Textarea from 'primevue/textarea'
+import Toast from 'primevue/toast'
+import TreeSelect from 'primevue/treeselect'
+import { useToast } from 'primevue/usetoast'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { z } from 'zod'
+import { client } from '@/share/useTreaty'
 
 const router = useRouter()
 const toast = useToast()
@@ -373,7 +372,7 @@ const formatSize = (bytes: number) => {
 	}
 
 	const i = Math.floor(Math.log(bytes) / Math.log(k))
-	const formattedSize = parseFloat((bytes / Math.pow(k, i)).toFixed(dm))
+	const formattedSize = parseFloat((bytes / k ** i).toFixed(dm))
 
 	return `${formattedSize} ${sizes[i]}`
 }

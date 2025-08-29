@@ -1,0 +1,23 @@
+{
+	"recommendations": [
+		// my extensions, ofc :P
+		"antfu.iconify",
+		"antfu.unocss",
+		"antfu.open-in-github-button",
+
+		// themes & icons
+
+		// life savers!
+		"Vue.volar",
+		"usernamehw.errorlens",
+		"streetsidesoftware.code-spell-checker",
+
+		// up to you
+		"EditorConfig.EditorConfig",
+		"GitHub.vscode-pull-request-github",
+		"johnsoncodehk.vscode-tsconfig-helper",
+		"naumovs.color-highlight",
+		"biomejs.biome",
+		"vscode-icons-team.vscode-icons"
+	]
+}

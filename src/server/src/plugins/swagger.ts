@@ -10,7 +10,8 @@ export const swaggerPlugin = new Elysia({ name: "swagger" }).use(
 			info: {
 				title: "外贸电商网站 API",
 				version: "1.0.0",
-				description: "外贸电商网站后端API文档 - 提供商品管理、分类管理、网站配置等功能",
+				description:
+					"外贸电商网站后端API文档 - 提供商品管理、分类管理、网站配置等功能",
 			},
 			tags: [
 				{

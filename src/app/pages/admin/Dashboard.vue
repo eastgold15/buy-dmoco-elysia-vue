@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useToast } from 'primevue/usetoast'
-import { client } from '@/share/useTreaty'
-
 // PrimeVue 组件
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 import Chart from 'primevue/chart'
-import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import Tag from 'primevue/tag'
+import DataTable from 'primevue/datatable'
 import ProgressBar from 'primevue/progressbar'
 import Skeleton from 'primevue/skeleton'
+import Tag from 'primevue/tag'
+import { useToast } from 'primevue/usetoast'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { client } from '@/share/useTreaty'
 
 // 类型定义
 interface DashboardStats {
@@ -150,9 +149,7 @@ const loadDashboardData = async () => {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        callback: function(value: any) {
-                            return '¥' + value.toLocaleString()
-                        }
+                        callback: (value: any) => '¥' + value.toLocaleString()
                     }
                 }
             }

@@ -313,31 +313,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import { useConfirm } from 'primevue/useconfirm';
-import { client } from '@/share/useTreaty';
-import Button from 'primevue/button';
-import Card from 'primevue/card';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Dialog from 'primevue/dialog';
-import Dropdown from 'primevue/dropdown';
-import InputText from 'primevue/inputtext';
-import InputNumber from 'primevue/inputnumber';
-import FileUpload from 'primevue/fileupload';
-import Calendar from 'primevue/calendar';
-import Checkbox from 'primevue/checkbox';
-import Tag from 'primevue/tag';
-import Paginator from 'primevue/paginator';
-import type { 
-	Advertisement, 
-	AdvertisementForm, 
-	AdvertisementQuery,
+import Button from "primevue/button";
+import Calendar from "primevue/calendar";
+import Card from "primevue/card";
+import Checkbox from "primevue/checkbox";
+import Column from "primevue/column";
+import DataTable from "primevue/datatable";
+import Dialog from "primevue/dialog";
+import Dropdown from "primevue/dropdown";
+import FileUpload from "primevue/fileupload";
+import InputNumber from "primevue/inputnumber";
+import InputText from "primevue/inputtext";
+import Paginator from "primevue/paginator";
+import Tag from "primevue/tag";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import { onMounted, reactive, ref } from "vue";
+import { client } from "@/share/useTreaty";
+import type {
+	Advertisement,
+	AdvertisementForm,
 	AdvertisementListResponse,
-	AdvertisementResponse
-} from '../../types/advertisement';
-import { ADVERTISEMENT_TYPES, ADVERTISEMENT_POSITIONS } from '../../types/advertisement';
+	AdvertisementQuery,
+	AdvertisementResponse,
+} from "../../types/advertisement";
+import {
+	ADVERTISEMENT_POSITIONS,
+	ADVERTISEMENT_TYPES,
+} from "../../types/advertisement";
 
 // 组合式API
 const toast = useToast();
@@ -354,42 +357,42 @@ const advertisements = ref<Advertisement[]>([]);
 const pagination = reactive({
 	page: 1,
 	limit: 10,
-	total: 0
+	total: 0,
 });
 
 // 筛选器
 const filters = reactive<AdvertisementQuery>({
 	type: undefined,
 	position: undefined,
-	isActive: undefined
+	isActive: undefined,
 });
 
 // 表单数据
 const form = reactive<AdvertisementForm>({
-	title: '',
-	type: 'banner',
-	image: '',
-	link: '',
-	position: '',
+	title: "",
+	type: "banner",
+	image: "",
+	link: "",
+	position: "",
 	sortOrder: 0,
 	isActive: true,
-	startDate: '',
-	endDate: ''
+	startDate: "",
+	endDate: "",
 });
 
 // 表单验证错误
 const errors = reactive<Record<string, string>>({
-	title: '',
-	type: '',
-	image: ''
+	title: "",
+	type: "",
+	image: "",
 });
 
 // 选项数据
 const typeOptions = ADVERTISEMENT_TYPES;
 const positionOptions = ADVERTISEMENT_POSITIONS;
 const statusOptions = [
-	{ label: '启用', value: true },
-	{ label: '禁用', value: false }
+	{ label: "启用", value: true },
+	{ label: "禁用", value: false },
 ];
 
 // 方法
@@ -400,30 +403,33 @@ const loadAdvertisements = async () => {
 	loading.value = true;
 	try {
 		const params = new URLSearchParams();
-		params.append('page', pagination.page.toString());
-		params.append('limit', pagination.limit.toString());
-		
-		if (filters.type) params.append('type', filters.type);
-		if (filters.position) params.append('position', filters.position);
-		if (filters.isActive !== undefined) params.append('isActive', filters.isActive.toString());
+		params.append("page", pagination.page.toString());
+		params.append("limit", pagination.limit.toString());
 
-		const { data, error } = await client.api.advertisements.get({ query: Object.fromEntries(params) });
-		
+		if (filters.type) params.append("type", filters.type);
+		if (filters.position) params.append("position", filters.position);
+		if (filters.isActive !== undefined)
+			params.append("isActive", filters.isActive.toString());
+
+		const { data, error } = await client.api.advertisements.get({
+			query: Object.fromEntries(params),
+		});
+
 		if (data) {
 			advertisements.value = data.advertisements;
 			pagination.total = data.total;
 			pagination.page = data.page;
 			pagination.limit = data.limit;
 		} else {
-			throw new Error(error || '获取广告列表失败');
+			throw new Error(error || "获取广告列表失败");
 		}
 	} catch (error) {
-		console.error('加载广告列表失败:', error);
+		console.error("加载广告列表失败:", error);
 		toast.add({
-			severity: 'error',
-			summary: '错误',
-			detail: '加载广告列表失败',
-			life: 3000
+			severity: "error",
+			summary: "错误",
+			detail: "加载广告列表失败",
+			life: 3000,
 		});
 	} finally {
 		loading.value = false;
@@ -453,15 +459,18 @@ const resetFilters = () => {
  * 获取类型标签
  */
 const getTypeLabel = (type: string) => {
-	return typeOptions.find(option => option.value === type)?.label || type;
+	return typeOptions.find((option) => option.value === type)?.label || type;
 };
 
 /**
  * 获取位置标签
  */
 const getPositionLabel = (position?: string) => {
-	if (!position) return '-';
-	return positionOptions.find(option => option.value === position)?.label || position;
+	if (!position) return "-";
+	return (
+		positionOptions.find((option) => option.value === position)?.label ||
+		position
+	);
 };
 
 /**
@@ -472,12 +481,12 @@ const editAdvertisement = (advertisement: Advertisement) => {
 	form.title = advertisement.title;
 	form.type = advertisement.type;
 	form.image = advertisement.image;
-	form.link = advertisement.link || '';
-	form.position = advertisement.position || '';
+	form.link = advertisement.link || "";
+	form.position = advertisement.position || "";
 	form.sortOrder = advertisement.sortOrder;
 	form.isActive = advertisement.isActive;
-	form.startDate = advertisement.startDate || '';
-	form.endDate = advertisement.endDate || '';
+	form.startDate = advertisement.startDate || "";
+	form.endDate = advertisement.endDate || "";
 	showCreateDialog.value = true;
 };
 
@@ -486,27 +495,29 @@ const editAdvertisement = (advertisement: Advertisement) => {
  */
 const toggleStatus = async (advertisement: Advertisement) => {
 	try {
-		const { data, error } = await client.api.advertisements({ id: advertisement.id }).toggle.patch({ isActive: !advertisement.isActive });
+		const { data, error } = await client.api
+			.advertisements({ id: advertisement.id })
+			.toggle.patch({ isActive: !advertisement.isActive });
 		const response = { success: !!data, data, error, message: data?.message };
-		
+
 		if (response.success) {
 			toast.add({
-				severity: 'success',
-				summary: '成功',
+				severity: "success",
+				summary: "成功",
 				detail: response.message,
-				life: 3000
+				life: 3000,
 			});
 			loadAdvertisements();
 		} else {
-			throw new Error(response.error || '操作失败');
+			throw new Error(response.error || "操作失败");
 		}
 	} catch (error) {
-		console.error('切换广告状态失败:', error);
+		console.error("切换广告状态失败:", error);
 		toast.add({
-			severity: 'error',
-			summary: '错误',
-			detail: '切换广告状态失败',
-			life: 3000
+			severity: "error",
+			summary: "错误",
+			detail: "切换广告状态失败",
+			life: 3000,
 		});
 	}
 };
@@ -517,37 +528,39 @@ const toggleStatus = async (advertisement: Advertisement) => {
 const deleteAdvertisement = (advertisement: Advertisement) => {
 	confirm.require({
 		message: `确定要删除广告 "${advertisement.title}" 吗？`,
-		header: '确认删除',
-		icon: 'pi pi-exclamation-triangle',
-		rejectClass: 'p-button-secondary p-button-outlined',
-		rejectLabel: '取消',
-		acceptLabel: '删除',
+		header: "确认删除",
+		icon: "pi pi-exclamation-triangle",
+		rejectClass: "p-button-secondary p-button-outlined",
+		rejectLabel: "取消",
+		acceptLabel: "删除",
 		accept: async () => {
 			try {
-				const { data, error } = await client.api.advertisements({ id: advertisement.id }).delete();
-			const response = { success: !!data, data, error };
-				
+				const { data, error } = await client.api
+					.advertisements({ id: advertisement.id })
+					.delete();
+				const response = { success: !!data, data, error };
+
 				if (response.success) {
 					toast.add({
-						severity: 'success',
-						summary: '成功',
-						detail: '广告删除成功',
-						life: 3000
+						severity: "success",
+						summary: "成功",
+						detail: "广告删除成功",
+						life: 3000,
 					});
 					loadAdvertisements();
 				} else {
-					throw new Error(response.error || '删除失败');
+					throw new Error(response.error || "删除失败");
 				}
 			} catch (error) {
-				console.error('删除广告失败:', error);
+				console.error("删除广告失败:", error);
 				toast.add({
-					severity: 'error',
-					summary: '错误',
-					detail: '删除广告失败',
-					life: 3000
+					severity: "error",
+					summary: "错误",
+					detail: "删除广告失败",
+					life: 3000,
 				});
 			}
-		}
+		},
 	});
 };
 
@@ -572,7 +585,7 @@ const onFileSelect = (event: any) => {
  */
 const handleImageError = (event: Event) => {
 	const img = event.target as HTMLImageElement;
-	img.src = '/placeholder-image.png'; // 设置默认图片
+	img.src = "/placeholder-image.png"; // 设置默认图片
 };
 
 /**
@@ -580,24 +593,24 @@ const handleImageError = (event: Event) => {
  */
 const validateForm = (): boolean => {
 	// 清空之前的错误
-	Object.keys(errors).forEach(key => {
-		errors[key] = '';
+	Object.keys(errors).forEach((key) => {
+		errors[key] = "";
 	});
 
 	let isValid = true;
 
 	if (!form.title.trim()) {
-		errors.title = '请输入广告标题';
+		errors.title = "请输入广告标题";
 		isValid = false;
 	}
 
 	if (!form.type) {
-		errors.type = '请选择广告类型';
+		errors.type = "请选择广告类型";
 		isValid = false;
 	}
 
 	if (!form.image.trim()) {
-		errors.image = '请上传广告图片';
+		errors.image = "请上传广告图片";
 		isValid = false;
 	}
 
@@ -614,12 +627,12 @@ const saveAdvertisement = async () => {
 
 	saving.value = true;
 	try {
-		const url = editingAdvertisement.value 
+		const url = editingAdvertisement.value
 			? `/api/advertisements/${editingAdvertisement.value.id}`
-			: '/api/advertisements';
-		
-		const method = editingAdvertisement.value ? 'PUT' : 'POST';
-		
+			: "/api/advertisements";
+
+		const method = editingAdvertisement.value ? "PUT" : "POST";
+
 		const requestData = {
 			title: form.title,
 			type: form.type,
@@ -629,38 +642,45 @@ const saveAdvertisement = async () => {
 			sortOrder: form.sortOrder,
 			isActive: form.isActive,
 			startDate: form.startDate || undefined,
-			endDate: form.endDate || undefined
+			endDate: form.endDate || undefined,
 		};
-		
+
 		let result;
 		if (editingAdvertisement.value) {
-			result = await client.api.advertisements({ id: editingAdvertisement.value.id }).put(requestData);
+			result = await client.api
+				.advertisements({ id: editingAdvertisement.value.id })
+				.put(requestData);
 		} else {
 			result = await client.api.advertisements.post(requestData);
 		}
-		
-		const response = { success: !!result.data, data: result.data, error: result.error, message: result.data?.message };
-		
+
+		const response = {
+			success: !!result.data,
+			data: result.data,
+			error: result.error,
+			message: result.data?.message,
+		};
+
 		if (response.success) {
 			toast.add({
-				severity: 'success',
-				summary: '成功',
+				severity: "success",
+				summary: "成功",
 				detail: response.message,
-				life: 3000
+				life: 3000,
 			});
 			showCreateDialog.value = false;
 			resetForm();
 			loadAdvertisements();
 		} else {
-			throw new Error(response.error || '保存失败');
+			throw new Error(response.error || "保存失败");
 		}
 	} catch (error) {
-		console.error('保存广告失败:', error);
+		console.error("保存广告失败:", error);
 		toast.add({
-			severity: 'error',
-			summary: '错误',
-			detail: '保存广告失败',
-			life: 3000
+			severity: "error",
+			summary: "错误",
+			detail: "保存广告失败",
+			life: 3000,
 		});
 	} finally {
 		saving.value = false;
@@ -672,19 +692,19 @@ const saveAdvertisement = async () => {
  */
 const resetForm = () => {
 	editingAdvertisement.value = null;
-	form.title = '';
-	form.type = 'banner';
-	form.image = '';
-	form.link = '';
-	form.position = '';
+	form.title = "";
+	form.type = "banner";
+	form.image = "";
+	form.link = "";
+	form.position = "";
 	form.sortOrder = 0;
 	form.isActive = true;
-	form.startDate = '';
-	form.endDate = '';
-	
+	form.startDate = "";
+	form.endDate = "";
+
 	// 清空错误
-	Object.keys(errors).forEach(key => {
-		errors[key] = '';
+	Object.keys(errors).forEach((key) => {
+		errors[key] = "";
 	});
 };
 

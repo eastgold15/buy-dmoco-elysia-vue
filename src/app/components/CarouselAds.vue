@@ -62,9 +62,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { client } from '@/share/useTreaty';
 import Carousel from 'primevue/carousel';
+import { computed, onMounted, ref } from 'vue';
+import { client } from '@/share/useTreaty';
 import type { Advertisement } from '../types/advertisement';
 
 // Props

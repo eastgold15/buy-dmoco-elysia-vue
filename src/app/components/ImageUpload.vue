@@ -68,13 +68,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useToast } from 'primevue/usetoast';
-import ProgressBar from 'primevue/progressbar';
+import { $fetch } from 'ofetch';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Message from 'primevue/message';
-import { $fetch } from 'ofetch';
+import ProgressBar from 'primevue/progressbar';
+import { useToast } from 'primevue/usetoast';
+import { computed, ref } from 'vue';
 
 // Props
 interface Props {
@@ -370,7 +370,7 @@ const formatFileSize = (bytes: number): string => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  return parseFloat((bytes / k ** i).toFixed(2)) + ' ' + sizes[i];
 };
 
 // 暴露方法给父组件

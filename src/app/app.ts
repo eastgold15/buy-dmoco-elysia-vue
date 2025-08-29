@@ -1,50 +1,48 @@
-import App from "@/app/App.vue";
-
+import Aura from "@primeuix/themes/aura";
+import Button from "primevue/button";
+import PrimeVue from "primevue/config";
+import ConfirmationService from "primevue/confirmationservice";
+import ProgressSpinner from "primevue/progressspinner";
+import ToastService from "primevue/toastservice";
+import Tooltip from "primevue/tooltip";
 import { createSSRApp } from "vue";
 import {
 	createMemoryHistory,
 	createRouter,
 	createWebHistory,
 } from "vue-router";
-
-import Aura from '@primeuix/themes/aura';
-import PrimeVue from 'primevue/config';
-import ConfirmationService from 'primevue/confirmationservice';
-import ToastService from 'primevue/toastservice';
-import Tooltip from 'primevue/tooltip';
-import ProgressSpinner from 'primevue/progressspinner';
-import Button from 'primevue/button';
-import 'primeicons/primeicons.css';
-import 'virtual:uno.css';
+import App from "@/app/App.vue";
+import "primeicons/primeicons.css";
+import "virtual:uno.css";
+import AdminLayout from "./layouts/AdminLayout.vue";
 // 布局组件
 import ClientLayout from "./layouts/ClientLayout.vue";
-import AdminLayout from "./layouts/AdminLayout.vue";
-
-// 用户端页面
-import Index from "./pages/index.vue";
-import Home from "./pages/Home.vue";
-import ProductDetail from "./pages/ProductDetail.vue";
-import Search from "./pages/Search.vue";
-import CountView from "./pages/test.vue";
-
+import AuthCallback from "./pages/AuthCallback.vue";
+import AddProduct from "./pages/admin/AddProduct.vue";
+import AdminsManagement from "./pages/admin/AdminsManagement.vue";
+import AdvertisementManagement from "./pages/admin/AdvertisementManagement.vue";
+import CategoryManagement from "./pages/admin/CategoryManagement.vue";
 // 管理端页面
 import Dashboard from "./pages/admin/Dashboard.vue";
-import CategoryManagement from "./pages/admin/CategoryManagement.vue";
-import ProductsManagement from "./pages/admin/ProductsManagement.vue";
-import AddProduct from "./pages/admin/AddProduct.vue";
-import OrdersManagement from "./pages/admin/OrdersManagement.vue";
-import UsersManagement from "./pages/admin/UsersManagement.vue";
-import AdminsManagement from "./pages/admin/AdminsManagement.vue";
-import SiteConfig from "./pages/admin/SiteConfig.vue";
-
-import AdvertisementManagement from "./pages/admin/AdvertisementManagement.vue";
 import ImageManager from "./pages/admin/ImageManager.vue";
+import OrdersManagement from "./pages/admin/OrdersManagement.vue";
 import PartnersManagement from "./pages/admin/PartnersManagement.vue";
-import RefundsManagement from "./pages/admin/RefundsManagement.vue";
 import PaymentSettings from "./pages/admin/PaymentSettings.vue";
-import ShippingSettings from "./pages/admin/ShippingSettings.vue";
+import ProductsManagement from "./pages/admin/ProductsManagement.vue";
+import RefundsManagement from "./pages/admin/RefundsManagement.vue";
 import SalesReports from "./pages/admin/SalesReports.vue";
+import ShippingSettings from "./pages/admin/ShippingSettings.vue";
+import SiteConfig from "./pages/admin/SiteConfig.vue";
+import UsersManagement from "./pages/admin/UsersManagement.vue";
 import UsersReports from "./pages/admin/UsersReports.vue";
+import Home from "./pages/Home.vue";
+// 用户端页面
+import Index from "./pages/index.vue";
+import Login from "./pages/Login.vue";
+import ProductDetail from "./pages/ProductDetail.vue";
+import Register from "./pages/Register.vue";
+import Search from "./pages/Search.vue";
+import CountView from "./pages/test.vue";
 export const createApp = async () => {
 	const app = createSSRApp(App);
 	const router = createRouter({
@@ -54,6 +52,24 @@ export const createApp = async () => {
 			{
 				path: "/",
 				component: Index,
+			},
+			// 登录页面（无布局）
+			{
+				path: "/login",
+				name: "login",
+				component: Login,
+			},
+			// 注册页面（无布局）
+			{
+				path: "/register",
+				name: "register",
+				component: Register,
+			},
+			// OAuth 回调页面（无布局）
+			{
+				path: "/auth/callback",
+				name: "auth-callback",
+				component: AuthCallback,
 			},
 			{
 				path: "/",
@@ -176,22 +192,20 @@ export const createApp = async () => {
 		],
 	});
 
-
-
 	app.use(router);
 	app.use(PrimeVue, {
 		theme: {
 			preset: Aura,
 			options: {
-				darkModeSelector: '.dark',
-			}
-		}
+				darkModeSelector: ".dark",
+			},
+		},
 	});
 	app.use(ConfirmationService);
 	app.use(ToastService);
-	app.directive('tooltip', Tooltip);
-	app.component('ProgressSpinner', ProgressSpinner);
-	app.component('Button', Button);
+	app.directive("tooltip", Tooltip);
+	app.component("ProgressSpinner", ProgressSpinner);
+	app.component("Button", Button);
 
 	return { app, router };
 };

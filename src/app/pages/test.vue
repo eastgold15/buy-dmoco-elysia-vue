@@ -1,7 +1,7 @@
 <script setup>
+import { onMounted, ref } from 'vue';
 import Counter from '@/app/components/count.vue'
 import { client } from '@/share/useTreaty';
-import { ref, onMounted } from 'vue';
 
 // 使用响应式数据存储API结果
 const data = ref(null);

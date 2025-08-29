@@ -1,29 +1,31 @@
-import { createApp } from "@/app/app";
 import * as page from "client:page";
 import { Elysia } from "elysia";
 import { renderToString } from "vue/server-renderer";
+import { createApp } from "@/app/app";
 import { api } from "./src";
+
 // console.log(Bun.s3)
 const app = new Elysia()
-    .onRequest(async ({ request }) => {
-        const { pathname } = new URL(request.url)
-        const { app, router } = await createApp();
+	.onRequest(async ({ request }) => {
+		const { pathname } = new URL(request.url);
+		const { app, router } = await createApp();
 
-        const { matched } = router.resolve(pathname);
+		const { matched } = router.resolve(pathname);
 
-        if (!matched.length) return;
+		if (!matched.length) return;
 
-        await router.push(pathname);
-        await router.isReady();
+		await router.push(pathname);
+		await router.isReady();
 
-        const appHtml = await renderToString(app);
+		const appHtml = await renderToString(app);
 
-        return new Response(page.html.replace("%root%", appHtml), {
-            headers: { "Content-Type": "text/html; charset=utf-8" },
-        });
-    })
-    .use(api)
+		return new Response(page.html.replace("%root%", appHtml), {
+			headers: { "Content-Type": "text/html; charset=utf-8" },
+		});
+	})
+	.use(api);
 
-
-export type EndApp = typeof app
+export type EndApp = typeof app;
 export default app;
+
+console.log("bun",typeof Bun);

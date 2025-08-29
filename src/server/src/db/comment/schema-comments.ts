@@ -1,15 +1,15 @@
 import { fileURLToPath } from "node:url";
 import {
-	tokenSchema,
-	userSchema,
+	advertisementsSchema,
 	// 新增的电商相关表
 	categoriesSchema,
+	footerConfigSchema,
+	headerConfigSchema,
 	productsSchema,
 	reviewsSchema,
 	siteConfigSchema,
-	advertisementsSchema,
-	headerConfigSchema,
-	footerConfigSchema,
+	tokenSchema,
+	userSchema,
 } from "../schema/index.ts";
 import { pgComments, runPgComments } from "./comment.plugin.ts";
 
@@ -151,15 +151,13 @@ pgComments(footerConfigSchema, {
 	updatedAt: "更新时间",
 });
 
-
-
 // 检查是否作为入口点运行
 function isEntryPoint(importMetaUrl: string) {
 	try {
 		const __filename = fileURLToPath(importMetaUrl);
 		const __entryFile = process.argv?.[1];
 		return __entryFile === __filename;
-	} catch (error) {
+	} catch (_error) {
 		return false;
 	}
 }

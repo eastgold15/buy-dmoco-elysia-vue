@@ -1,9 +1,7 @@
-
-
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { envConfig } from "../config/env.ts";
-import * as schema from "./schema/index.ts";
+import { envConfig } from "../config/env";
+import * as schema from "./schema/index";
 
 // 确保环境配置已加载
 envConfig.loadConfig();
@@ -17,7 +15,9 @@ const databaseUrl = envConfig.get(
 console.log("1111", databaseUrl);
 
 // PostgreSQL 客户端实例
-const client = postgres(databaseUrl!);
+const client = postgres(
+	databaseUrl || "postgres://app_user:app_pass@localhost:5432/buy_db",
+);
 
 // 创建 Drizzle ORM 实例
 export const db = drizzle(client, {

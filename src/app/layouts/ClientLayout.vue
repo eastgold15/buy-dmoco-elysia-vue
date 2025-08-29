@@ -1,10 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import Button from 'primevue/button';
+import Drawer from 'primevue/drawer';
+import Menu from 'primevue/menu';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import CategoryNav from '../components/CategoryNav.vue';
-import Drawer from 'primevue/drawer';
-import Button from 'primevue/button';
-import Menu from 'primevue/menu';
 
 const router = useRouter();
 const isMobileMenuOpen = ref(false);
@@ -68,8 +68,14 @@ const toggleFavorites = () => {
 };
 
 const handleLogin = () => {
-	// TODO: 实现登录功能
-	console.log('处理登录');
+	// 检查用户是否已登录
+	if (isUserLoggedIn.value) {
+		// 已登录，跳转到用户中心或显示用户菜单
+		console.log('跳转到用户中心');
+	} else {
+		// 未登录，跳转到登录页面
+		router.push('/login');
+	}
 };
 
 const handleSearch = () => {
