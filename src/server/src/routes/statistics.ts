@@ -5,32 +5,30 @@
 
 import {
 	and,
-	asc,
 	count,
 	desc,
 	eq,
 	gte,
-	like,
 	lte,
-	sql,
-	sum,
+	sql
 } from "drizzle-orm";
 import { Elysia, t } from "elysia";
-import { db } from "../db/connection.ts";
+import { db } from "../db/connection";
 import {
-	advertisementsSchema,
 	categoriesSchema,
 	ordersSchema,
 	productsSchema,
-	userSchema,
-} from "../db/schema/index.ts";
+	userSchema
+} from "../db/schema/index";
 import { commonRes } from "../plugins/Res";
+import { statisticsRouteModel } from "./statistics.model";
 
 export const statisticsRoute = new Elysia({ prefix: "/statistics" })
+	.model(statisticsRouteModel)
 	// 获取仪表板统计数据
 	.get(
 		"/dashboard",
-		async ({ query }) => {
+		async ({ }) => {
 			try {
 				// 获取商品统计数据
 				const [productStats] = await Promise.all([
@@ -191,7 +189,7 @@ export const statisticsRoute = new Elysia({ prefix: "/statistics" })
 						name: productsSchema.name,
 						slug: productsSchema.slug,
 						price: productsSchema.price,
-						image: productsSchema.image,
+						image: productsSchema.images,
 						// 这里需要根据实际的订单商品表来统计销量
 						// salesCount: sql<number>`coalesce(sum(order_items.quantity), 0)`
 					})
@@ -247,7 +245,7 @@ export const statisticsRoute = new Elysia({ prefix: "/statistics" })
 						// revenue: sql<string>`coalesce(sum(order_items.quantity * order_items.price), 0)`
 					})
 					.from(categoriesSchema)
-					.where(eq(categoriesSchema.isActive, true))
+					.where(eq(categoriesSchema.isVisible, true))
 					.orderBy(desc(categoriesSchema.createdAt));
 
 				return commonRes({

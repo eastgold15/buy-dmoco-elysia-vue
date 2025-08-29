@@ -3,7 +3,7 @@
  * 提供用户列表、用户详情、管理员管理等功能
  */
 
-import { and, asc, count, desc, eq, like } from "drizzle-orm";
+import { and, asc, count, desc, eq, like, or } from "drizzle-orm";
 import { Elysia, status, t } from "elysia";
 import { db } from "../db/connection";
 import { userSchema } from "../db/schema";
@@ -16,11 +16,7 @@ const UserStatus = {
 	DISABLED: 0,
 } as const;
 
-// 用户角色枚举（基于业务逻辑扩展）
-const _UserRole = {
-	ADMIN: "admin",
-	USER: "user",
-} as const;
+
 
 export const usersRoute = new Elysia({ prefix: "/users" })
 	.model(userRouteModel)
@@ -39,13 +35,16 @@ export const usersRoute = new Elysia({ prefix: "/users" })
 			status,
 		}) => {
 			try {
-				const offset = (Number(page) - 1) * Number(pageSize);
-
 				// 构建查询条件
 				const conditions = [];
 
 				if (search) {
-					conditions.push(like(userSchema.username, `%${search}%`));
+					conditions.push(
+						or(
+							like(userSchema.username, `%${search}%`),
+							like(userSchema.nickname, `%${search}%`),
+						),
+					);
 				}
 
 				if (statusQ !== undefined) {
@@ -338,12 +337,12 @@ export const usersRoute = new Elysia({ prefix: "/users" })
 
 				return page
 					? pageRes(
-							result,
-							total[0]?.value || 0,
-							page,
-							pageSize,
-							"获取管理员列表成功",
-						)
+						result,
+						total[0]?.value || 0,
+						page,
+						pageSize,
+						"获取管理员列表成功",
+					)
 					: commonRes(result, 200, "获取管理员列表成功");
 			} catch (error) {
 				console.error("查询管理员列表失败:", error);

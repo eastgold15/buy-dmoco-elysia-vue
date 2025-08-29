@@ -1,5 +1,6 @@
-import { Elysia } from "elysia";
-import { commonRes, errorRes } from "../plugins/Res";
+import { Elysia, status } from "elysia";
+import { commonRes } from "../plugins/Res";
+import { handleUploadError } from "../utils/errorHandler";
 import { ossService } from "./oss";
 import {
 	MAX_FILE_SIZE,
@@ -12,28 +13,11 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 	// 上传广告图片
 	.post(
 		"/advertisement",
-		async ({ body }) => {
+		async ({ body: { file }, status }) => {
 			try {
-				const formData = body as any;
-				const file = formData.file;
-
 				if (!file) {
-					return errorRes(400, "没有上传文件");
+					return status(400, "没有上传文件");
 				}
-
-				// 验证文件类型
-				if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
-					return errorRes(
-						400,
-						"不支持的文件类型，请上传 JPG、PNG、GIF 或 WebP 格式的图片",
-					);
-				}
-
-				// 验证文件大小
-				if (file.size > MAX_FILE_SIZE) {
-					return errorRes(400, "文件大小不能超过 5MB");
-				}
-
 				// 读取文件内容并上传到OSS
 				const fileBuffer = await file.arrayBuffer();
 				const buffer = new Uint8Array(fileBuffer);
@@ -54,10 +38,7 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 					"文件上传成功",
 				);
 			} catch (error) {
-				return errorRes(
-					500,
-					error instanceof Error ? error.message : "文件上传失败",
-				);
+				return handleUploadError(error);
 			}
 		},
 		{
@@ -73,13 +54,10 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 	// 上传商品图片
 	.post(
 		"/product",
-		async ({ body }) => {
+		async ({ body: { files } }) => {
 			try {
-				const formData = body as any;
-				const files = formData.file;
-
 				if (!files) {
-					return errorRes(400, "没有上传文件");
+					return status(400, "没有上传文件");
 				}
 
 				// 处理单个文件或多个文件，统一转换为数组
@@ -87,18 +65,7 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 				const uploadResults = [];
 
 				for (const file of fileArray) {
-					// 验证文件类型
-					if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
-						return errorRes(
-							400,
-							`文件 ${file.name} 不支持的文件类型，请上传 JPG、PNG、GIF 或 WebP 格式的图片`,
-						);
-					}
 
-					// 验证文件大小
-					if (file.size > MAX_FILE_SIZE) {
-						return errorRes(400, `文件 ${file.name} 大小不能超过 5MB`);
-					}
 
 					// 读取文件内容并上传到OSS
 					const fileBuffer = await file.arrayBuffer();
@@ -126,14 +93,11 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 					`成功上传 ${uploadResults.length} 个文件`,
 				);
 			} catch (error) {
-				return errorRes(
-					500,
-					error instanceof Error ? error.message : "文件上传失败",
-				);
+				return handleUploadError(error);
 			}
 		},
 		{
-			body: "FileUploadDto",
+			body: "FilesUploadDto",
 			detail: {
 				tags: ["Upload"],
 				summary: "上传商品图片",
@@ -145,28 +109,8 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 	// 上传分类图片
 	.post(
 		"/category",
-		async ({ body }) => {
+		async ({ body: { file } }) => {
 			try {
-				const formData = body as any;
-				const file = formData.file;
-
-				if (!file) {
-					return errorRes(400, "没有上传文件");
-				}
-
-				// 验证文件类型
-				if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
-					return errorRes(
-						400,
-						"不支持的文件类型，请上传 JPG、PNG、GIF 或 WebP 格式的图片",
-					);
-				}
-
-				// 验证文件大小
-				if (file.size > MAX_FILE_SIZE) {
-					return errorRes(400, "文件大小不能超过 5MB");
-				}
-
 				// 读取文件内容并上传到OSS
 				const fileBuffer = await file.arrayBuffer();
 				const buffer = new Uint8Array(fileBuffer);
@@ -187,10 +131,7 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 					"文件上传成功",
 				);
 			} catch (error) {
-				return errorRes(
-					500,
-					error instanceof Error ? error.message : "文件上传失败",
-				);
+				return handleUploadError(error);
 			}
 		},
 		{
@@ -206,29 +147,8 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 	// 上传通用图片
 	.post(
 		"/general",
-		async ({ body }) => {
+		async ({ body: { file, folder = 'general' } }) => {
 			try {
-				const formData = body as any;
-				const file = formData.file;
-				const folder = formData.folder || "general";
-
-				if (!file) {
-					return errorRes(400, "没有上传文件");
-				}
-
-				// 验证文件类型
-				if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
-					return errorRes(
-						400,
-						"不支持的文件类型，请上传 JPG、PNG、GIF 或 WebP 格式的图片",
-					);
-				}
-
-				// 验证文件大小
-				if (file.size > MAX_FILE_SIZE) {
-					return errorRes(400, "文件大小不能超过 5MB");
-				}
-
 				// 读取文件内容并上传到OSS
 				const fileBuffer = await file.arrayBuffer();
 				const buffer = new Uint8Array(fileBuffer);
@@ -249,14 +169,11 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 					"文件上传成功",
 				);
 			} catch (error) {
-				return errorRes(
-					500,
-					error instanceof Error ? error.message : "文件上传失败",
-				);
+				return handleUploadError(error);
 			}
 		},
 		{
-			body: "FileUploadDto",
+			body: "CommonFileUploadDto",
 			detail: {
 				tags: ["Upload"],
 				summary: "上传通用图片",

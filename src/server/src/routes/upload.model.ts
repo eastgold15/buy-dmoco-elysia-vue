@@ -24,54 +24,29 @@ export interface UploadResponse {
 // 文件上传模型定义
 export const uploadModel = {
 	// 文件上传请求参数
-	FileUploadDto: t.Object({
-		file: t.Files({
+	FilesUploadDto: t.Object({
+		files: t.Files({
 			type: ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"],
 			maxSize: 5 * 1024 * 1024, // 5MB
 		}),
 	}),
 
-	// 广告图片上传响应
-	AdvertisementUploadResponse: t.Object({
-		success: t.Boolean(),
-		message: t.String(),
-		url: t.Optional(t.String()),
-		fileName: t.Optional(t.String()),
-		error: t.Optional(t.String()),
+	// 文件上传请求参数
+	FileUploadDto: t.Object({
+		file: t.File({
+			type: ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"],
+			maxSize: 5 * 1024 * 1024, // 5MB
+		}),
 	}),
 
-	// 商品图片上传响应
-	ProductUploadResponse: t.Object({
-		success: t.Boolean(),
-		message: t.String(),
-		url: t.Optional(t.String()),
-		fileName: t.Optional(t.String()),
-		error: t.Optional(t.String()),
+	// 文件上传请求参数
+	CommonFileUploadDto: t.Object({
+		file: t.File({
+			type: ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"],
+			maxSize: 5 * 1024 * 1024, // 5MB
+		}),
+		folder: t.String()
 	}),
 
-	// 分类图片上传响应
-	CategoryUploadResponse: t.Object({
-		success: t.Boolean(),
-		message: t.String(),
-		url: t.Optional(t.String()),
-		fileName: t.Optional(t.String()),
-		error: t.Optional(t.String()),
-	}),
-
-	// 通用图片上传响应
-	GeneralUploadResponse: t.Object({
-		success: t.Boolean(),
-		message: t.String(),
-		url: t.Optional(t.String()),
-		fileName: t.Optional(t.String()),
-		error: t.Optional(t.String()),
-	}),
 };
 
-// 导出类型
-export type FileUploadDto = typeof uploadModel.FileUploadDto;
-export type AdvertisementUploadResponse =
-	typeof uploadModel.AdvertisementUploadResponse;
-export type ProductUploadResponse = typeof uploadModel.ProductUploadResponse;
-export type CategoryUploadResponse = typeof uploadModel.CategoryUploadResponse;
-export type GeneralUploadResponse = typeof uploadModel.GeneralUploadResponse;
