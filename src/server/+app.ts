@@ -8,6 +8,11 @@ import { api } from "./src";
 const app = new Elysia()
 	.onRequest(async ({ request }) => {
 		const { pathname } = new URL(request.url);
+
+		// 如果是API路由，跳过SSR渲染
+		if (pathname.startsWith("/api")) {
+			return;
+		}
 		const { app, router } = await createApp();
 
 		const { matched } = router.resolve(pathname);
@@ -28,4 +33,4 @@ const app = new Elysia()
 export type EndApp = typeof app;
 export default app;
 
-console.log("bun",typeof Bun);
+console.log("bun", typeof Bun);

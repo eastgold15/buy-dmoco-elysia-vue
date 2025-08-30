@@ -309,18 +309,13 @@ export class HuaweiOSSService {
 	 */
 	getPublicUrl(key: string): string {
 		const endpoint = envConfig.get("HUAWEI_ENDPOINT") || "";
-
-		// 域名
-		const domain = envConfig.get("HUAWEI_DOMAIN") || "";
+		const domain = envConfig.get("HUAWEI_DOMAIN") || "";		// 域名
 		const bucket = envConfig.get("HUAWEI_BUCKET") || "";
 
-		console.log(111, domain, key, endpoint);
-		// 如果OSS客户端未初始化或者endpoint是自定义域名，直接返回自定义域名的URL
+		// 如果OSS客户端未初始化或者endpoint是自定义域名，直接返回key 路劲
 		if (!this.client || endpoint.includes("myhuaweicloud.com")) {
-			console.log(111, domain, key);
-			return `${domain}/${key}`;
+			return `${key}`;
 		}
-
 		return `${endpoint}/${bucket}/${key}`;
 	}
 

@@ -4,6 +4,7 @@ import {
 	integer,
 	json,
 	numeric,
+	pgEnum,
 	pgTable,
 	serial,
 	text,
@@ -23,9 +24,9 @@ export const categoriesSchema = pgTable("categories", {
 	sortOrder: integer("sort_order").default(0),
 	isVisible: boolean("is_visible").default(true),
 	icon: varchar("icon", { length: 255 }),
-	image: varchar("image", { length: 255 }),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	image: text("image"),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /**
@@ -60,8 +61,8 @@ export const productsSchema = pgTable("products", {
 	metaTitle: varchar("meta_title", { length: 255 }),
 	metaDescription: text("meta_description"),
 	metaKeywords: varchar("meta_keywords", { length: 500 }),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /**
@@ -79,8 +80,8 @@ export const reviewsSchema = pgTable("reviews", {
 	content: text("content").notNull(),
 	isVerified: boolean("is_verified").default(false),
 	isApproved: boolean("is_approved").default(false),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /**
@@ -92,8 +93,8 @@ export const siteConfigSchema = pgTable("site_config", {
 	value: text("value"),
 	description: text("description"),
 	category: varchar("category", { length: 50 }).default("general"),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /**
@@ -110,26 +111,29 @@ export const advertisementsSchema = pgTable("advertisements", {
 	isActive: boolean("is_active").default(true),
 	startDate: timestamp("start_date"),
 	endDate: timestamp("end_date"),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /**
  * 图片管理表
  */
 export const imagesSchema = pgTable("images", {
-	id: varchar("id", { length: 21 }).primaryKey(),
+	id: serial("id").primaryKey(),
 	fileName: varchar("file_name", { length: 255 }).notNull(),
 	originalName: varchar("original_name", { length: 255 }).notNull(),
 	url: text("url").notNull(),
 	category: varchar("category", { length: 50 }).notNull().default("general"),
-	fileSize: integer("file_size").notNull(),
+	fileSize: integer("file_size").notNull(), // 文件大小，单位：bytes
 	mimeType: varchar("mime_type", { length: 100 }).notNull(),
 	altText: text("alt_text").default(""),
-	uploadDate: timestamp("upload_date").defaultNow().notNull(),
-	updatedDate: timestamp("updated_date").defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+
+export const orderState = pgEnum('order_state', ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled']);
+export const paymentState = pgEnum('payment_state', ['pending', 'paid', 'failed', 'refunded']);
 /**
  * 订单表
  */
@@ -141,26 +145,26 @@ export const ordersSchema = pgTable("orders", {
 	customerPhone: varchar("customer_phone", { length: 20 }),
 	shippingAddress: json("shipping_address").notNull(),
 	billingAddress: json("billing_address"),
-	subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
-	shippingCost: decimal("shipping_cost", { precision: 10, scale: 2 }).default(
+	subtotal: numeric("subtotal", { precision: 10, scale: 2 }).notNull(),
+	shippingCost: numeric("shipping_cost", { precision: 10, scale: 2 }).default(
 		"0.00",
 	),
-	taxAmount: decimal("tax_amount", { precision: 10, scale: 2 }).default("0.00"),
-	discountAmount: decimal("discount_amount", {
+	taxAmount: numeric("tax_amount", { precision: 10, scale: 2 }).default("0.00"),
+	discountAmount: numeric("discount_amount", {
 		precision: 10,
 		scale: 2,
 	}).default("0.00"),
-	totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+	totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
 	currency: varchar("currency", { length: 3 }).default("USD"),
-	status: varchar("status", { length: 20 }).default("pending"), // pending, confirmed, processing, shipped, delivered, cancelled
-	paymentStatus: varchar("payment_status", { length: 20 }).default("pending"), // pending, paid, failed, refunded
+	orderState: orderState("order_state"), // pending, confirmed, processing, shipped, delivered, cancelled
+	paymentState: paymentState("payment_state"), // pending, paid, failed, refunded	
 	paymentMethod: varchar("payment_method", { length: 50 }),
 	paymentId: varchar("payment_id", { length: 255 }),
 	trackingNumber: varchar("tracking_number", { length: 100 }),
 	shippingMethod: varchar("shipping_method", { length: 50 }),
 	notes: text("notes"),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /**
@@ -177,16 +181,18 @@ export const orderItemsSchema = pgTable("order_items", {
 	productName: varchar("product_name", { length: 255 }).notNull(),
 	productSku: varchar("product_sku", { length: 100 }),
 	productImage: text("product_image"),
-	unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+	unitPrice: numeric("unit_price", { precision: 10, scale: 2 }).notNull(),
 	quantity: integer("quantity").notNull(),
-	totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+	totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
 	selectedColor: varchar("selected_color", { length: 50 }),
 	selectedSize: varchar("selected_size", { length: 50 }),
 	productOptions: json("product_options"), // 其他商品选项
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+
+export const refundState = pgEnum('refund_state', ['pending', 'approved', 'rejected', 'processed']);
 /**
  * 退款表
  */
@@ -196,14 +202,14 @@ export const refundsSchema = pgTable("refunds", {
 		.references(() => ordersSchema.id)
 		.notNull(),
 	refundNumber: varchar("refund_number", { length: 50 }).notNull().unique(),
-	amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+	amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
 	reason: text("reason").notNull(),
-	status: varchar("status", { length: 20 }).default("pending"), // pending, approved, rejected, processed
+	refundState: refundState("refund_state"), // pending, approved, rejected, processed
 	refundMethod: varchar("refund_method", { length: 50 }),
 	processedAt: timestamp("processed_at"),
 	notes: text("notes"),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 /**
@@ -217,6 +223,6 @@ export const partnersSchema = pgTable("partners", {
 	url: varchar("url", { length: 500 }).notNull(),
 	sortOrder: integer("sort_order").default(0),
 	isActive: boolean("is_active").default(true),
-	createdAt: timestamp("created_at").defaultNow(),
-	updatedAt: timestamp("updated_at").defaultNow(),
+	createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

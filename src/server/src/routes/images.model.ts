@@ -3,13 +3,15 @@ import { DbType } from "../db/database.types";
 import { UnoQuery } from "../utils/common.model";
 
 // 图片管理模型定义
-export const imagesModel = {
+export const imageRouteModel = {
 	// 创建图片请求参数
 	CreateImageDto: DbType.typebox.insert.imagesSchema,
 
 	// 更新图片请求参数
 	UpdateImageDto: t.Object({
-		...DbType.spreads.insert.imagesSchema,
+		fileName: t.Optional(DbType.spreads.insert.imagesSchema.fileName),
+		category: DbType.spreads.insert.imagesSchema.category,
+		altText: DbType.spreads.insert.imagesSchema.altText,
 	}),
 
 	// 图片列表查询参数
@@ -22,7 +24,7 @@ export const imagesModel = {
 
 	// 批量删除请求参数
 	BatchDeleteImageDto: t.Object({
-		imageIds: t.Array(t.String()),
+		imageIds: t.Array(t.Number()),
 	}),
 
 	// 预签名URL请求参数
@@ -48,10 +50,10 @@ export const imagesModel = {
 };
 
 // 导出类型
-export type CreateImageDto = typeof imagesModel.CreateImageDto;
-export type UpdateImageDto = typeof imagesModel.UpdateImageDto;
-export type ImageListQueryDto = typeof imagesModel.ImageListQueryDto;
-export type BatchDeleteImageDto = typeof imagesModel.BatchDeleteImageDto;
-export type PresignedUrlDto = typeof imagesModel.PresignedUrlDto;
-export type ConfirmUploadDto = typeof imagesModel.ConfirmUploadDto;
-export type IdParams = typeof imagesModel.IdParams;
+export type CreateImageDto = typeof imageRouteModel.CreateImageDto;
+export type UpdateImageDto = typeof imageRouteModel.UpdateImageDto;
+export type ImageListQueryDto = typeof imageRouteModel.ImageListQueryDto;
+export type BatchDeleteImageDto = typeof imageRouteModel.BatchDeleteImageDto;
+export type PresignedUrlDto = typeof imageRouteModel.PresignedUrlDto;
+export type ConfirmUploadDto = typeof imageRouteModel.ConfirmUploadDto;
+export type IdParams = typeof imageRouteModel.IdParams;

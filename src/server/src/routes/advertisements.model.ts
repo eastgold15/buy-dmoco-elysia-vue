@@ -5,7 +5,10 @@ import { UnoQuery } from "../utils/common.model";
 // 广告模型定义
 export const advertisementsModel = {
 	// 创建广告请求参数
-	CreateAdvertisementDto: DbType.typebox.insert.advertisementsSchema,
+	CreateAdvertisementDto: t.Omit(
+		DbType.typebox.insert.advertisementsSchema,
+		["id", "createdAt", "updatedAt"]
+	),
 
 	// 更新广告请求参数
 	UpdateAdvertisementDto: t.Object({
@@ -16,6 +19,7 @@ export const advertisementsModel = {
 	UpdateSortRequest: t.Object({
 		sortOrder: t.Number(),
 	}),
+	
 	// 广告列表查询参数
 	AdvertisementListQueryDto: t.Object({
 		...UnoQuery.properties,

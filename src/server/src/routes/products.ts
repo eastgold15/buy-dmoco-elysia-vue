@@ -1,10 +1,9 @@
-import { and, asc, count, desc, eq, getTableColumns, gte, ilike, like, lte, or, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, getTableColumns, gte, like, lte, or } from "drizzle-orm";
 import { Elysia, status } from "elysia";
 import { db } from "../db/connection";
 import { categoriesSchema, productsSchema } from "../db/schema";
 import { commonRes, pageRes } from "../plugins/Res";
 import { productsModel } from "./products.model";
-import { object, string } from "zod";
 
 export const productsRoute = new Elysia({
 	prefix: "products",

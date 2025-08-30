@@ -44,8 +44,7 @@ export const uploadModel = {
 		file: t.File({
 			type: ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"],
 			maxSize: 5 * 1024 * 1024, // 5MB
-		}),
-		folder: t.String()
+		})
 	}),
 
 };

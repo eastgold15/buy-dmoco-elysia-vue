@@ -4,6 +4,7 @@ import { relations } from "drizzle-orm";
 import {
 	index,
 	integer,
+	pgEnum,
 	pgTable,
 	serial,
 	text,
@@ -11,6 +12,8 @@ import {
 	varchar
 } from "drizzle-orm/pg-core";
 
+export const role = pgEnum('role', ['user', 'admin']);
+export const userState = pgEnum('user_state', ['active', 'inactive']);
 // 用户表
 export const userSchema = pgTable(
 	"users",
@@ -21,12 +24,12 @@ export const userSchema = pgTable(
 		email: varchar("email", { length: 100 }).unique(), // @typebox { format: 'email' }
 		nickname: varchar("nickname", { length: 50 }),
 		avatar: varchar("avatar", { length: 255 }),
-		role: varchar("role", { length: 20 }).notNull().default("user"), // user, admin
-		status: integer("status").notNull().default(1), // 1: 正常, 0: 禁用
+		role: role("role").notNull().default("user"), // user, admin
+		userState: userState("user_state").notNull().default("active"), // active, inactive
 		// OAuth 相关字段
 		googleId: varchar("google_id", { length: 100 }), // Google OAuth ID
-		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-		updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 	},
 	(users) => [
 		index("user_id_idx").on(users.id),
@@ -45,7 +48,7 @@ export const tokenSchema = pgTable(
 		ownerId: serial("owner_id").references(() => userSchema.id),
 		accessToken: text("access_token").notNull(),
 		refreshToken: text("refresh_token").notNull(),
-		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+		createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 	},
 	(token) => [index("token_id_idx").on(token.id)],
 );

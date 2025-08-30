@@ -1,8 +1,158 @@
 # RESTful CRUD 路由模板框架
 
+### ✅ 响应处理规范
+
+1. **分页逻辑判定**：
+
+```ts
+   // 一定更具page 参数来判断是否返回分页结果
+const result =page ? pageRes(data, total, 1, 10) : commonRes(data)
+
+```
+
+2. **响应格式规范**
+
+```typescript
+// 分页响应
+return pageRes(result, totalCount, page, pageSize, "操作成功消息");
+
+// 普通响应
+return commonRes(data, 200, "操作成功消息");
+
+// 错误响应
+return status(400, "错误消息");
+return status(200, "失败消息");
+```
+
+2. **响应函数**：
+
+```ts
+
+export function commonRes<T>(
+ data: T,
+ code = 200,
+ message = "操作成功",
+): {
+ code: number;
+ message: string;
+ data: T;
+} {
+ return {
+  code,
+  message,
+  data,
+ };
+}
+
+// 分页响应函数
+export function pageRes<T>(
+ data: T[],
+ total: number,
+ page = 1,
+ pageSize = 10,
+ message = "获取成功",
+) {
+ return commonRes(
+  {
+   items: data,
+   meta: {
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+   },
+  },
+  200,
+  message,
+ );
+}
+```
+
+ 3. **错误处理**：
+
+```ts
+   // 推荐错误处理模式
+   try {
+     // 业务逻辑
+   } catch (error) {
+     return errorRes(error) // 自动识别错误类型返回对应状态码
+   }
+```
+
+- 未捕获错误默认返回 500
+- 业务异常应返回 200 状态码但包含错误信息（需在业务层明确标注）
+
+---
+
+### 🧱 类型系统使用规范
+
+- 复用数据库类型，使用 src/server/src/db/database.types.ts 文件提供的两种类型
+- Typebox 类型用于请求验证（query 或 body），需要使用 t.xx() 方法包裹
+- Spread 类型用于展开 Drizzle 模式为普通对象
+
+#### 1. TypeBox 类型复用
+
+- **插入操作**：直接使用 `DbType.typebox.insert.xxxSchema`
+
+  ```ts
+  可以使用elysia 提供的类型t, 具体可以看
+
+elysia的类型：  <https://elysia.zhcndoc.com/patterns/type.html>
+
+  const CreateProductDto = t.Omit(
+    DbType.typebox.insert.productsSchema,
+    ["id", "createdAt", "updatedAt"]
+  )
+
+  ```
+
+- **更新操作**：使用 spread 展开并结合 `t.Object`
+
+  ```ts
+  const UpdateSiteConfigDto = t.Object({
+    ...DbType.spreads.insert.siteConfigSchema
+  })
+  ```
+
+#### 2. 公共查询参数扩展
+
+- 必须通过 `...UnoQuery.properties` 扩展基础查询参数
+
+```ts
+UnoQuery 在utils 文件夹里面
+export const UnoQuery = t.Object({
+ search: t.Optional(t.String()),
+ page: t.Optional(t.Number()),
+ pageSize: t.Optional(t.Number()),
+ sortBy: t.Optional(t.String()),
+ sortOrder: t.Optional(t.Union([t.Literal("asc"), t.Literal("desc")])),
+});
+
+export const usersQuery = t.Object({
+    ...UnoQuery.properties,
+    // 可添加业务专属字段
+    roleId: t.Optional(t.Number()) //尽量使用DbType.spreads.insert.{Schema}Schema 类型
+  })
+
+```
+
+---
+
+# 最重要的是
+
+1. 通过是否传page 来确认是否返回分页结果，不要给page默认值。
+如果传了page 使用pageres 响应结果。其他使用commonRes 响应结果。
+1. 如果错误 使用status 响应错误。catch  默认返回500 错误。 其他使用200 返回错误原因
+2. 记住 复用数据库类型， D:\Users\boer\Desktop\html\src\server\src\db\database.types.ts 这个文件提供两种类型，一种typebox 类型，另一种是使用spread 将 Drizzle 模式展开为一个普通对象。因此我们在指定请求的qeuery 或者body 类型的时候，使用typebox 类型需要使用t.xx()方法去包裹使用,比如  CreateProductDto: t.Omit(DbType.typebox.insert.productsSchema, ["id", "createdAt", "updatedAt"]), 使用spread 使用需要t.Object({
+  name:DbType.spreads.{SCHEMA}Schema.name
+  })
+
 ## 核心设计范式
 
 ### 1. 基础结构模式
+
+ 这些根据功能来实现
+
 ```typescript
 export const {ENTITY}_Route = new Elysia({ prefix: "/{entities}" })
   .model({entity}RouteModel)
@@ -20,13 +170,13 @@ export const {ENTITY}_Route = new Elysia({ prefix: "/{entities}" })
 
 ### 2. 参数化占位符
 
-| 占位符 | 说明 | 示例值 |
-|--------|------|--------|
-| `{ENTITY}` | 实体名称（大写） | `User`, `Product`, `Order` |
-| `{entity}` | 实体名称（小写） | `user`, `product`, `order` |
-| `{entities}` | 实体复数形式 | `users`, `products`, `orders` |
-| `{SCHEMA}` | 数据库表模式 | `userSchema`, `productSchema` |
-| `{STATUS_ENUM}` | 状态枚举定义 | `UserStatus`, `ProductStatus` |
+| 占位符          | 说明             | 示例值                        |
+| --------------- | ---------------- | ----------------------------- |
+| `{ENTITY}`      | 实体名称（大写） | `User`, `Product`, `Order`    |
+| `{entity}`      | 实体名称（小写） | `user`, `product`, `order`    |
+| `{entities}`    | 实体复数形式     | `users`, `products`, `orders` |
+| `{SCHEMA}`      | 数据库表模式     | `userSchema`, `productSchema` |
+| `{STATUS_ENUM}` | 状态枚举定义     | `UserStatus`, `ProductStatus` |
 
 ### 3. 查询构建模板
 
@@ -51,55 +201,41 @@ const allowedSortFields = {
 };
 
 const sortFields =
-				allowedSortFields[sortBy as keyof typeof allowedSortFields] ||
-				{SCHEMA}.id;
-	// 排序配置
+    allowedSortFields[sortBy as keyof typeof allowedSortFields] ||
+    {SCHEMA}.id;
+ // 排序配置
 const sortOrderValue =
-					sortOrder === "desc" ? desc(sortFields) : asc(sortFields);
+     sortOrder === "desc" ? desc(sortFields) : asc(sortFields);
 
 const queryBuilder = db
-					.select()
-					.from( {SCHEMA})
-					.where(conditions.length > 0 ? and(...conditions) : undefined)
-					.orderBy(sortOrderValue);
+     .select()
+     .from( {SCHEMA})
+     .where(conditions.length > 0 ? and(...conditions) : undefined)
+     .orderBy(sortOrderValue);
 
-				// 分页处理
-				if (page && pageSize) {
-					const offsetValue = ((Number(page) || 1) - 1) * pageSize;
-					queryBuilder.limit(pageSize).offset(offsetValue);
-				}
+    // 分页处理
+    if (page && pageSize) {
+     const offsetValue = ((Number(page) || 1) - 1) * pageSize;
+     queryBuilder.limit(pageSize).offset(offsetValue);
+    }
 
-				// 执行查询
-				const result = await queryBuilder;
+    // 获取总数query
+    const totalQuery = await db
+     .select({ value: count() })
+     .from( {SCHEMA})
+     .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+  const [data, totalResult] = await Promise.all([
+    queryBuilder,
+   totalQuery
+  ]);
 
 
-        			// 获取总数
-				const total = await db
-					.select({ value: count() })
-					.from( {SCHEMA})
-					.where(conditions.length > 0 ? and(...conditions) : undefined);
-	if (!total[0]) {
-					return status(200, "查询用户列表为空");
-				}
+ 
+   return page
+     ? pageRes(data, totalResult[0]?.value || 0, page, pageSize, "获取用户列表成功")
+     : commonRes(data, 200, "获取用户列表成功");
 
-				return page
-					? pageRes(result, total[0].value, page, pageSize, "获取用户列表成功")
-					: commonRes(result, 200, "获取用户列表成功");
-
-```
-
-### 4. 响应格式规范
-
-```typescript
-// 分页响应
-return pageRes(result, totalCount, page, pageSize, "操作成功消息");
-
-// 普通响应
-return commonRes(data, 200, "操作成功消息");
-
-// 错误响应
-return status(400, "错误消息");
-return status(200, "失败消息");
 ```
 
 ## 完整模板实现
@@ -254,20 +390,20 @@ function handleError(error, message) {
 
 ## 同名的model文件，需要复用
 
-
 ```typescript
 export const userRouteModel = {
-	updateProfileSchema: t.Object({
+ updateProfileSchema: t.Object({
     ... 类型使用typebox类型，可以复用src\server\src\db\database.types.ts 提供的类型
-	}),
-	// 统一查询参数
-	usersQuery: t.Object({
-		...UnoQuery.properties,
-	}),
+ }),
+ // 统一查询参数
+ usersQuery: t.Object({
+  ...UnoQuery.properties,
+ }),
 };
 
 
 ```
+
 ## 实现约束条件
 
 1. **数据库依赖**: 必须使用 Drizzle ORM 和 Elysia 框架
@@ -288,8 +424,9 @@ export const userRouteModel = {
 ## 使用示例
 
 替换以下占位符：
+
 - `{ENTITY}` → `Product`
-- `{entity}` → `product` 
+- `{entity}` → `product`
 - `{entities}` → `products`
 - `{SCHEMA}` → `productSchema`
 - `{STATUS_ENUM}` → `ProductStatus`

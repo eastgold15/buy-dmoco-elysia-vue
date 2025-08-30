@@ -1,4 +1,9 @@
-import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
+/**
+ * 订单管理路由
+ * 提供订单的 CRUD 操作和相关功能
+ */
+
+import { and, asc, count, desc, eq, like, or, sql } from "drizzle-orm";
 import { Elysia, t } from "elysia";
 import { db } from "../db/connection";
 import {
@@ -7,6 +12,8 @@ import {
 	refundsSchema
 } from "../db/schema";
 import { commonRes, pageRes } from "../plugins/Res";
+
+import { ordersRouteModel } from "./orders.model";
 
 // 订单状态枚举
 const ORDER_STATUS = {
@@ -35,26 +42,40 @@ const REFUND_STATUS = {
 } as const;
 
 export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
+	.model(ordersRouteModel)
 	// 获取订单列表
 	.get(
 		"/",
 		async ({ query }) => {
 			try {
-				const page = query.page ? parseInt(query.page as string, 10) : 1;
-				const pageSize = query.pageSize
-					? parseInt(query.pageSize as string, 10)
-					: 20;
-				const status = query.status as string;
-				const paymentStatus = query.paymentStatus as string;
-				const customerEmail = query.customerEmail as string;
-				const orderNumber = query.orderNumber as string;
-				const sortBy = (query.sortBy as string) || "createdAt";
-				const sortOrder = (query.sortOrder as string) || "desc";
+				// 解构查询参数
+				const {
+					search,
+					page,
+					pageSize,
+					sortBy,
+					sortOrder,
+					status,
+					paymentStatus,
+					customerEmail,
+					orderNumber,
+				} = query;
 
-				const offset = (page - 1) * pageSize;
+				// 构建查询条件
 				const conditions = [];
 
-				// 筛选条件
+				// 搜索条件
+				if (search) {
+					conditions.push(
+						or(
+							like(ordersSchema.orderNumber, `%${search}%`),
+							like(ordersSchema.customerName, `%${search}%`),
+							like(ordersSchema.customerEmail, `%${search}%`)
+						)
+					);
+				}
+
+				// 状态筛选
 				if (status) {
 					conditions.push(eq(ordersSchema.status, status));
 				}
@@ -62,92 +83,70 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 					conditions.push(eq(ordersSchema.paymentStatus, paymentStatus));
 				}
 				if (customerEmail) {
-					conditions.push(
-						ilike(ordersSchema.customerEmail, `%${customerEmail}%`),
-					);
+					conditions.push(like(ordersSchema.customerEmail, `%${customerEmail}%`));
 				}
 				if (orderNumber) {
-					conditions.push(ilike(ordersSchema.orderNumber, `%${orderNumber}%`));
+					conditions.push(like(ordersSchema.orderNumber, `%${orderNumber}%`));
 				}
 
-				const whereClause =
-					conditions.length > 0 ? and(...conditions) : undefined;
+				// 排序配置
+				const allowedSortFields = {
+					id: ordersSchema.id,
+					orderNumber: ordersSchema.orderNumber,
+					customerName: ordersSchema.customerName,
+					totalAmount: ordersSchema.totalAmount,
+					status: ordersSchema.status,
+					createdAt: ordersSchema.createdAt,
+					updatedAt: ordersSchema.updatedAt,
+				};
 
-				// 排序
-				let orderBy;
-				if (sortBy === "totalAmount") {
-					orderBy =
-						sortOrder === "asc"
-							? asc(sql`CAST(${ordersSchema.totalAmount} AS DECIMAL)`)
-							: desc(sql`CAST(${ordersSchema.totalAmount} AS DECIMAL)`);
-				} else if (sortBy === "customerName") {
-					orderBy =
-						sortOrder === "asc"
-							? asc(ordersSchema.customerName)
-							: desc(ordersSchema.customerName);
-				} else {
-					orderBy =
-						sortOrder === "asc"
-							? asc(ordersSchema.createdAt)
-							: desc(ordersSchema.createdAt);
+				const sortFields =
+					allowedSortFields[sortBy as keyof typeof allowedSortFields] ||
+					ordersSchema.createdAt;
+				const sortOrderValue =
+					sortOrder === "asc" ? asc(sortFields) : desc(sortFields);
+
+				// 构建查询
+				const queryBuilder = db
+					.select()
+					.from(ordersSchema)
+					.where(conditions.length > 0 ? and(...conditions) : undefined)
+					.orderBy(sortOrderValue);
+
+				// 分页处理
+				if (page && pageSize) {
+					const offsetValue = ((Number(page) || 1) - 1) * Number(pageSize);
+					queryBuilder.limit(Number(pageSize)).offset(offsetValue);
 				}
 
-				// 获取订单列表
-				const dbOrders = await db
-					.select({
-						id: ordersSchema.id,
-						orderNumber: ordersSchema.orderNumber,
-						customerName: ordersSchema.customerName,
-						customerEmail: ordersSchema.customerEmail,
-						customerPhone: ordersSchema.customerPhone,
-						subtotal: ordersSchema.subtotal,
-						shippingCost: ordersSchema.shippingCost,
-						taxAmount: ordersSchema.taxAmount,
-						discountAmount: ordersSchema.discountAmount,
-						totalAmount: ordersSchema.totalAmount,
-						currency: ordersSchema.currency,
-						status: ordersSchema.status,
-						paymentStatus: ordersSchema.paymentStatus,
-						paymentMethod: ordersSchema.paymentMethod,
-						trackingNumber: ordersSchema.trackingNumber,
-						shippingMethod: ordersSchema.shippingMethod,
-						createdAt: ordersSchema.createdAt,
-						updatedAt: ordersSchema.updatedAt,
-					})
+				// 获取总数查询
+				const totalQuery = db
+					.select({ value: count() })
 					.from(ordersSchema)
-					.where(whereClause)
-					.orderBy(orderBy)
-					.limit(pageSize)
-					.offset(offset);
+					.where(conditions.length > 0 ? and(...conditions) : undefined);
 
-				// 获取总数
-				const [{ count: total }] = await db
-					.select({ count: sql<number>`count(*)` })
-					.from(ordersSchema)
-					.where(whereClause);
+				// 并行执行查询
+				const [data, totalResult] = await Promise.all([
+					queryBuilder,
+					totalQuery,
+				]);
 
-				return pageRes({
-					orders: dbOrders,
-					total,
-					page,
-					pageSize: pageSize,
-				});
+				return page
+					? pageRes(
+						data,
+						totalResult[0]?.value || 0,
+						Number(page),
+						Number(pageSize),
+						"获取订单列表成功"
+					)
+					: commonRes(data, 200, "获取订单列表成功");
 			} catch (error) {
 				console.error("获取订单列表失败:", error);
 				return commonRes(null, 500, "获取订单列表失败");
 			}
 		},
 		{
-			query: t.Object({
-				page: t.Optional(t.String()),
-				pageSize: t.Optional(t.String()),
-				status: t.Optional(t.String()),
-				paymentStatus: t.Optional(t.String()),
-				customerEmail: t.Optional(t.String()),
-				orderNumber: t.Optional(t.String()),
-				sortBy: t.Optional(t.String()),
-				sortOrder: t.Optional(t.String()),
-			}),
+			query: ordersRouteModel.ordersQuery,
 			detail: {
 				tags: ["Orders"],
 				summary: "获取订单列表",
@@ -162,45 +161,36 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 		async ({ params: { id } }) => {
 			try {
 				// 获取订单基本信息
-				const [dbOrder] = await db
+				const [order] = await db
 					.select()
 					.from(ordersSchema)
-					.where(eq(ordersSchema.id, parseInt(id, 10)));
+					.where(eq(ordersSchema.id, Number(id)));
 
-				if (!dbOrder) {
+				if (!order) {
 					return commonRes(null, 404, "订单不存在");
 				}
 
 				// 获取订单项
 				const orderItems = await db
-					.select({
-						id: orderItemsSchema.id,
-						productId: orderItemsSchema.productId,
-						productName: orderItemsSchema.productName,
-						productSku: orderItemsSchema.productSku,
-						productImage: orderItemsSchema.productImage,
-						unitPrice: orderItemsSchema.unitPrice,
-						quantity: orderItemsSchema.quantity,
-						totalPrice: orderItemsSchema.totalPrice,
-						selectedColor: orderItemsSchema.selectedColor,
-						selectedSize: orderItemsSchema.selectedSize,
-						productOptions: orderItemsSchema.productOptions,
-					})
+					.select()
 					.from(orderItemsSchema)
-					.where(eq(orderItemsSchema.orderId, parseInt(id, 10)));
+					.where(eq(orderItemsSchema.orderId, Number(id)));
 
 				// 获取退款记录
 				const refunds = await db
 					.select()
 					.from(refundsSchema)
-					.where(eq(refundsSchema.orderId, parseInt(id, 10)))
-					.orderBy(desc(refundsSchema.createdAt));
+					.where(eq(refundsSchema.orderId, Number(id)));
 
-				return commonRes({
-					...dbOrder,
-					items: orderItems,
-					refunds,
-				});
+				return commonRes(
+					{
+						...order,
+						orderItems,
+						refunds,
+					},
+					200,
+					"获取订单详情成功"
+				);
 			} catch (error) {
 				console.error("获取订单详情失败:", error);
 				return commonRes(null, 500, "获取订单详情失败");
@@ -225,10 +215,14 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 			try {
 				const { status, notes } = body;
 
-				// 验证状态值
-				const validStatuses = Object.values(ORDER_STATUS);
-				if (!validStatuses.includes(status as any)) {
-					return commonRes(null, 400, "无效的订单状态");
+				// 验证订单是否存在
+				const [existingOrder] = await db
+					.select()
+					.from(ordersSchema)
+					.where(eq(ordersSchema.id, Number(id)));
+
+				if (!existingOrder) {
+					return commonRes(null, 404, "订单不存在");
 				}
 
 				// 更新订单状态
@@ -236,15 +230,11 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 					.update(ordersSchema)
 					.set({
 						status,
-						notes: notes || null,
+						notes,
 						updatedAt: new Date(),
 					})
-					.where(eq(ordersSchema.id, parseInt(id, 10)))
+					.where(eq(ordersSchema.id, Number(id)))
 					.returning();
-
-				if (!updatedOrder) {
-					return commonRes(null, 404, "订单不存在");
-				}
 
 				return commonRes(updatedOrder, 200, "订单状态更新成功");
 			} catch (error) {
@@ -256,10 +246,7 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 			params: t.Object({
 				id: t.String(),
 			}),
-			body: t.Object({
-				status: t.String(),
-				notes: t.Optional(t.String()),
-			}),
+			body: ordersRouteModel.updateOrderStatusSchema,
 			detail: {
 				tags: ["Orders"],
 				summary: "更新订单状态",
@@ -275,6 +262,17 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 			try {
 				const { trackingNumber, shippingMethod } = body;
 
+				// 验证订单是否存在
+				const [existingOrder] = await db
+					.select()
+					.from(ordersSchema)
+					.where(eq(ordersSchema.id, Number(id)));
+
+				if (!existingOrder) {
+					return commonRes(null, 404, "订单不存在");
+				}
+
+				// 更新物流信息
 				const [updatedOrder] = await db
 					.update(ordersSchema)
 					.set({
@@ -283,12 +281,8 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 						status: "shipped", // 添加物流信息时自动更新为已发货
 						updatedAt: new Date(),
 					})
-					.where(eq(ordersSchema.id, parseInt(id, 10)))
+					.where(eq(ordersSchema.id, Number(id)))
 					.returning();
-
-				if (!updatedOrder) {
-					return commonRes(null, 404, "订单不存在");
-				}
 
 				return commonRes(updatedOrder, 200, "物流信息更新成功");
 			} catch (error) {
@@ -300,10 +294,7 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 			params: t.Object({
 				id: t.String(),
 			}),
-			body: t.Object({
-				trackingNumber: t.String(),
-				shippingMethod: t.Optional(t.String()),
-			}),
+			body: ordersRouteModel.updateShippingSchema,
 			detail: {
 				tags: ["Orders"],
 				summary: "更新订单物流信息",
@@ -317,28 +308,56 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 		"/refunds",
 		async ({ query }) => {
 			try {
-				const page = query.page ? parseInt(query.page as string, 10) : 1;
-				const pageSize = query.pageSize
-					? parseInt(query.pageSize as string, 10)
-					: 20;
-				const status = query.status as string;
-				const orderId = query.orderId as string;
+				// 解构查询参数
+				const {
+					search,
+					page,
+					pageSize,
+					sortBy,
+					sortOrder,
+					status,
+					orderId,
+				} = query;
 
-				const offset = (page - 1) * pageSize;
+				// 构建查询条件
 				const conditions = [];
 
+				// 搜索条件
+				if (search) {
+					conditions.push(
+						or(
+							like(refundsSchema.refundNumber, `%${search}%`),
+							like(refundsSchema.reason, `%${search}%`)
+						)
+					);
+				}
+
+				// 状态筛选
 				if (status) {
 					conditions.push(eq(refundsSchema.status, status));
 				}
 				if (orderId) {
-					conditions.push(eq(refundsSchema.orderId, parseInt(orderId, 10)));
+					conditions.push(eq(refundsSchema.orderId, Number(orderId)));
 				}
 
-				const whereClause =
-					conditions.length > 0 ? and(...conditions) : undefined;
+				// 排序配置
+				const allowedSortFields = {
+					id: refundsSchema.id,
+					refundNumber: refundsSchema.refundNumber,
+					amount: refundsSchema.amount,
+					status: refundsSchema.status,
+					createdAt: refundsSchema.createdAt,
+					updatedAt: refundsSchema.updatedAt,
+				};
 
-				// 获取退款列表，关联订单信息
-				const dbRefunds = await db
+				const sortFields =
+					allowedSortFields[sortBy as keyof typeof allowedSortFields] ||
+					refundsSchema.createdAt;
+				const sortOrderValue =
+					sortOrder === "asc" ? asc(sortFields) : desc(sortFields);
+
+				// 构建查询
+				const queryBuilder = db
 					.select({
 						id: refundsSchema.id,
 						orderId: refundsSchema.orderId,
@@ -357,39 +376,47 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 					})
 					.from(refundsSchema)
 					.leftJoin(ordersSchema, eq(refundsSchema.orderId, ordersSchema.id))
-					.where(whereClause)
-					.orderBy(desc(refundsSchema.createdAt))
-					.limit(pageSize)
-					.offset(offset);
+					.where(conditions.length > 0 ? and(...conditions) : undefined)
+					.orderBy(sortOrderValue);
 
-				// 获取总数
-				const [{ count: total }] = await db
-					.select({ count: sql<number>`count(*)` })
+				// 分页处理
+				if (page && pageSize) {
+					const offsetValue = ((Number(page) || 1) - 1) * Number(pageSize);
+					queryBuilder.limit(Number(pageSize)).offset(offsetValue);
+				}
+
+				// 获取总数查询
+				const totalQuery = db
+					.select({ value: count() })
 					.from(refundsSchema)
-					.where(whereClause);
+					.where(conditions.length > 0 ? and(...conditions) : undefined);
 
-				return pageRes({
-					refunds: dbRefunds,
-					total,
-					page,
-					pageSize: pageSize,
-				});
+				// 并行执行查询
+				const [data, totalResult] = await Promise.all([
+					queryBuilder,
+					totalQuery,
+				]);
+
+				return page
+					? pageRes(
+						data,
+						totalResult[0]?.value || 0,
+						Number(page),
+						Number(pageSize),
+						"获取退款列表成功"
+					)
+					: commonRes(data, 200, "获取退款列表成功");
 			} catch (error) {
 				console.error("获取退款列表失败:", error);
 				return commonRes(null, 500, "获取退款列表失败");
 			}
 		},
 		{
-			query: t.Object({
-				page: t.Optional(t.String()),
-				pageSize: t.Optional(t.String()),
-				status: t.Optional(t.String()),
-				orderId: t.Optional(t.String()),
-			}),
+			query: ordersRouteModel.refundsQuery,
 			detail: {
 				tags: ["Orders"],
 				summary: "获取退款列表",
-				description: "获取退款申请列表，支持分页和筛选",
+				description: "获取退款申请列表，支持分页、排序和筛选",
 			},
 		},
 	)
@@ -437,11 +464,7 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 			params: t.Object({
 				id: t.String(),
 			}),
-			body: t.Object({
-				amount: t.String(),
-				reason: t.String(),
-				refundMethod: t.Optional(t.String()),
-			}),
+			body: ordersRouteModel.createRefundSchema,
 			detail: {
 				tags: ["Orders"],
 				summary: "创建退款申请",
@@ -452,67 +475,47 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 
 	// 处理退款申请
 	.patch(
-		"/refunds/:refundId",
-		async ({ params: { refundId }, body }) => {
+		"/refunds/:id",
+		async ({ params, body }) => {
 			try {
-				const { status, notes } = body;
+				const refundId = Number(params.id);
+				const { status, refundMethod } = body;
 
-				// 验证退款状态
-				const validStatuses = Object.values(REFUND_STATUS);
-				if (!validStatuses.includes(status as any)) {
-					return commonRes(null, 400, "无效的退款状态");
-				}
+				// 验证退款申请是否存在
+				const refund = await db
+					.select()
+					.from(refundsSchema)
+					.where(eq(refundsSchema.id, refundId))
+					.limit(1);
 
-				const updateData: any = {
-					status,
-					notes: notes || null,
-					updatedAt: new Date(),
-				};
-
-				// 如果状态为已处理，记录处理时间
-				if (status === REFUND_STATUS.PROCESSED) {
-					updateData.processedAt = new Date();
-				}
-
-				const [updatedRefund] = await db
-					.update(refundsSchema)
-					.set(updateData)
-					.where(eq(refundsSchema.id, parseInt(refundId, 10)))
-					.returning();
-
-				if (!updatedRefund) {
+				if (refund.length === 0) {
 					return commonRes(null, 404, "退款申请不存在");
 				}
 
-				// 如果退款已处理，更新订单支付状态
-				if (status === REFUND_STATUS.PROCESSED) {
-					await db
-						.update(ordersSchema)
-						.set({
-							paymentStatus: PAYMENT_STATUS.REFUNDED,
-							updatedAt: new Date(),
-						})
-						.where(eq(ordersSchema.id, updatedRefund.orderId));
-				}
+				// 更新退款申请
+				const [updatedRefund] = await db
+					.update(refundsSchema)
+					.set({
+						status,
+						refundMethod,
+						updatedAt: new Date(),
+					})
+					.where(eq(refundsSchema.id, refundId))
+					.returning();
 
-				return commonRes(updatedRefund, 200, "退款状态更新成功");
+				return commonRes(updatedRefund, 200, "退款申请处理成功");
 			} catch (error) {
 				console.error("处理退款申请失败:", error);
 				return commonRes(null, 500, "处理退款申请失败");
 			}
 		},
 		{
-			params: t.Object({
-				refundId: t.String(),
-			}),
-			body: t.Object({
-				status: t.String(),
-				notes: t.Optional(t.String()),
-			}),
+			params: ordersRouteModel.IdParams,
+			body: ordersRouteModel.processRefundSchema,
 			detail: {
 				tags: ["Orders"],
 				summary: "处理退款申请",
-				description: "更新退款申请的状态",
+				description: "审批或拒绝退款申请",
 			},
 		},
 	)
@@ -522,9 +525,9 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 		"/statistics",
 		async ({ query }) => {
 			try {
-				const startDate = query.startDate as string;
-				const endDate = query.endDate as string;
+				const { startDate, endDate } = query;
 
+				// 构建时间筛选条件
 				const conditions = [];
 				if (startDate) {
 					conditions.push(sql`${ordersSchema.createdAt} >= ${startDate}`);
@@ -536,55 +539,56 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 				const whereClause =
 					conditions.length > 0 ? and(...conditions) : undefined;
 
-				// 订单总数和总金额
+				// 获取订单统计
 				const [orderStats] = await db
 					.select({
-						totalOrders: sql<number>`count(*)`,
-						totalAmount: sql<string>`sum(CAST(${ordersSchema.totalAmount} AS DECIMAL))`,
-						avgOrderValue: sql<string>`avg(CAST(${ordersSchema.totalAmount} AS DECIMAL))`,
+						totalOrders: count(),
+						totalRevenue: sql<number>`sum(${ordersSchema.totalAmount})`,
+						averageOrderValue: sql<number>`avg(${ordersSchema.totalAmount})`,
 					})
 					.from(ordersSchema)
 					.where(whereClause);
 
-				// 按状态统计
+				// 获取各状态订单数量
 				const statusStats = await db
 					.select({
 						status: ordersSchema.status,
-						count: sql<number>`count(*)`,
+						count: count(),
 					})
 					.from(ordersSchema)
 					.where(whereClause)
 					.groupBy(ordersSchema.status);
 
-				// 按支付状态统计
+				// 获取支付状态统计
 				const paymentStats = await db
 					.select({
 						paymentStatus: ordersSchema.paymentStatus,
-						count: sql<number>`count(*)`,
+						count: count(),
 					})
 					.from(ordersSchema)
 					.where(whereClause)
 					.groupBy(ordersSchema.paymentStatus);
 
-				return commonRes({
-					orderStats,
-					statusStats,
-					paymentStats,
-				});
+				return commonRes(
+					{
+						orderStats,
+						statusStats,
+						paymentStats,
+					},
+					200,
+					"获取订单统计成功"
+				);
 			} catch (error) {
 				console.error("获取订单统计失败:", error);
 				return commonRes(null, 500, "获取订单统计失败");
 			}
 		},
 		{
-			query: t.Object({
-				startDate: t.Optional(t.String()),
-				endDate: t.Optional(t.String()),
-			}),
+			query: ordersRouteModel.statisticsQuery,
 			detail: {
 				tags: ["Orders"],
 				summary: "获取订单统计信息",
-				description: "获取订单的统计数据，包括总数、金额、状态分布等",
+				description: "获取订单的统计数据，包括总数、收入等",
 			},
 		},
 	);

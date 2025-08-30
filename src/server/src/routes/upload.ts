@@ -7,7 +7,8 @@ import {
 	SUPPORTED_IMAGE_TYPES,
 	uploadModel,
 } from "./upload.model";
-
+import { imagesSchema } from "../db/schema";
+import { db } from "../db/connection";
 export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 	.model(uploadModel)
 	// 上传广告图片
@@ -146,8 +147,8 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 
 	// 上传通用图片
 	.post(
-		"/general",
-		async ({ body: { file, folder = 'general' } }) => {
+		"/general/:folder",
+		async ({ body: { file }, params: { folder } }) => {
 			try {
 				// 读取文件内容并上传到OSS
 				const fileBuffer = await file.arrayBuffer();
@@ -158,6 +159,17 @@ export const uploadRoute = new Elysia({ prefix: "/upload", tags: ["Upload"] })
 					folder,
 					file.name,
 				);
+
+				// 保存图片结果到数据库
+				await db.insert(imagesSchema).values({
+					url: imageUrl,
+					fileName: file.name,
+					originalName: file.name,
+					category: folder,
+					fileSize: file.size,
+					mimeType: file.type,
+					updatedDate: new Date(),
+				});
 
 				// 返回文件URL
 				return commonRes(
