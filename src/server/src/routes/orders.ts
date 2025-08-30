@@ -1,11 +1,10 @@
-import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, sql } from "drizzle-orm";
 import { Elysia, t } from "elysia";
 import { db } from "../db/connection";
 import {
 	orderItemsSchema,
 	ordersSchema,
-	productsSchema,
-	refundsSchema,
+	refundsSchema
 } from "../db/schema";
 import { commonRes, pageRes } from "../plugins/Res";
 

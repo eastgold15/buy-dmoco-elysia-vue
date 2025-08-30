@@ -7,7 +7,7 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 import { t } from "elysia";
 import { spreads } from "../utils/dizzle.type";
-import { dbSchema, tableNames } from "./schema/index";
+import { dbSchema } from "./schema/index";
 
 /**
  * 数据库 TypeBox 配置
@@ -20,7 +20,15 @@ export const DbType = {
 			}),
 			tokenSchema: createInsertSchema(dbSchema.tokenSchema),
 			categoriesSchema: createInsertSchema(dbSchema.categoriesSchema),
-			productsSchema: createInsertSchema(dbSchema.productsSchema),
+			productsSchema: createInsertSchema(dbSchema.productsSchema, {
+				price: t.Number({ minimum: 0 }),
+				comparePrice: t.Number({ minimum: 0 }),
+				cost: t.Number({ minimum: 0 }),
+				stock: t.Number({ minimum: 0 }),
+				minStock: t.Number({ minimum: 0 }),
+				weight: t.Number({ minimum: 0 }),
+				categoryId: t.Number({ minimum: -1 }),
+			}),
 			reviewsSchema: createInsertSchema(dbSchema.reviewsSchema),
 			siteConfigSchema: createInsertSchema(dbSchema.siteConfigSchema),
 			advertisementsSchema: createInsertSchema(dbSchema.advertisementsSchema),
