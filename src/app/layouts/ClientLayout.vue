@@ -113,76 +113,90 @@ onMounted(() => {
 			</div>
 
 			<!-- 主要头部区域 -->
-			<div class="header-main">
+			<div class="">
 				<div class="container">
 					<!-- 桌面端布局 -->
-					<div class="hidden md:flex flex-justify-around">
+					<div class="hidden md:flex flex-justify-start items-center py-4">
 						<!-- 左侧：语言切换和主题切换 -->
-						<div class="header-left">
-							<!-- 语言切换下拉菜单 -->
-							<div class="relative">
-								<button @click="toggleLanguageMenu" class="language-btn">
-									<div class="i-ic:baseline-g-translate"></div>
-									<span>{{ currentLanguage }}</span>
-									<div class="i-ic:baseline-keyboard-arrow-down"></div>
-								</button>
-								<Menu ref="languageMenu" :model="languageOptions" :popup="true" class="language-menu" />
-							</div>
 
-							<!-- 主题切换按钮 -->
-							<button @click="toggleTheme" class="theme-btn" :title="isDarkMode ? '切换到白天模式' : '切换到夜间模式'">
-								<div :class="isDarkMode ? 'i-ic:baseline-light-mode' : 'i-ic:baseline-dark-mode'"></div>
-							</button>
-						</div>
 
-						<!-- 中间：Logo -->
-						<div class="header-center">
-							<RouterLink to="/" class="logo-link">
+
+						<!-- logo -->
+						<div class="inline-flex max-w-[100%]">
+							<RouterLink to="/" class="logo-link px-4">
 								<h1 class="logo-text">外贸商城</h1>
 							</RouterLink>
 						</div>
 
-						<!-- 右侧：搜索、收藏、登录、购物袋 -->
-						<div class="header-right">
-							<!-- 搜索框 -->
-							<div class="search-box">
-								<input 
-									type="text" 
-									placeholder="搜索商品..." 
-									class="search-input"
-									v-model="searchQuery"
-									@keyup.enter="handleSearch"
-								>
-								<button class="search-btn" @click="handleSearch">
-									<div class="i-ic:baseline-search"></div>
-								</button>
-							</div>
 
-							<!-- 功能按钮组 -->
-							<div class="action-buttons">
-								<!-- 收藏 -->
-								<button @click="toggleFavorites" class="action-btn" title="收藏">
-									<div class="i-ic:baseline-favorite-border"></div>
-								</button>
 
-								<!-- 登录/用户信息 -->
-								<button @click="handleLogin" class="action-btn" :title="isUserLoggedIn ? '用户中心' : '登录'">
-									<div :class="isUserLoggedIn ? 'i-ic:baseline-person' : 'i-ic:baseline-login'"></div>
-								</button>
 
-								<!-- 购物袋 -->
-								<button class="cart-btn">
-									<div class="i-ic:baseline-shopping-bag"></div>
-									<span class="cart-count">0</span>
-								</button>
-							</div>
+
+
+						<!-- 搜索框 -->
+						<div class=" flex-1 mx-8">
+							<!-- <input type="text" placeholder="搜索商品..." class="search-input" v-model="searchQuery"
+								@keyup.enter="handleSearch">
+
+							<InputText type="text" v-model="value" variant="filled" />
+							<button class="search-btn" @click="handleSearch">
+								<div class=""></div>
+							</button> -->
+
+							<InputGroup>
+								<InputText v-model="searchQuery" placeholder="搜索商品..." @update:modelValue="handleSearch" />
+								<InputGroupAddon>
+									<Button icon="pi pi-search" severity="secondary" variant="text" @click="handleSearch" />
+								</InputGroupAddon>
+							</InputGroup>
 						</div>
+
+
+
+
+						<!-- 语言切换下拉菜单 -->
+						<div class="relative">
+							<button @click="toggleLanguageMenu" class="language-btn">
+								<div class="i-ic:baseline-g-translate"></div>
+								<span>{{ currentLanguage }}</span>
+								<div class="i-ic:baseline-keyboard-arrow-down"></div>
+							</button>
+							<Menu ref="languageMenu" :model="languageOptions" :popup="true" class="language-menu" />
+						</div>
+
+						<!-- 主题切换按钮 -->
+						<button @click="toggleTheme" class="theme-btn" :title="isDarkMode ? '切换到白天模式' : '切换到夜间模式'">
+							<div :class="isDarkMode ? 'i-ic:baseline-light-mode' : 'i-ic:baseline-dark-mode'"></div>
+						</button>
+
+
+
+
+						<!-- 收藏 -->
+						<button @click="toggleFavorites" class="theme-btn" title="收藏">
+							<div class="i-ic:baseline-favorite-border"></div>
+						</button>
+
+
+
+						<!-- 购物袋 -->
+						<button class="theme-btn">
+							<div class="i-ic:outline-shopping-cart"></div>
+							<span class="cart-count">0</span>
+						</button>
+
+						<!-- 登录/用户信息 -->
+						<button @click="handleLogin" class="login-btn " :title="isUserLoggedIn ? '用户中心' : '登录'">
+							<div :class="isUserLoggedIn ? 'i-ic:baseline-person' : 'i-ic:baseline-login'" class="w-5 h-5 mr-2"></div>
+							<span class="login-text">{{ isUserLoggedIn ? '用户中心' : '登录' }}</span>
+						</button>
+
 					</div>
 
 					<!-- 移动端布局 -->
-					<div class="header-content mobile-header md:hidden">
+					<div class=" mobile-header md:hidden">
 						<!-- 第一行：菜单、Logo、购物袋 -->
-						<div class="mobile-top-row flex">
+						<div class="container mobile-top-row flex">
 							<!-- 左侧：菜单按钮 -->
 							<div class="mobile-left">
 								<button @click="toggleMobileMenu" class="mobile-menu-btn">
@@ -190,11 +204,19 @@ onMounted(() => {
 								</button>
 
 								<!-- 移动端主题切换 -->
-								<button @click="toggleTheme" class="mobile-theme-btn"
-									:title="isDarkMode ? '切换到白天模式' : '切换到夜间模式'">
+								<button @click="toggleTheme" class="mobile-theme-btn" :title="isDarkMode ? '切换到白天模式' : '切换到夜间模式'">
 									<div :class="isDarkMode ? 'i-ic:baseline-light-mode' : 'i-ic:baseline-dark-mode'">
 									</div>
 								</button>
+
+
+								<!-- 移动端语言切换 -->
+								<div class="relative">
+									<button @click="toggleMobileLanguageMenu" class="mobile-language-btn">
+										<div class="i-ic:baseline-g-translate"></div>
+									</button>
+									<Menu ref="mobileLanguageMenu" :model="languageOptions" :popup="true" />
+								</div>
 							</div>
 
 							<!-- 中间：Logo -->
@@ -206,29 +228,31 @@ onMounted(() => {
 
 							<!-- 右侧：购物袋 -->
 							<div class="mobile-right">
-								<!-- 移动端语言切换 -->
-								<div class="relative">
-									<button @click="toggleMobileLanguageMenu" class="mobile-language-btn">
-										<div class="i-ic:baseline-g-translate"></div>
-									</button>
-									<Menu ref="mobileLanguageMenu" :model="languageOptions" :popup="true" />
-								</div>
 								<button class="mobile-cart-btn">
-									<div class="i-ic:baseline-shopping-bag"></div>
+									<div class="i-ic:outline-shopping-cart"></div>
 									<span class="mobile-cart-count">{{ cartCount }}</span>
 								</button>
 							</div>
+
+
+							<!-- 登录/用户信息 -->
+							<button @click="handleLogin" class="mobile-theme-btn " :title="isUserLoggedIn ? '用户中心' : '登录'">
+								<div :class="isUserLoggedIn ? 'i-ic:baseline-person' : 'i-ic:baseline-login'" class="w-5 h-5 mr-2">
+								</div>
+								<span class="login-text">{{ isUserLoggedIn ? '用户中心' : '登录' }}</span>
+							</button>
 						</div>
 
 						<!-- 第二行：搜索框 -->
 						<div class="mobile-search-row">
-							<div class="mobile-search-box">
-								<input type="text" placeholder="搜索..." class="mobile-search-input">
-								<button class="mobile-search-btn">
-									<div class="i-ic:baseline-search"></div>
-								</button>
-							</div>
+							<InputGroup>
+								<InputText v-model="searchQuery" placeholder="搜索商品..." @update:modelValue="handleSearch" />
+								<InputGroupAddon>
+									<Button icon="pi pi-search" severity="secondary" variant="text" @click="handleSearch" />
+								</InputGroupAddon>
+							</InputGroup>
 						</div>
+
 					</div>
 				</div>
 			</div>
@@ -236,7 +260,7 @@ onMounted(() => {
 		</header>
 
 		<!-- 分类导航 - 桌面版 -->
-		<div class="hidden md:block">
+		<div class="hidden md:block min-h-[50px]">
 			<CategoryNav />
 		</div>
 
@@ -310,14 +334,8 @@ onMounted(() => {
 	@apply text-sm text-gray-600;
 }
 
-/* 头部主要区域 */
-.header-main {
-	@apply bg-white shadow-sm border-b border-gray-200 py-4;
-}
 
-.container {
-	@apply max-w-7xl mx-auto px-4;
-}
+
 
 /* 桌面端头部布局 */
 .desktop-header {
@@ -341,6 +359,10 @@ onMounted(() => {
 }
 
 .theme-btn {
+	@apply relative flex items-center justify-center p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-all duration-200 bg-transparent border-none cursor-pointer;
+}
+
+.login-btn {
 	@apply flex items-center justify-center p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-all duration-200 bg-transparent border-none cursor-pointer;
 }
 
@@ -416,9 +438,6 @@ onMounted(() => {
 }
 
 /* 中间Logo区域 */
-.header-center {
-	@apply flex items-center;
-}
 
 .logo-link {
 	@apply text-decoration-none;
@@ -429,16 +448,12 @@ onMounted(() => {
 }
 
 /* 右侧功能区域 */
-.header-right {
-	@apply flex items-center space-x-4;
-}
-
-.search-box {
+.function-area .search-box {
 	@apply flex items-center;
 }
 
 .search-input {
-	@apply px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64;
+	@apply px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
 }
 
 .search-btn {
@@ -483,7 +498,7 @@ onMounted(() => {
 }
 
 .mobile-left {
-	@apply flex items-center space-x-2;
+	@apply flex items-center;
 }
 
 .mobile-menu-btn {
@@ -491,7 +506,7 @@ onMounted(() => {
 }
 
 .mobile-menu-btn div {
-	@apply w-6 h-6;
+	@apply w-5 h-5;
 }
 
 .mobile-theme-btn {

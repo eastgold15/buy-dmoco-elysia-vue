@@ -34,10 +34,12 @@ export const siteConfigsRoute = new Elysia({ prefix: "site-configs" })
 		"/category/:category",
 		async ({ params: { category } }) => {
 			try {
-				const [dbConfigs] = await db
+				const dbConfigs = await db
 					.select()
 					.from(siteConfigSchema)
-					.where(eq(siteConfigSchema.category, category));
+					.where(eq(siteConfigSchema.category, category))
+
+
 				return commonRes(dbConfigs, 200);
 			} catch (error) {
 				return status(500, "根据分类获取配置失败");

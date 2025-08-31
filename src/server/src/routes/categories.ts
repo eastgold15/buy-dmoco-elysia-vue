@@ -11,13 +11,9 @@ import { commonRes, pageRes } from "../plugins/Res";
 import { buildTree } from "../../../share/utils/buildTree";
 import { categoriesModel } from "./categories.model";
 
-// 分类状态枚举
-const CategoryStatus = {
-	VISIBLE: true,
-	HIDDEN: false,
-} as const;
 
-export const categoriesRoute = new Elysia({ prefix: "/categories" })
+
+export const categoriesRoute = new Elysia({ prefix: "/categories", tags: ["分类"] })
 	.model(categoriesModel)
 
 
@@ -196,6 +192,13 @@ export const categoriesRoute = new Elysia({ prefix: "/categories" })
 			console.error("获取分类树失败:", error);
 			return status(500, "获取分类树失败");
 		}
+	}, {
+		detail: {
+			description: "获取分类树形结构",
+			tags: ["分类"],
+			summary: "获取分类树形结构",
+		}
+
 	})
 
 	// 切换分类显示状态

@@ -12,8 +12,8 @@
           </a>
 
           <!-- 桌面端下拉菜单 -->
-          <div v-if="category.children && category.children.length > 0 && activeDropdown === category.id" class="dropdown-menu"
-            @mouseenter="keepDropdownOpen" @mouseleave="hideDropdown">
+          <div v-if="category.children && category.children.length > 0 && activeDropdown === category.id"
+            class="dropdown-menu" @mouseenter="keepDropdownOpen" @mouseleave="hideDropdown">
             <div class="dropdown-content">
               <div class="subcategory-grid">
                 <div v-for="subcategory in category.children" :key="subcategory.id" class="subcategory-group">
@@ -57,7 +57,8 @@
           </div>
 
           <!-- 二级分类 -->
-          <div v-if="category.children && category.children.length > 0 && isCategoryExpanded(category.id)" class="mobile-subcategory-list">
+          <div v-if="category.children && category.children.length > 0 && isCategoryExpanded(category.id)"
+            class="mobile-subcategory-list">
             <div v-for="subcategory in category.children" :key="subcategory.id" class="mobile-subcategory-item">
               <a href="#" @click.prevent="navigateToCategory(subcategory)" class="mobile-subcategory-link">
                 {{ subcategory.name }}
@@ -79,8 +80,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
 import { client } from '@/share/useTreaty';
+import { onMounted, ref } from 'vue';
+import type { CategoryTree } from '../types/layout';
+import { handleApiRes } from '../utils/handleApi';
 
 // Props
 interface Props {
@@ -96,27 +99,10 @@ const emit = defineEmits<{
   categorySelected: [category: CategoryTree];
 }>();
 
-// 分类数据类型定义
-interface CategoryTree {
-  id: string;
-  slug: string;
-  name: string;
-  parentId?: string;
-  level: number;
-  sortOrder: number;
-  isVisible: boolean;
-  description?: string;
-  icon?: string;
-  image?: string;
-  children: CategoryTree[];
-}
 
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  message?: string;
-  error?: string;
-}
+
+
+
 
 // 响应式数据
 const categories = ref<CategoryTree[]>([]);
@@ -187,12 +173,16 @@ const fetchCategories = async () => {
     loading.value = true;
     error.value = null;
 
-    const { data, error: apiError } = await client.api.categories.tree.get();
-    
-    if (data) {
-      categories.value = data;
+    const res = await handleApiRes(client.api.categories.tree.get())
+
+    console.log("11",res)
+    if (!res) {
+      return;
+    }
+
+    if (res.code === 200 && res.data) {
+      categories.value = (res.data as any )
     } else {
-      error.value = apiError || '获取分类数据失败';
       // 使用模拟数据作为后备
       categories.value = [];
     }
@@ -207,11 +197,10 @@ const fetchCategories = async () => {
 };
 
 // 组件挂载时获取数据（只在客户端执行）
-onMounted(() => {
-  // 只在客户端环境下获取数据
-  if (typeof window !== 'undefined') {
-    fetchCategories();
-  }
+onMounted(async () => {
+
+  await fetchCategories();
+
 });
 </script>
 

@@ -1,17 +1,15 @@
 <script setup lang="ts">
 // PrimeVue 组件
+import ImageSelector from '@/app/components/ImageSelector.vue'
+import { client } from '@/share/useTreaty'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
-import Badge from 'primevue/badge'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 import Checkbox from 'primevue/checkbox'
-import Dropdown from 'primevue/dropdown'
-import ImageSelector from '@/app/components/ImageSelector.vue'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
-import ProgressBar from 'primevue/progressbar'
 import Textarea from 'primevue/textarea'
 import Toast from 'primevue/toast'
 import TreeSelect from 'primevue/treeselect'
@@ -19,7 +17,6 @@ import { useToast } from 'primevue/usetoast'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { z } from 'zod'
-import { client } from '@/share/useTreaty'
 
 const router = useRouter()
 const toast = useToast()
@@ -101,18 +98,11 @@ const formResolver = zodResolver(
 // 单独的字段验证器
 const nameResolver = zodResolver(z.string().min(1, { message: '商品名称不能为空' }).max(100, { message: '商品名称不能超过100个字符' }))
 const slugResolver = zodResolver(z.string().min(1, { message: 'URL标识符不能为空' }).regex(/^[a-z0-9-]+$/, { message: 'URL标识符只能包含小写字母、数字和连字符' }))
-const skuResolver = zodResolver(z.string().optional())
-const barcodeResolver = zodResolver(z.string().optional())
-const shortDescriptionResolver = zodResolver(z.string().max(200, { message: '简短描述不能超过200个字符' }).optional())
-const descriptionResolver = zodResolver(z.string().optional())
+
 const priceResolver = zodResolver(z.number().min(0.01, { message: '商品价格必须大于0' }))
-const comparePriceResolver = zodResolver(z.number().min(0, { message: '对比价格不能为负数' }).optional())
-const costResolver = zodResolver(z.number().min(0, { message: '成本价格不能为负数' }).optional())
+
 const stockResolver = zodResolver(z.number().min(0, { message: '库存数量不能为负数' }))
-const minStockResolver = zodResolver(z.number().min(0, { message: '最低库存不能为负数' }).optional())
-const metaTitleResolver = zodResolver(z.string().max(60, { message: 'SEO标题不能超过60个字符' }).optional())
-const metaDescriptionResolver = zodResolver(z.string().max(160, { message: 'SEO描述不能超过160个字符' }).optional())
-const metaKeywordsResolver = zodResolver(z.string().optional())
+
 
 // 新增规格
 const newColor = ref('')

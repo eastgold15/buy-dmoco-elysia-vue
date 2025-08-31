@@ -5,10 +5,10 @@
 	"type": "module",
 	"scripts": {
 		"dev": "bunx --bun vite",
-		"dev:server": "bun --watch src/server/src/index.ts",
+		"dev:server": "bunx --bun --watch src/server/src/index.ts",
 		"check": "tsc",
-		"build": "vite build",
-		"preview": "vite preview",
+		"build": " bunx --bun vite build",
+		"preview": " bunx --bun vite preview",
 		"docker:dev": "docker-compose -f src/server/src/.container/dev/docker-compose.yml up -d",
 		"docker:down": "docker-compose -f src/server/src/.container/dev/docker-compose.yml down",
 		"docker:logs": "docker-compose -f src/server/src/.container/dev/docker-compose.yml logs -f",
