@@ -15,6 +15,8 @@ import App from "@/app/App.vue";
 import "primeicons/primeicons.css";
 import "virtual:uno.css";
 // 组件将通过 unplugin-vue-components 自动导入，无需手动导入
+
+
 export const createApp = async () => {
 	const app = createSSRApp(App);
 	const router = createRouter({
@@ -182,7 +184,6 @@ export const createApp = async () => {
 	app.use(ToastService);
 	app.directive("tooltip", Tooltip);
 	app.component("ProgressSpinner", ProgressSpinner);
-	app.component("Button", Button);
-
+	app.component("Button", Button)
 	return { app, router };
 };

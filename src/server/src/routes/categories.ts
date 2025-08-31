@@ -170,10 +170,10 @@ export const categoriesRoute = new Elysia({ prefix: "/categories" })
 			await db
 				.delete(categoriesSchema)
 				.where(eq(categoriesSchema.id, +id));
-			return status(200, "分类删除成功");
-		} catch (error) {
+			return commonRes(null, 200, "分类删除成功");
+		} catch (error: any) {
 			console.error("删除分类失败:", error);
-			return status(500, "删除分类失败");
+			return commonRes(null, 500, "删除分类失败");
 		}
 	})
 

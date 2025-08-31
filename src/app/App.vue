@@ -2,6 +2,9 @@
   <div id="app">
     <!-- 使用嵌套路由，布局由路由配置决定 -->
     <router-view />
+
+    <!-- Toast 组件 - 必须添加才能显示toast消息 -->
+    <Toast />
   </div>
 </template>
 
@@ -100,6 +103,7 @@ a:hover {
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   .sm\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -109,6 +113,7 @@ a:hover {
   .md\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
   .md\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -118,6 +123,7 @@ a:hover {
   .lg\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+
   .lg\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
@@ -346,6 +352,7 @@ a:hover {
   .sm\:block {
     display: block;
   }
+
   .sm\:hidden {
     display: none;
   }
@@ -355,6 +362,7 @@ a:hover {
   .md\:block {
     display: block;
   }
+
   .md\:hidden {
     display: none;
   }
@@ -364,6 +372,7 @@ a:hover {
   .lg\:block {
     display: block;
   }
+
   .lg\:hidden {
     display: none;
   }

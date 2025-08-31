@@ -23,6 +23,7 @@ import { z } from 'zod'
 import type { Category, CategoryTree } from '@/app/types/category'
 import { client } from '@/share/useTreaty'
 import { buildTree } from '@/share/utils/buildTree'
+import { handleApiRes } from '@/app/utils/handleApi'
 
 
 
@@ -384,9 +385,9 @@ const onFormSubmit = async ({ valid, values }: { valid: boolean; values: any }) 
 const toggleVisibility = async (categoryId: string) => {
   try {
     loading.value = true // 添加加载状态
-    const response = await client.api.categories({ id: categoryId })['toggle-visibility'].patch()
+    const response = await client.api.categories({ id: categoryId })['toggle'].patch()
 
-    if (response.code === 200) {
+    if (response.status === 200 && response.data.code == 200) {
       toast?.add({ severity: 'success', summary: '成功', detail: '显示状态更新成功' })
       await loadCategories() // 重新加载数据
     } else {
@@ -398,7 +399,7 @@ const toggleVisibility = async (categoryId: string) => {
       await loadCategories() // 重新加载数据
     }
   } catch (error) {
-    console.error('更新显示状态失败:', error)
+
     toast?.add({
       severity: 'error',
       summary: '错误',
@@ -423,24 +424,22 @@ const confirmDelete = (category: Category) => {
 const deleteCategory = async (categoryId: string) => {
   try {
     loading.value = true // 添加加载状态
-    const response = await client.api.categories({ id: categoryId }).delete()
+    const response = await handleApiRes(client.api.categories({ id: categoryId }).delete())
 
-    if (response.code === 200) {
+    if (response.code == 200) {
       toast?.add({ severity: 'success', summary: '成功', detail: '分类删除成功' })
       await loadCategories()
-    } else {
-      toast?.add({
-        severity: 'error',
-        summary: '错误',
-        detail: response.message || '删除分类失败'
-      })
     }
+    else {
+      throw new Error(response.data.data || '删除分类失败')
+    }
+
   } catch (error) {
-    console.error('删除分类失败:', error)
     toast?.add({
       severity: 'error',
-      summary: '错误',
-      detail: error instanceof Error ? error.message : '删除分类失败'
+      summary: 'http错误',
+      detail: error.message,
+      life: 1000
     })
   } finally {
     loading.value = false // 确保加载状态重置
@@ -645,8 +644,7 @@ const formatDate = (date: Date | string): string => {
 
     <!-- 删除确认对话框 -->
     <ConfirmDialog :loading="loading" />
-    <!-- Toast 组件 - 必须添加才能显示toast消息 -->
-    <Toast />
+
   </div>
 </template>
 
