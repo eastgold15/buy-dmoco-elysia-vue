@@ -47,7 +47,7 @@
 
           <div class="space-y-4">
           </div>
-          
+
         </div>
       </TabPanel>
 
@@ -320,9 +320,8 @@ const configs = reactive({
   site_logo: '',
   site_keywords: '',
   site_description: '',
-  contact_email: '',
-  contact_phone: '',
-  contact_address: '',
+
+
   icp_number: '',
   copyright: '',
   header_notice: '',
@@ -355,10 +354,6 @@ const configs = reactive({
       links: [{ text: 'Favorites', url: '/favorites' }]
     }
   ],
-  footer_social_facebook: '',
-  footer_social_twitter: '',
-  footer_social_instagram: '',
-  footer_social_youtube: ''
 })
 
 // 原始配置数据（用于重置）
@@ -367,7 +362,7 @@ const originalConfigs = reactive({ ...configs })
 // 表单验证错误
 const errors = reactive({
   site_name: '',
-  contact_email: ''
+
 })
 
 // 货币选项
@@ -458,7 +453,7 @@ const loadConfigs = async () => {
         severity: 'error',
         summary: '错误',
         detail: '配置数据格式错误',
-        life: 3000
+        life: 1000
       })
     }
   } catch (error) {
@@ -467,7 +462,7 @@ const loadConfigs = async () => {
       severity: 'error',
       summary: '错误',
       detail: '加载配置失败',
-      life: 3000
+      life: 1000
     })
   } finally {
     loading.value = false
@@ -480,7 +475,7 @@ const validateForm = () => {
 
   // 清空错误
   errors.site_name = ''
-  errors.contact_email = ''
+
 
   // 验证网站名称
   if (!configs.site_name.trim()) {
@@ -488,11 +483,7 @@ const validateForm = () => {
     isValid = false
   }
 
-  // 验证邮箱格式
-  if (configs.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(configs.contact_email)) {
-    errors.contact_email = '请输入有效的邮箱地址'
-    isValid = false
-  }
+
 
   return isValid
 }
@@ -504,7 +495,7 @@ const saveConfigs = async () => {
       severity: 'warn',
       summary: '验证失败',
       detail: '请检查表单中的错误',
-      life: 3000
+      life: 1000
     })
     return
   }
@@ -529,20 +520,20 @@ const saveConfigs = async () => {
       }
     })
 
-    const { data, error } = await client.api['site-configs'].batch.patch(updateData)
+    const response = await client.api['site-configs'].batch.patch(updateData)
 
-    if (data) {
+    if (response.data && response.data.code === 200) {
       toast.add({
         severity: 'success',
         summary: '成功',
         detail: '配置保存成功',
-        life: 3000
+        life: 1000
       })
 
       // 更新原始数据
       Object.assign(originalConfigs, configs)
     } else {
-      throw new Error(error || '保存失败')
+      throw new Error(response.data?.message || '保存失败')
     }
   } catch (error) {
     console.error('保存配置失败:', error)
@@ -550,7 +541,7 @@ const saveConfigs = async () => {
       severity: 'error',
       summary: '错误',
       detail: '保存配置失败',
-      life: 3000
+      life: 1000
     })
   } finally {
     saving.value = false
@@ -563,28 +554,28 @@ const resetConfigs = () => {
 
   // 清空错误
   errors.site_name = ''
-  errors.contact_email = ''
+
 
   toast.add({
     severity: 'info',
     summary: '提示',
     detail: '配置已重置',
-    life: 3000
+    life: 1000
   })
 }
 
 // 初始化默认配置
 const initializeConfigs = async () => {
   try {
-    const { data, error } = await client.api['site-configs'].initialize.post()
+    const response = await client.api['site-configs'].initialize.post()
 
-    if (data) {
+    if (response.data && response.data.code === 200) {
       await loadConfigs()
       toast.add({
         severity: 'success',
         summary: '成功',
         detail: '默认配置初始化成功',
-        life: 3000
+        life: 1000
       })
     }
   } catch (error) {

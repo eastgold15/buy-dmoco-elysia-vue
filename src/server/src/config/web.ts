@@ -24,24 +24,8 @@ export const webConfig = [
     description: "网站描述",
     category: "seo",
   },
-  {
-    key: "contact_email",
-    value: "",
-    description: "联系邮箱",
-    category: "contact",
-  },
-  {
-    key: "contact_phone",
-    value: "",
-    description: "联系电话",
-    category: "contact",
-  },
-  {
-    key: "contact_address",
-    value: "",
-    description: "联系地址",
-    category: "contact",
-  },
+
+
   {
     key: "icp_number",
     value: "",
@@ -181,48 +165,6 @@ export const webConfig = [
     key: "footer_company_name",
     value: "外贸服装商城有限公司",
     description: "公司名称",
-    category: "footer",
-  },
-  {
-    key: "footer_company_address",
-    value: "",
-    description: "公司地址",
-    category: "footer",
-  },
-  {
-    key: "footer_company_phone",
-    value: "",
-    description: "公司电话",
-    category: "footer",
-  },
-  {
-    key: "footer_company_email",
-    value: "",
-    description: "公司邮箱",
-    category: "footer",
-  },
-  {
-    key: "footer_social_facebook",
-    value: "",
-    description: "Facebook链接",
-    category: "footer",
-  },
-  {
-    key: "footer_social_twitter",
-    value: "",
-    description: "Twitter链接",
-    category: "footer",
-  },
-  {
-    key: "footer_social_instagram",
-    value: "",
-    description: "Instagram链接",
-    category: "footer",
-  },
-  {
-    key: "footer_social_youtube",
-    value: "",
-    description: "YouTube链接",
     category: "footer",
   },
 ];

@@ -1,12 +1,11 @@
 import { eq } from "drizzle-orm";
 import { Elysia, status, t } from "elysia";
-import { webConfig } from "../config/web";
 import { db } from "../db/connection";
 import { siteConfigSchema } from "../db/schema";
 import { commonRes } from "../plugins/Res";
 import { siteConfigsModel } from "./siteConfigs.model";
 
-export const siteConfigsRoute = new Elysia({ prefix: "site-configs" })
+export const siteConfigsRoute = new Elysia({ prefix: "siteConfigs", tags: ["站点配置"] })
 	.model(siteConfigsModel)
 	// 获取所有配置
 	.get(
@@ -14,7 +13,7 @@ export const siteConfigsRoute = new Elysia({ prefix: "site-configs" })
 		async () => {
 			try {
 				const dbConfigs = await db.select().from(siteConfigSchema);
-				return commonRes(dbConfigs[0], 200);
+				return commonRes(dbConfigs, 200);
 			} catch (error) {
 				console.error("获取网站配置失败:", error);
 				return commonRes(null, 500, "获取网站配置失败");
@@ -190,37 +189,73 @@ export const siteConfigsRoute = new Elysia({ prefix: "site-configs" })
 		},
 	)
 
-	// 初始化默认配置
-	.post(
-		"/initialize",
-		async () => {
+	// // 初始化默认配置
+	// .post(
+	// 	"/initialize",
+	// 	async () => {
+	// 		try {
+	// 			const defaultConfigs = webConfig;
+
+	// 			for (const config of defaultConfigs) {
+	// 				// 检查配置是否已存在
+	// 				const [existing] = await db
+	// 					.select()
+	// 					.from(siteConfigSchema)
+	// 					.where(eq(siteConfigSchema.key, config.key))
+	// 					.limit(1);
+
+	// 				if (!existing) {
+	// 					await db.insert(siteConfigSchema).values(config);
+	// 				}
+	// 			}
+
+	// 			return commonRes({ success: true, message: "默认配置初始化完成" }, 200);
+	// 		} catch (error) {
+	// 			console.error("初始化默认配置失败:", error);
+	// 			return commonRes(null, 500, "初始化默认配置失败");
+	// 		}
+	// 	},
+	// 	{
+	// 		detail: {
+	// 			tags: ["SiteConfigs"],
+	// 			summary: "初始化默认配置",
+	// 			description: "初始化网站的默认配置项",
+	// 		},
+	// 	},
+	// )
+
+	// 批量更新配置
+	.patch(
+		"/batch",
+		async ({ body }) => {
 			try {
-				const defaultConfigs = webConfig;
+				const updateData = body;
 
-				for (const config of defaultConfigs) {
-					// 检查配置是否已存在
-					const [existing] = await db
-						.select()
-						.from(siteConfigSchema)
-						.where(eq(siteConfigSchema.key, config.key))
-						.limit(1);
-
-					if (!existing) {
-						await db.insert(siteConfigSchema).values(config);
-					}
+				// 批量更新配置
+				for (const config of updateData) {
+					await db
+						.update(siteConfigSchema)
+						.set({
+							value: config.value,
+							description: config.description,
+							category: config.category,
+							updatedAt: new Date(),
+						})
+						.where(eq(siteConfigSchema.key, config.key));
 				}
 
-				return commonRes({ success: true, message: "默认配置初始化完成" }, 200);
+				return commonRes(null, 200, "批量更新配置成功");
 			} catch (error) {
-				console.error("初始化默认配置失败:", error);
-				return commonRes(null, 500, "初始化默认配置失败");
+				console.error("批量更新配置失败:", error);
+				return commonRes(null, 500, "批量更新配置失败");
 			}
 		},
 		{
+			body: "BatchUpdateSiteConfigDto",
 			detail: {
 				tags: ["SiteConfigs"],
-				summary: "初始化默认配置",
-				description: "初始化网站的默认配置项",
+				summary: "批量更新配置",
+				description: "批量更新网站配置项",
 			},
 		},
 	);

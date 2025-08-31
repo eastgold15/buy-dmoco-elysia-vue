@@ -325,18 +325,7 @@ async function initSiteConfigs() {
 			description: "网站描述",
 			category: "seo",
 		},
-		{
-			key: "contact_email",
-			value: "contact@fashion-store.com",
-			description: "联系邮箱",
-			category: "contact",
-		},
-		{
-			key: "contact_phone",
-			value: "+86 400-123-4567",
-			description: "联系电话",
-			category: "contact",
-		},
+
 		{
 			key: "icp_number",
 			value: "京ICP备12345678号",

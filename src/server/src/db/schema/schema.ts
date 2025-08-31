@@ -1,6 +1,5 @@
 import {
 	boolean,
-	decimal,
 	integer,
 	json,
 	numeric,
@@ -9,7 +8,7 @@ import {
 	serial,
 	text,
 	timestamp,
-	varchar,
+	varchar
 } from "drizzle-orm/pg-core";
 
 /**

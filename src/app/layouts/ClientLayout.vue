@@ -1,10 +1,13 @@
-<script setup>
+<script setup lang="ts">
 import Button from 'primevue/button';
 import Drawer from 'primevue/drawer';
 import Menu from 'primevue/menu';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import CategoryNav from '../components/CategoryNav.vue';
+import { client } from '@/share/useTreaty';
+import { handleApiRes } from '../utils/handleApi';
+import type { FooterConfig, FooterSection } from '../types/layout';
 
 const router = useRouter();
 const isMobileMenuOpen = ref(false);
@@ -15,6 +18,15 @@ const languageMenu = ref();
 const mobileLanguageMenu = ref();
 const searchQuery = ref('');
 const cartCount = ref(0);
+
+
+
+// 底部配置数据
+const footerConfig = reactive<{ sections: FooterSection[], copyright: string, loading: boolean }>({
+	sections: [],
+	copyright: '',
+	loading: true
+});
 
 // 语言选项
 const languageOptions = ref([
@@ -38,16 +50,16 @@ const closeMobileMenu = () => {
 	isMobileMenuOpen.value = false;
 };
 
-const switchLanguage = (language) => {
+const switchLanguage = (language: string) => {
 	currentLanguage.value = language;
 	// 菜单会自动关闭
 };
 
-const toggleLanguageMenu = (event) => {
+const toggleLanguageMenu = (event: any) => {
 	languageMenu.value.toggle(event);
 };
 
-const toggleMobileLanguageMenu = (event) => {
+const toggleMobileLanguageMenu = (event: any) => {
 	mobileLanguageMenu.value.toggle(event);
 };
 
@@ -78,6 +90,48 @@ const handleLogin = () => {
 	}
 };
 
+// 获取底部配置数据
+const loadFooterConfig = async () => {
+	try {
+		footerConfig.loading = true;
+
+		// 获取底部相关配置
+
+		// @ts-ignore
+		const footerResponse: any = await handleApiRes(client.api.siteConfigs.category['footer'].get())
+
+
+		if (footerResponse.data && footerResponse.code === 200) {
+			// 处理底部栏目数据
+			const footerData: FooterConfig[] = footerResponse.data || [];
+
+			// 查找底部栏目配置
+			const sectionsConfig = footerData.find(config => config.key === 'footer_sections');
+			if (sectionsConfig) {
+				try {
+					const sections: FooterSection = JSON.parse(sectionsConfig.value);
+					if (Array.isArray(sections)) {
+						footerConfig.sections = sections;
+					}
+				} catch (e) {
+					console.warn('解析底部栏目数据失败:', e);
+				}
+			}
+
+			// 查找版权信息
+			const copyrightConfig = footerData.find(config => config.key === 'footer_copyright');
+			if (copyrightConfig) {
+				footerConfig.copyright = copyrightConfig.value;
+			}
+		}
+	} catch (error) {
+		console.error('加载底部配置失败:', error);
+
+	} finally {
+		footerConfig.loading = false;
+	}
+};
+
 const handleSearch = () => {
 	if (searchQuery.value.trim()) {
 		router.push({
@@ -87,13 +141,16 @@ const handleSearch = () => {
 	}
 };
 
-// 初始化主题
+// 初始化主题和加载配置
 onMounted(() => {
 	const savedTheme = localStorage.getItem('theme');
 	if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
 		isDarkMode.value = true;
 		document.documentElement.classList.add('dark');
 	}
+
+	// 加载底部配置
+	loadFooterConfig();
 });
 </script>
 
@@ -285,43 +342,37 @@ onMounted(() => {
 
 		<!-- 主要内容区域 -->
 		<main class="main-content">
-			<slot />
+			<router-view></router-view>
 		</main>
 
 		<!-- 网站底部 -->
 		<footer class="site-footer">
 			<div class="container">
-				<div class="footer-content">
-					<div class="footer-section">
-						<h4>For You</h4>
-						<ul>
-							<li><a href="#">Favorites</a></li>
-							<li><a href="#">Gift Cards</a></li>
-							<li><a href="#">Afterpay</a></li>
-						</ul>
+				<!-- 加载状态 -->
+				<div v-if="footerConfig.loading" class="footer-loading">
+					<div class="text-center py-8">
+						<i class="pi pi-spin pi-spinner text-2xl"></i>
+						<p class="mt-2 text-gray-500">加载中...</p>
 					</div>
+				</div>
 
-					<div class="footer-section">
-						<h4>Connect with Us</h4>
-						<ul>
-							<li><a href="#">Back to top</a></li>
-						</ul>
-					</div>
-
-					<div class="footer-section">
-						<h4>Legal</h4>
-						<ul>
-							<li><a href="#">Terms of Use</a></li>
-							<li><a href="#">Privacy & Cookie Policy</a></li>
-							<li><a href="#">Text Messaging Terms</a></li>
-							<li><a href="#">Bulk Buyer Policy</a></li>
-							<li><a href="#">Accessibility</a></li>
+				<!-- 底部内容 -->
+				<div v-else class="footer-content">
+					<div v-for="section in footerConfig.sections" :key="section.title" class="footer-section">
+						<h4>{{ section.title }}</h4>
+						<ul v-if="section.links && section.links.length > 0">
+							<li v-for="link in section.links" :key="link.text">
+								<a :href="link.url || '#'" :target="link.url && link.url.startsWith('http') ? '_blank' : '_self'"
+									:rel="link.url && link.url.startsWith('http') ? 'noopener noreferrer' : ''">
+									{{ link.text }}
+								</a>
+							</li>
 						</ul>
 					</div>
 				</div>
 
-				<div class="footer-bottom">
-					<p>© 2024 WWW.APPARELCITY.COM.CN All Rights Reserved 赣ICP备2024041550号-5</p>
+				<div v-if="!footerConfig.loading" class="footer-bottom">
+					<p>{{ footerConfig.copyright || '© 2024 WWW.APPARELCITY.COM.CN All Rights Reserved' }}</p>
 				</div>
 			</div>
 		</footer>

@@ -66,9 +66,8 @@ INSERT INTO site_config (key, value, description, category) VALUES
 ('site_logo', '', '网站Logo URL', 'general'),
 ('site_keywords', '外贸,服装,时尚,购物', '网站关键词', 'seo'),
 ('site_description', '专业的外贸服装购物平台', '网站描述', 'seo'),
-('contact_email', '', '联系邮箱', 'contact'),
-('contact_phone', '', '联系电话', 'contact'),
-('contact_address', '', '联系地址', 'contact'),
+
+
 ('icp_number', '', 'ICP备案号', 'legal'),
 ('copyright', '© 2024 外贸服装商城 All Rights Reserved', '版权信息', 'legal'),
 ('header_notice', 'FREE SHIPPING on orders over $59* details', '顶部通知', 'general'),
@@ -97,13 +96,8 @@ INSERT INTO site_config (key, value, description, category) VALUES
 ('footer_back_to_top_text', 'Back to top', '返回顶部文本', 'footer'),
 ('footer_sections', '[{"title":"For You","links":[{"text":"Favorites","url":"/favorites"},{"text":"Gift Cards","url":"/gift-cards"}]},{"title":"Connect with Us","links":[{"text":"Customer Service","url":"/customer-service"},{"text":"Social Media","url":"/social"}]},{"title":"Legal","links":[{"text":"Terms of Use","url":"/terms"},{"text":"Privacy Policy","url":"/privacy"}]}]', '底部栏目JSON', 'footer'),
 ('footer_company_name', '外贸服装商城有限公司', '公司名称', 'footer'),
-('footer_company_address', '', '公司地址', 'footer'),
-('footer_company_phone', '', '公司电话', 'footer'),
-('footer_company_email', '', '公司邮箱', 'footer'),
-('footer_social_facebook', '', 'Facebook链接', 'footer'),
-('footer_social_twitter', '', 'Twitter链接', 'footer'),
-('footer_social_instagram', '', 'Instagram链接', 'footer'),
-('footer_social_youtube', '', 'YouTube链接', 'footer');
+
+
 
 -- 插入广告数据
 INSERT INTO advertisements (title, type, image, link, position, sort_order, is_active, start_date, end_date) VALUES
