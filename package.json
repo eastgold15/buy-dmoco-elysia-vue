@@ -54,10 +54,11 @@
 		"zod": "^3.23.8"
 	},
 	"devDependencies": {
-		"@pori15/config": "^0.0.5",
 		"@domcojs/vercel": "^3.0.0",
 		"@iconify-json/ic": "^1.2.4",
+		"@pori15/config": "^0.0.5",
 		"@pori15/schema-typebox-generator": "^1.0.4",
+		"@primevue/auto-import-resolver": "^4.3.7",
 		"@types/bun": "^1.2.20",
 		"@types/pg": "^8.15.5",
 		"@vitejs/plugin-vue": "^6.0.1",
@@ -68,6 +69,7 @@
 		"typescript": "^5.9.2",
 		"unocss": "^66.4.2",
 		"unocss-preset-animations": "^1.2.1",
+		"unplugin-vue-components": "^29.0.0",
 		"vite": "^7.1.3"
 	},
 	"overrides": {

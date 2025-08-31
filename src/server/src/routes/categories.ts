@@ -8,7 +8,7 @@ import { Elysia, status } from "elysia";
 import { db } from "../db/connection";
 import { categoriesSchema } from "../db/schema";
 import { commonRes, pageRes } from "../plugins/Res";
-import { buildTree } from "../utils/buildTree";
+import { buildTree } from "../../../share/utils/buildTree";
 import { categoriesModel } from "./categories.model";
 
 // 分类状态枚举
@@ -19,6 +19,7 @@ const CategoryStatus = {
 
 export const categoriesRoute = new Elysia({ prefix: "/categories" })
 	.model(categoriesModel)
+
 
 	// 获取分类列表
 	.get("/", async ({ query }) => {
@@ -116,9 +117,13 @@ export const categoriesRoute = new Elysia({ prefix: "/categories" })
 				.values(body)
 				.returning();
 			return commonRes(newCategory, 200, "创建分类成功");
-		} catch (error) {
+		} catch (error: any) {
 			console.error("创建分类失败:", error);
-			return status(500, "创建分类失败");
+			if (!error.cause) {
+				return commonRes(error.message, 500, "创建分类失败，请稍后重试");
+			}
+			return commonRes(error.cause.detail, 500, "创建分类失败，请稍后重试");
+			// 其他数据库错误
 		}
 	}, {
 		body: "CreateCategoryDto"
@@ -138,9 +143,19 @@ export const categoriesRoute = new Elysia({ prefix: "/categories" })
 				.where(eq(categoriesSchema.id, +id))
 				.returning();
 			return commonRes(updated, 200, "更新分类成功");
-		} catch (error) {
+		} catch (error: any) {
 			console.error("更新分类失败:", error);
-			return status(500, "更新分类失败");
+
+			// 处理唯一约束冲突错误
+			if (error.code === '23505') {
+				if (error.constraint_name === 'categories_slug_unique') {
+					return commonRes(null, 400, "分类标识符已存在，请使用不同的名称");
+				}
+				return commonRes(null, 400, "数据已存在，请检查输入信息");
+			}
+
+			// 其他数据库错误
+			return commonRes(null, 500, "更新分类失败，请稍后重试");
 		}
 	}, {
 		body: "UpdateCategoryDto"

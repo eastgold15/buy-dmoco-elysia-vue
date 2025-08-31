@@ -36,6 +36,7 @@ import SiteConfig from "./pages/admin/SiteConfig.vue";
 import UsersManagement from "./pages/admin/UsersManagement.vue";
 import UsersReports from "./pages/admin/UsersReports.vue";
 import Home from "./pages/Home.vue";
+import TestToast from "./pages/admin/TestToast.vue";
 // 用户端页面
 import Index from "./pages/index.vue";
 import Login from "./pages/Login.vue";
@@ -110,6 +111,11 @@ export const createApp = async () => {
 						path: "dashboard",
 						name: "dashboard",
 						component: Dashboard,
+					},
+					{
+						path: "TestToast",
+						name: "TestToast",
+						component: TestToast,
 					},
 					{
 						path: "products",

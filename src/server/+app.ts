@@ -9,7 +9,7 @@ const app = new Elysia()
 	.onRequest(async ({ request }) => {
 		const { pathname } = new URL(request.url);
 
-		// 如果是API路由，跳过SSR渲染
+		// 如果是API路由，跳后端，不需要被前端拦截
 		if (pathname.startsWith("/api")) {
 			return;
 		}

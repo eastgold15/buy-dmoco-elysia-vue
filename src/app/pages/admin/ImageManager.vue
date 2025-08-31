@@ -17,6 +17,7 @@ import ProgressBar from 'primevue/progressbar';
 import Badge from 'primevue/badge';
 import { client } from '@/share/useTreaty';
 import type { ImageListQueryDto, UpdateImageDto, BatchDeleteImageDto } from '@/server/src/routes/images.model';
+import { formatSize, formatDate, generateId, getImageUrl, copyToClipboard, openInNewTab } from '@/share/utils/formatUtils';
 
 // 图片数据类型
 interface ImageData {
@@ -219,16 +220,16 @@ const saveImageEdit = async () => {
  * 复制图片URL
  */
 const copyImageUrl = async (image: ImageData) => {
-  try {
-    await navigator.clipboard.writeText(image.url);
+  const success = await copyToClipboard(getImageUrl(image.url));
+
+  if (success) {
     toast.add({
       severity: 'success',
       summary: '复制成功',
       detail: '图片链接已复制到剪贴板',
       life: 2000
     });
-  } catch (error) {
-    console.error('复制失败:', error);
+  } else {
     toast.add({
       severity: 'error',
       summary: '复制失败',
@@ -242,7 +243,7 @@ const copyImageUrl = async (image: ImageData) => {
  * 在新标签页打开图片
  */
 const openImageInNewTab = (image: ImageData) => {
-  window.open(getImageUrl(image.url), '_blank');
+  openInNewTab(getImageUrl(image.url));
 };
 
 /**
@@ -320,7 +321,7 @@ const batchDeleteImages = async () => {
       // 从列表中移除
       images.value = images.value.filter(img => !selectedImages.value.includes(img.id));
       // 清空选中列表
-      selectedImages.value = []; z
+      selectedImages.value = [];
       toast.add({
         severity: 'success',
         summary: '删除成功',
@@ -404,23 +405,7 @@ const onTemplatedUpload = (event: any) => {
   totalSizePercent.value = 0;
 };
 
-/**
- * 格式化文件大小
- */
-const formatSize = (bytes: number): string => {
-  const k = 1024;
-  const dm = 3;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
 
-  if (bytes === 0) {
-    return `0 ${sizes[0]}`;
-  }
-
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const formattedSize = parseFloat((bytes / Math.pow(k, i)).toFixed(dm));
-
-  return `${formattedSize} ${sizes[i]}`;
-};
 
 /**
  * 获取分类标签
@@ -432,31 +417,7 @@ const getCategoryLabel = (category: string): string => {
 
 
 
-/**
- * 格式化日期
- */
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
 
-/**
- * 生成ID
- */
-const generateId = (): string => {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-};
-
-const getImageUrl = (url) => {
-  console.log("sssssssssssss", `${import.meta.env.VITE_HUAWEI_DOMAIN || 'http://img.cykycyky.top'}/${url}`)
-  return `${import.meta.env.VITE_HUAWEI_DOMAIN || 'http://img.cykycyky.top'}/${url}`
-}
 
 // 生命周期
 onMounted(() => {
@@ -601,7 +562,7 @@ onMounted(() => {
                       <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" />
                     </div>
                     <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name
-                    }}</span>
+                      }}</span>
                     <div>{{ formatSize(file.size) }}</div>
                     <Badge value="待上传" severity="warn" />
                     <Button icon="pi pi-times" @click="onRemoveTemplatingFile(file, removeFileCallback, index)"
@@ -619,7 +580,7 @@ onMounted(() => {
                       <img role="presentation" :alt="file.name" :src="file.objectURL" width="100" height="50" />
                     </div>
                     <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name
-                    }}</span>
+                      }}</span>
                     <div>{{ formatSize(file.size) }}</div>
                     <Badge value="已完成" class="mt-4" severity="success" />
                     <Button icon="pi pi-times" @click="removeUploadedFileCallback(index)" variant="outlined" rounded
