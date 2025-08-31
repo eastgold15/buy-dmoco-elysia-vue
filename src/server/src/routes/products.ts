@@ -222,6 +222,42 @@ export const productsRoute = new Elysia({
 		},
 	)
 
+	// 根据ID删除商品
+	.delete(
+		"/:id",
+		async ({ params: { id }, status }) => {
+			try {
+
+
+
+				const [exitProduct] = await db.select().from(productsSchema).where(eq(productsSchema.id, +id))
+				if (!exitProduct) {
+					return commonRes(null, 404, "商品不存在");
+				}
+				// // 软删除商品
+				// await db.update(productsSchema).set({
+				// 	isActive: false,
+				// }).where(eq(productsSchema.id, +id))
+
+				await db.delete(productsSchema).where(eq(productsSchema.id, +id))
+
+
+				return commonRes(null, 200, "删除成功");
+			} catch (error) {
+				console.error("获取商品详情失败:", error);
+				return status(500, "获取商品详情失败");
+			}
+		},
+		{
+			detail: {
+				tags: ["Products"],
+				summary: "根据ID获取商品详情",
+				description: "根据商品ID获取商品的详细信息",
+			},
+		},
+	)
+
+
 	// 根据slug获取商品详情
 	.get(
 		"/slug/:slug",

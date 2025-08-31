@@ -157,7 +157,7 @@ const loadDashboardData = async () => {
         
     } catch (error) {
         console.error('加载仪表盘数据失败:', error)
-        toast.add({ severity: 'error', summary: '错误', detail: '加载仪表盘数据失败' })
+        toast.add({ severity: 'error', summary: '错误', detail: '加载仪表盘数据失败', life: 1000 })
     } finally {
         loading.value = false
     }

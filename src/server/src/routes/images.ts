@@ -9,7 +9,7 @@ import { nanoid } from "nanoid";
 import { db } from "../db/connection";
 import { imagesSchema } from "../db/schema";
 import { commonRes, pageRes } from "../plugins/Res";
-import { imageRouteModel } from "./images.model";
+import { imageRouteModel, type UpdateImageDto } from "./images.model";
 import { ossService } from "./oss";
 
 // 图片状态枚举
@@ -167,8 +167,6 @@ export const imagesRoute = new Elysia({ prefix: "/images" })
 	// 更新图片信息
 	.put("/:id", async ({ params: { id }, body, status }) => {
 		try {
-
-			const { fileName, category, altText } = body
 			// 检查图片是否存在
 			const existingImage = await db
 				.select()
@@ -180,12 +178,9 @@ export const imagesRoute = new Elysia({ prefix: "/images" })
 				return status(404, "图片不存在");
 			}
 
-			const updateData = Object.fromEntries(Object.entries(body).filter(([_, value]) => {
+			const updateData: Record<string, any> = Object.fromEntries(Object.entries(body).filter(([_, value]) => {
 				return value !== undefined && value !== null
 			}))
-
-			updateData.updatedDate = new Date()
-
 
 
 
@@ -224,7 +219,7 @@ export const imagesRoute = new Elysia({ prefix: "/images" })
 				.where(eq(imagesSchema.id, +id))
 				.limit(1);
 
-			if (image.length === 0) {
+			if (!image[0]) {
 				return status(404, "图片不存在");
 			}
 
@@ -357,44 +352,44 @@ export const imagesRoute = new Elysia({ prefix: "/images" })
 		},
 	})
 
-	// 生成预签名URL
-	.post("/presigned-url", async ({ body }) => {
-		try {
-			const { fileName, category = "general" } = body;
+// // 生成预签名URL
+// .post("/presigned-url", async ({ body }) => {
+// 	try {
+// 		const { fileName, category = "general" } = body;
 
-			// 生成唯一的文件名
-			const timestamp = Date.now();
-			const randomStr = Math.random().toString(36).substring(2, 8);
-			const fileExtension = fileName.split(".").pop();
-			const uniqueFileName = `${timestamp}_${randomStr}.${fileExtension}`;
-			const key = `${category}/${uniqueFileName}`;
+// 		// 生成唯一的文件名
+// 		const timestamp = Date.now();
+// 		const randomStr = Math.random().toString(36).substring(2, 8);
+// 		const fileExtension = fileName.split(".").pop();
+// 		const uniqueFileName = `${timestamp}_${randomStr}.${fileExtension}`;
+// 		const key = `${category}/${uniqueFileName}`;
 
-			// 生成预签名URL
-			const presignedUrl = await ossService.generatePresignedUploadUrl(
-				key,
-				3600,
-				"application/octet-stream",
-			); // 1小时有效期
-			const publicUrl = ossService.getPublicUrl(key);
+// 		// 生成预签名URL
+// 		const presignedUrl = await ossService.generatePresignedUploadUrl(
+// 			key,
+// 			3600,
+// 			"application/octet-stream",
+// 		); // 1小时有效期
+// 		const publicUrl = ossService.getPublicUrl(key);
 
-			return commonRes({
-				presignedUrl,
-				publicUrl,
-				key,
-				fileName: uniqueFileName,
-			}, 200, "生成预签名URL成功");
-		} catch (error) {
-			console.error("生成预签名URL失败:", error);
-			return commonRes(null, 500, "生成预签名URL失败");
-		}
-	}, {
-		body: "PresignedUrlRequestDto",
-		detail: {
-			tags: ["Images"],
-			summary: "获取预签名上传URL",
-			description: "获取用于直接上传到OSS的预签名URL",
-		},
-	})
+// 		return commonRes({
+// 			presignedUrl,
+// 			publicUrl,
+// 			key,
+// 			fileName: uniqueFileName,
+// 		}, 200, "生成预签名URL成功");
+// 	} catch (error) {
+// 		console.error("生成预签名URL失败:", error);
+// 		return commonRes(null, 500, "生成预签名URL失败");
+// 	}
+// }, {
+// 	body: "PresignedUrlRequestDto",
+// 	detail: {
+// 		tags: ["Images"],
+// 		summary: "获取预签名上传URL",
+// 		description: "获取用于直接上传到OSS的预签名URL",
+// 	},
+// })
 
 // // 确认文件上传完成
 // .post("/confirm-upload", async ({ body }) => {

@@ -10,11 +10,6 @@ import { advertisementsSchema } from "../db/schema/schema";
 import { commonRes, pageRes } from "../plugins/Res";
 import { advertisementsModel } from "./advertisements.model";
 
-// 广告状态枚举
-const AdvertisementStatus = {
-	ACTIVE: true,
-	INACTIVE: false,
-} as const;
 
 export const advertisementsRoute = new Elysia({ prefix: "/advertisements" })
 	.model(advertisementsModel)

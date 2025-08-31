@@ -255,7 +255,7 @@ const loadOrders = async () => {
         console.error('加载订单失败:', error)
         orders.value = []
         total.value = 0
-        toast.add({ severity: 'error', summary: '错误', detail: '加载订单失败' })
+        toast.add({ severity: 'error', summary: '错误', detail: '加载订单失败', life: 1000 })
     } finally {
         loading.value = false
     }
@@ -312,12 +312,12 @@ const updateOrderStatus = async () => {
         selectedOrder.value.status = newStatus.value
         selectedOrder.value.updatedAt = new Date()
         
-        toast.add({ severity: 'success', summary: '成功', detail: '订单状态更新成功' })
+        toast.add({ severity: 'success', summary: '成功', detail: '订单状态更新成功', life: 1000 })
         showStatusDialog.value = false
         loadOrders()
     } catch (error) {
         console.error('更新订单状态失败:', error)
-        toast.add({ severity: 'error', summary: '错误', detail: '更新订单状态失败' })
+        toast.add({ severity: 'error', summary: '错误', detail: '更新订单状态失败', life: 1000 })
     }
 }
 
@@ -335,11 +335,11 @@ const confirmDeleteOrder = (order: Order) => {
 // 删除订单
 const deleteOrder = async (id: number) => {
     try {
-        toast.add({ severity: 'success', summary: '成功', detail: '删除订单成功' })
+        toast.add({ severity: 'success', summary: '成功', detail: '删除订单成功', life: 1000 })
         loadOrders()
     } catch (error) {
         console.error('删除订单失败:', error)
-        toast.add({ severity: 'error', summary: '错误', detail: '删除订单失败' })
+        toast.add({ severity: 'error', summary: '错误', detail: '删除订单失败', life: 1000 })
     }
 }
 
@@ -408,7 +408,7 @@ const formatDate = (date: Date | string) => {
 
 // 导出订单
 const exportOrders = () => {
-    toast.add({ severity: 'info', summary: '提示', detail: '导出功能开发中...' })
+    toast.add({ severity: 'info', summary: '提示', detail: '导出功能开发中...', life: 1000 })
 }
 
 // 组件挂载时加载数据

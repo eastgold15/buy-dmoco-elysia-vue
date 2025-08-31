@@ -581,7 +581,7 @@ const loadRefunds = async () => {
 		console.error('加载退款数据失败:', error)
 		refunds.value = []
 		total.value = 0
-		toast.add({ severity: 'error', summary: '错误', detail: '加载退款数据失败' })
+		toast.add({ severity: 'error', summary: '错误', detail: '加载退款数据失败', life: 1000 })
 	} finally {
 		loading.value = false
 	}

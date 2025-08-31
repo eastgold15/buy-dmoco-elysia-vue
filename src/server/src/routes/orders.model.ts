@@ -1,7 +1,6 @@
 
 import { t } from "elysia";
-import { DbType } from "../db/database.types";
-import { UnoQuery } from '../utils/common.model'
+import { UnoQuery } from '../utils/common.model';
 
 
 
@@ -9,8 +8,7 @@ export const ordersRouteModel = {
 	// 订单查询参数
 	ordersQuery: t.Object({
 		...UnoQuery.properties,
-		status: t.Optional(t.String()),
-		paymentStatus: t.Optional(t.String()),
+
 		customerEmail: t.Optional(t.String()),
 		orderNumber: t.Optional(t.String()),
 	}),

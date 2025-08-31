@@ -278,7 +278,7 @@ const loadUsers = async () => {
         console.error('加载用户失败:', error)
         users.value = []
         total.value = 0
-        toast.add({ severity: 'error', summary: '错误', detail: '加载用户失败' })
+        toast.add({ severity: 'error', summary: '错误', detail: '加载用户失败', life: 1000 })
     } finally {
         loading.value = false
     }
@@ -355,7 +355,7 @@ const closeDialog = () => {
 // 保存用户
 const saveUser = async () => {
     if (!isFormValid.value) {
-        toast.add({ severity: 'warn', summary: '警告', detail: '请填写必填字段' })
+        toast.add({ severity: 'warn', summary: '警告', detail: '请填写必填字段', life: 1000 })
         return
     }
 
@@ -364,17 +364,17 @@ const saveUser = async () => {
 
         if (editingUser.value) {
             // 更新
-            toast.add({ severity: 'success', summary: '成功', detail: '更新用户成功' })
+            toast.add({ severity: 'success', summary: '成功', detail: '更新用户成功', life: 1000 })
         } else {
             // 创建
-            toast.add({ severity: 'success', summary: '成功', detail: '创建用户成功' })
+            toast.add({ severity: 'success', summary: '成功', detail: '创建用户成功', life: 1000 })
         }
         
         closeDialog()
         loadUsers()
     } catch (error) {
         console.error('保存用户失败:', error)
-        toast.add({ severity: 'error', summary: '错误', detail: '保存用户失败' })
+        toast.add({ severity: 'error', summary: '错误', detail: '保存用户失败', life: 1000 })
     } finally {
         saving.value = false
     }
@@ -394,11 +394,11 @@ const confirmDelete = (user: User) => {
 // 删除用户
 const deleteUser = async (id: number) => {
     try {
-        toast.add({ severity: 'success', summary: '成功', detail: '删除用户成功' })
+        toast.add({ severity: 'success', summary: '成功', detail: '删除用户成功', life: 1000 })
         loadUsers()
     } catch (error) {
         console.error('删除用户失败:', error)
-        toast.add({ severity: 'error', summary: '错误', detail: '删除用户失败' })
+        toast.add({ severity: 'error', summary: '错误', detail: '删除用户失败', life: 1000 })
     }
 }
 
@@ -410,12 +410,13 @@ const toggleUserStatus = async (user: User) => {
         toast.add({
             severity: 'success',
             summary: '成功',
-            detail: `${newStatus === 'active' ? '启用' : '禁用'}用户成功`
+            detail: `${newStatus === 'active' ? '启用' : '禁用'}用户成功`,
+            life: 1000
         })
         loadUsers()
     } catch (error) {
         console.error('切换用户状态失败:', error)
-        toast.add({ severity: 'error', summary: '错误', detail: '切换用户状态失败' })
+        toast.add({ severity: 'error', summary: '错误', detail: '切换用户状态失败', life: 1000 })
     }
 }
 
@@ -429,10 +430,10 @@ const resetPassword = async (user: User) => {
             try {
                 // 模拟API调用
                 await new Promise(resolve => setTimeout(resolve, 500))
-                toast.add({ severity: 'success', summary: '成功', detail: '密码重置成功，新密码已发送到用户邮箱' })
+                toast.add({ severity: 'success', summary: '成功', detail: '密码重置成功，新密码已发送到用户邮箱', life: 1000 })
             } catch (error) {
                 console.error('重置密码失败:', error)
-                toast.add({ severity: 'error', summary: '错误', detail: '重置密码失败' })
+                toast.add({ severity: 'error', summary: '错误', detail: '重置密码失败', life: 1000 })
             }
         }
     })
@@ -511,7 +512,7 @@ const formatDate = (date: Date | string | null) => {
 
 // 导出用户
 const exportUsers = () => {
-    toast.add({ severity: 'info', summary: '提示', detail: '导出功能开发中...' })
+    toast.add({ severity: 'info', summary: '提示', detail: '导出功能开发中...', life: 1000 })
 }
 
 // 组件挂载时加载数据

@@ -51,7 +51,7 @@ export const imageRouteModel = {
 
 // 导出类型
 export type CreateImageDto = typeof imageRouteModel.CreateImageDto;
-export type UpdateImageDto = typeof imageRouteModel.UpdateImageDto;
+export type UpdateImageDto = typeof imageRouteModel.UpdateImageDto.static;
 export type ImageListQueryDto = typeof imageRouteModel.ImageListQueryDto;
 export type BatchDeleteImageDto = typeof imageRouteModel.BatchDeleteImageDto;
 export type PresignedUrlDto = typeof imageRouteModel.PresignedUrlDto;

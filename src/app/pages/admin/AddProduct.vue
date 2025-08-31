@@ -164,7 +164,7 @@ const triggerPublishProduct = () => {
 const onFormSubmit = async ({ valid, values }: { valid: boolean; values: any }) => {
 	console.log('表单数据:', values)
 	if (!valid) {
-		toast.add({ severity: 'warn', summary: '警告', detail: '请检查表单输入' })
+		toast.add({ severity: 'warn', summary: '警告', detail: '请检查表单输入', life: 1000 })
 		return
 	}
 
@@ -186,7 +186,7 @@ const onFormSubmit = async ({ valid, values }: { valid: boolean; values: any }) 
 					severity: 'success',
 					summary: '成功',
 					detail: '商品保存成功',
-					life: 3000
+					life: 1000
 				})
 
 				// 跳转到商品列表页面
@@ -200,7 +200,7 @@ const onFormSubmit = async ({ valid, values }: { valid: boolean; values: any }) 
 				severity: 'error',
 				summary: '错误',
 				detail: '保存商品失败，请重试',
-				life: 3000
+				life: 1000
 			})
 		} finally {
 			saving.value = false
@@ -214,7 +214,7 @@ const onFormSubmit = async ({ valid, values }: { valid: boolean; values: any }) 
 // 保存草稿
 const saveDraft = async ({ valid, values }: { valid: boolean; values: any }) => {
 	if (!valid) {
-		toast.add({ severity: 'warn', summary: '警告', detail: '请检查表单输入' })
+		toast.add({ severity: 'warn', summary: '警告', detail: '请检查表单输入', life: 1000 })
 		return
 	}
 
@@ -235,7 +235,7 @@ const saveDraft = async ({ valid, values }: { valid: boolean; values: any }) => 
 				severity: 'success',
 				summary: '成功',
 				detail: '草稿保存成功',
-				life: 3000
+				life: 1000
 			})
 
 			// 跳转到商品列表页面
@@ -249,7 +249,7 @@ const saveDraft = async ({ valid, values }: { valid: boolean; values: any }) => 
 			severity: 'error',
 			summary: '错误',
 			detail: '保存草稿失败，请重试',
-			life: 3000
+			life: 1000
 		})
 	} finally {
 		saving.value = false
@@ -259,7 +259,7 @@ const saveDraft = async ({ valid, values }: { valid: boolean; values: any }) => 
 // 发布商品
 const publishProduct = async ({ valid, values }: { valid: boolean; values: any }) => {
 	if (!valid) {
-		toast.add({ severity: 'warn', summary: '警告', detail: '请检查表单输入' })
+		toast.add({ severity: 'warn', summary: '警告', detail: '请检查表单输入', life: 1000 })
 		return
 	}
 
@@ -280,7 +280,7 @@ const publishProduct = async ({ valid, values }: { valid: boolean; values: any }
 				severity: 'success',
 				summary: '成功',
 				detail: '商品发布成功',
-				life: 3000
+				life: 1000
 			})
 
 			// 跳转到商品列表页面
@@ -294,7 +294,7 @@ const publishProduct = async ({ valid, values }: { valid: boolean; values: any }
 			severity: 'error',
 			summary: '错误',
 			detail: '发布商品失败，请重试',
-			life: 3000
+			life: 1000
 		})
 	} finally {
 		publishing.value = false
@@ -333,14 +333,14 @@ const onImageSelected = (imageUrl: string) => {
 			severity: 'success',
 			summary: '成功',
 			detail: '图片添加成功',
-			life: 3000
+			life: 1000
 		})
 	} else {
 		toast.add({
 			severity: 'warn',
 			summary: '提示',
 			detail: '图片已存在',
-			life: 3000
+			life: 1000
 		})
 	}
 	showImageSelector.value = false

@@ -77,10 +77,10 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 
 				// 状态筛选
 				if (status) {
-					conditions.push(eq(ordersSchema.status, status));
+					conditions.push(eq(ordersSchema.orderState, status));
 				}
 				if (paymentStatus) {
-					conditions.push(eq(ordersSchema.paymentStatus, paymentStatus));
+					conditions.push(eq(ordersSchema.paymentState, paymentStatus));
 				}
 				if (customerEmail) {
 					conditions.push(like(ordersSchema.customerEmail, `%${customerEmail}%`));
@@ -95,7 +95,7 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 					orderNumber: ordersSchema.orderNumber,
 					customerName: ordersSchema.customerName,
 					totalAmount: ordersSchema.totalAmount,
-					status: ordersSchema.status,
+					status: ordersSchema.orderState,
 					createdAt: ordersSchema.createdAt,
 					updatedAt: ordersSchema.updatedAt,
 				};
@@ -146,7 +146,7 @@ export const ordersRoute = new Elysia({ prefix: "orders", tags: ["Orders"] })
 			}
 		},
 		{
-			query: ordersRouteModel.ordersQuery,
+			query: "ordersQuery",
 			detail: {
 				tags: ["Orders"],
 				summary: "获取订单列表",
