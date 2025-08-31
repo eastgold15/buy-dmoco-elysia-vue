@@ -16,6 +16,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, onMounted, ref } from 'vue'
 import { client } from '@/share/useTreaty'
+import ImageSelector from '@/app/components/ImageSelector.vue'
 
 // 类型定义
 interface Partner {
@@ -53,6 +54,7 @@ const searchKeyword = ref('')
 const filterStatus = ref('all')
 const showCreateDialog = ref(false)
 const editingPartner = ref<Partner | null>(null)
+const showImageSelector = ref(false)
 
 // 表单数据
 const partnerForm = ref<PartnerForm>({
@@ -81,6 +83,22 @@ const isFormValid = computed(() => {
         partnerForm.value.description.trim() &&
         partnerForm.value.image.trim()
 })
+
+// 图片选择相关方法
+const openImageSelector = () => {
+    showImageSelector.value = true
+}
+
+const onImageSelected = (imageUrl: string, imageData: any) => {
+    partnerForm.value.image = imageUrl
+    showImageSelector.value = false
+    toast.add({
+        severity: 'success',
+        summary: '图片选择成功',
+        detail: `已选择图片: ${imageData.fileName}`,
+        life: 2000
+    })
+}
 
 // 方法
 const loadPartners = async () => {
@@ -512,8 +530,17 @@ onMounted(() => {
 
                 <div>
                     <label class="block text-sm font-medium mb-2">合作伙伴图片 *</label>
-                    <InputText v-model="partnerForm.image" placeholder="请输入图片URL" class="w-full"
-                        :class="{ 'p-invalid': !partnerForm.image }" />
+                    <div class="flex gap-2">
+                        <InputText v-model="partnerForm.image" placeholder="请输入图片URL" class="flex-1"
+                            :class="{ 'p-invalid': !partnerForm.image }" />
+                        <Button 
+                            icon="pi pi-images" 
+                            label="选择图片" 
+                            @click="openImageSelector" 
+                            class="p-button-outlined"
+                            v-tooltip="'从图片库选择'"
+                        />
+                    </div>
                     <div v-if="partnerForm.image" class="mt-2">
                         <img :src="partnerForm.image" :alt="partnerForm.name"
                             class="w-24 h-24 object-cover rounded-lg border border-gray-200" />
@@ -551,6 +578,13 @@ onMounted(() => {
 
         <!-- 删除确认对话框 -->
         <ConfirmDialog />
+
+        <!-- 图片选择器 -->
+        <ImageSelector 
+            v-model:visible="showImageSelector"
+            category="category"
+            @select="onImageSelected"
+        />
     </div>
 </template>
 
