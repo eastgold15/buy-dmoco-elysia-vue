@@ -13,17 +13,17 @@
 					<div>
 						<label class="block text-sm font-medium mb-2">广告类型</label>
 						<Select v-model="filters.type" :options="typeOptions" optionLabel="label" optionValue="value"
-						placeholder="选择类型" showClear @change="loadAdvertisements" class="w-full" />
+							placeholder="选择类型" showClear @change="loadAdvertisements" class="w-full" />
 					</div>
 					<div>
 						<label class="block text-sm font-medium mb-2">广告位置</label>
 						<Select v-model="filters.position" :options="positionOptions" optionLabel="label" optionValue="value"
-						placeholder="选择位置" showClear @change="loadAdvertisements" class="w-full" />
+							placeholder="选择位置" showClear @change="loadAdvertisements" class="w-full" />
 					</div>
 					<div>
 						<label class="block text-sm font-medium mb-2">状态</label>
 						<Select v-model="filters.isActive" :options="statusOptions" optionLabel="label" optionValue="value"
-						placeholder="选择状态" showClear @change="loadAdvertisements" class="w-full" />
+							placeholder="选择状态" showClear @change="loadAdvertisements" class="w-full" />
 					</div>
 					<div class="flex items-end">
 						<Button @click="resetFilters" icon="pi pi-refresh" label="重置" class="p-button-outlined" />
@@ -75,7 +75,7 @@
 									class="p-button-outlined p-button-info" v-tooltip="'编辑'" />
 								<Button @click="toggleStatus(data)" :icon="data.isActive ? 'pi pi-eye-slash' : 'pi pi-eye'" size="small"
 									:class="data.isActive ? 'p-button-outlined p-button-warning' : 'p-button-outlined p-button-success'"
-									:v-tooltip="data.isActive ? '禁用' : '启用'" />
+									v-tooltip="data.isActive ? '禁用' : '启用'" />
 								<Button @click="deleteAdvertisement(data)" icon="pi pi-trash" size="small"
 									class="p-button-outlined p-button-danger" v-tooltip="'删除'" />
 							</div>
@@ -88,8 +88,7 @@
 		<!-- 创建/编辑对话框 -->
 		<Dialog v-model:visible="showCreateDialog" :header="editingAdvertisement ? '编辑广告' : '新增广告'" modal
 			class="w-full max-w-2xl" @hide="closeDialog">
-			<Form ref="formRef" :resolver="formResolver" :default-values="initialValues" @submit="onFormSubmit"
-				class="space-y-4">
+			<Form ref="formRef" :resolver="formResolver" :initialValues @submit="onFormSubmit" class="space-y-4">
 				<!-- 基本信息 -->
 				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<FormField v-slot="$field" name="title" :resolver="titleResolver" class="flex flex-col gap-1">
@@ -137,8 +136,8 @@
 							<div class="flex gap-2 justify-center">
 								<Button @click="openImageSelector" icon="pi pi-pencil" label="更换图片"
 									class="p-button-outlined p-button-info" size="small" />
-								<Button @click="$field.onChange('')" icon="pi pi-times" label="移除图片"
-									class="p-button-outlined p-button-danger" size="small" />
+								<Button @click="removeImage" icon="pi pi-times" label="移除图片" class="p-button-outlined p-button-danger"
+									size="small" />
 							</div>
 						</div>
 						<div v-else class="text-center">
@@ -194,6 +193,9 @@
 
 		<!-- 图片选择器 -->
 		<ImageSelector v-model:visible="showImageSelector" category="carousel" @select="onImageSelected" />
+
+		<!-- 确认对话框 -->
+		<ConfirmDialog />
 	</div>
 </template>
 
@@ -207,6 +209,7 @@ import Button from "primevue/button";
 import Card from "primevue/card";
 import Checkbox from "primevue/checkbox";
 import Column from "primevue/column";
+import ConfirmDialog from "primevue/confirmdialog";
 import DataTable from "primevue/datatable";
 import DatePicker from "primevue/datepicker";
 import Dialog from "primevue/dialog";
@@ -223,6 +226,9 @@ import type {
 	Advertisement,
 	AdvertisementQuery
 } from "../../types/advertisement";
+
+
+
 
 // 组合式API
 const toast = useToast();
@@ -249,7 +255,7 @@ const filters = reactive<AdvertisementQuery>({
 	isActive: undefined,
 });
 
-// 表单初始值
+// 表单数据
 const initialValues = reactive({
 	title: "",
 	type: "carousel",
@@ -297,6 +303,14 @@ const statusOptions = [
 	{ label: "禁用", value: false },
 ];
 
+const removeImage = () => {
+	initialValues.image = ''; // 直接清空
+	formRef.value.setFieldValue('image', '');
+}
+
+
+
+
 // 方法
 /**
  * 加载广告列表
@@ -312,8 +326,9 @@ const loadAdvertisements = async () => {
 			isActive: filters.isActive !== undefined ? filters.isActive : undefined
 		};
 
-
+		console.log('Loading advertisements with params:', params);
 		const res = await handleApiRes(client.api.advertisements.get({ query: params }))
+		console.log('API response:', res);
 		if (!res) {
 			advertisements.value = [];
 			total.value = 0;
@@ -384,6 +399,28 @@ const getPositionLabel = (position?: string) => {
 	);
 };
 
+
+
+/**
+ * 关闭对话框
+ */
+const closeDialog = () => {
+	showCreateDialog.value = false;
+	editingAdvertisement.value = null;
+	// 重置表单初始值
+	Object.assign(initialValues, {
+		title: "",
+		type: "carousel",
+		image: "",
+		link: "",
+		position: "",
+		sortOrder: 0,
+		isActive: true,
+		startDate: null,
+		endDate: null,
+	});
+};
+
 /**
  * 编辑广告
  */
@@ -401,6 +438,7 @@ const editAdvertisement = (advertisement: Advertisement) => {
 		startDate: advertisement.startDate ? new Date(advertisement.startDate) : null,
 		endDate: advertisement.endDate ? new Date(advertisement.endDate) : null,
 	});
+	console.log("aaaa", initialValues)
 	showCreateDialog.value = true;
 };
 
@@ -581,25 +619,6 @@ const showCreateDialogHandler = () => {
 	showCreateDialog.value = true;
 };
 
-/**
- * 关闭对话框
- */
-const closeDialog = () => {
-	showCreateDialog.value = false;
-	editingAdvertisement.value = null;
-	// 重置表单初始值
-	Object.assign(initialValues, {
-		title: "",
-		type: "carousel",
-		image: "",
-		link: "",
-		position: "",
-		sortOrder: 0,
-		isActive: true,
-		startDate: null,
-		endDate: null,
-	});
-};
 
 
 
