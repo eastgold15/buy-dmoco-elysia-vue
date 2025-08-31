@@ -14,94 +14,65 @@ import {
 import App from "@/app/App.vue";
 import "primeicons/primeicons.css";
 import "virtual:uno.css";
-import AdminLayout from "./layouts/AdminLayout.vue";
-// 布局组件
-import ClientLayout from "./layouts/ClientLayout.vue";
-import AuthCallback from "./pages/AuthCallback.vue";
-import AddProduct from "./pages/admin/AddProduct.vue";
-import AdminsManagement from "./pages/admin/AdminsManagement.vue";
-import AdvertisementManagement from "./pages/admin/AdvertisementManagement.vue";
-import CategoryManagement from "./pages/admin/CategoryManagement.vue";
-// 管理端页面
-import Dashboard from "./pages/admin/Dashboard.vue";
-import ImageManager from "./pages/admin/ImageManager.vue";
-import OrdersManagement from "./pages/admin/OrdersManagement.vue";
-import PartnersManagement from "./pages/admin/PartnersManagement.vue";
-import PaymentSettings from "./pages/admin/PaymentSettings.vue";
-import ProductsManagement from "./pages/admin/ProductsManagement.vue";
-import RefundsManagement from "./pages/admin/RefundsManagement.vue";
-import SalesReports from "./pages/admin/SalesReports.vue";
-import ShippingSettings from "./pages/admin/ShippingSettings.vue";
-import SiteConfig from "./pages/admin/SiteConfig.vue";
-import UsersManagement from "./pages/admin/UsersManagement.vue";
-import UsersReports from "./pages/admin/UsersReports.vue";
-import Home from "./pages/Home.vue";
-import TestToast from "./pages/admin/TestToast.vue";
-// 用户端页面
-import Index from "./pages/index.vue";
-import Login from "./pages/Login.vue";
-import ProductDetail from "./pages/ProductDetail.vue";
-import Register from "./pages/Register.vue";
-import Search from "./pages/Search.vue";
-import CountView from "./pages/test.vue";
+// 组件将通过 unplugin-vue-components 自动导入，无需手动导入
 export const createApp = async () => {
 	const app = createSSRApp(App);
 	const router = createRouter({
 		history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),
 		routes: [
-			// 用户端路由（使用ClientLayout布局）
+			// 首页重定向
 			{
 				path: "/",
-				component: Index,
+				redirect: "/home",
 			},
 			// 登录页面（无布局）
 			{
 				path: "/login",
 				name: "login",
-				component: Login,
+				component: () => import("./pages/Login.vue"),
 			},
 			// 注册页面（无布局）
 			{
 				path: "/register",
 				name: "register",
-				component: Register,
+				component: () => import("./pages/Register.vue"),
 			},
 			// OAuth 回调页面（无布局）
 			{
 				path: "/auth/callback",
 				name: "auth-callback",
-				component: AuthCallback,
+				component: () => import("./pages/AuthCallback.vue"),
 			},
 			{
 				path: "/",
-				component: ClientLayout,
+				component: () => import("./layouts/ClientLayout.vue"),
 				children: [
 					{
 						path: "home",
 						name: "home",
-						component: Home,
+						component: () => import("./pages/Home.vue"),
 					},
 					{
 						path: "counter",
 						name: "counter",
-						component: CountView,
+						component: () => import("./pages/test.vue"),
 					},
 					{
 						path: "product/:id",
 						name: "product-detail",
-						component: ProductDetail,
+						component: () => import("./pages/ProductDetail.vue"),
 					},
 					{
 						path: "search",
 						name: "search",
-						component: Search,
+						component: () => import("./pages/Search.vue"),
 					},
 				],
 			},
 			// 管理端路由（使用AdminLayout布局）
 			{
 				path: "/admin",
-				component: AdminLayout,
+				component: () => import("./layouts/AdminLayout.vue"),
 				children: [
 					{
 						path: "",
@@ -110,88 +81,88 @@ export const createApp = async () => {
 					{
 						path: "dashboard",
 						name: "dashboard",
-						component: Dashboard,
+						component: () => import("./pages/admin/Dashboard.vue"),
 					},
 					{
 						path: "TestToast",
 						name: "TestToast",
-						component: TestToast,
+						component: () => import("./pages/admin/TestToast.vue"),
 					},
 					{
 						path: "products",
 						name: "products-management",
-						component: ProductsManagement,
+						component: () => import("./pages/admin/ProductsManagement.vue"),
 					},
 					{
 						path: "products/add",
 						name: "add-product",
-						component: AddProduct,
+						component: () => import("./pages/admin/AddProduct.vue"),
 					},
 					{
 						path: "orders",
 						name: "orders-management",
-						component: OrdersManagement,
+						component: () => import("./pages/admin/OrdersManagement.vue"),
 					},
 					{
 						path: "refunds",
 						name: "refunds-management",
-						component: RefundsManagement,
+						component: () => import("./pages/admin/RefundsManagement.vue"),
 					},
 					{
 						path: "users",
 						name: "users-management",
-						component: UsersManagement,
+						component: () => import("./pages/admin/UsersManagement.vue"),
 					},
 					{
 						path: "admins",
 						name: "admins-management",
-						component: AdminsManagement,
+						component: () => import("./pages/admin/AdminsManagement.vue"),
 					},
 					{
 						path: "categories",
 						name: "category-management",
-						component: CategoryManagement,
+						component: () => import("./pages/admin/CategoryManagement.vue"),
 					},
 					{
 						path: "partners",
 						name: "partners-management",
-						component: PartnersManagement,
+						component: () => import("./pages/admin/PartnersManagement.vue"),
 					},
 					{
 						path: "settings",
 						name: "site-config",
-						component: SiteConfig,
+						component: () => import("./pages/admin/SiteConfig.vue"),
 					},
 
 					{
 						path: "advertisements",
 						name: "admin-advertisements",
-						component: AdvertisementManagement,
+						component: () => import("./pages/admin/AdvertisementManagement.vue"),
 					},
 					{
 						path: "images",
 						name: "image-manager",
-						component: ImageManager,
+						component: () => import("./pages/admin/ImageManager.vue"),
 					},
 					{
 						path: "payment-settings",
 						name: "payment-settings",
-						component: PaymentSettings,
+						component: () => import("./pages/admin/PaymentSettings.vue"),
 					},
 					{
 						path: "shipping-settings",
 						name: "shipping-settings",
-						component: ShippingSettings,
+						component: () => import("./pages/admin/ShippingSettings.vue"),
 					},
 					{
 						path: "sales-reports",
 						name: "sales-reports",
-						component: SalesReports,
+						component: () => import("./pages/admin/SalesReports.vue"),
 					},
 					{
 						path: "users-reports",
 						name: "users-reports",
-						component: UsersReports,
+						component: () => import("./pages/admin/UsersReports.vue"),
 					},
 				],
 			},

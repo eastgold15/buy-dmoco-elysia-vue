@@ -3,6 +3,9 @@
     <div class="bg-white rounded-lg shadow-sm p-6">
       <h1 class="text-2xl font-bold mb-6">Toast 测试页面</h1>
       
+      <!-- 测试组件自动导入 -->
+      <TestComponent />
+      
       <div class="space-y-4">
         <div class="grid grid-cols-2 gap-4">
           <!-- 成功消息 -->
