@@ -7,7 +7,6 @@ import ConfirmDialog from 'primevue/confirmdialog'
 import DataTable from 'primevue/datatable'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
-import FileUpload from 'primevue/fileupload'
 import Image from 'primevue/image'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
@@ -22,6 +21,7 @@ import { useRouter } from 'vue-router'
 import type { Category } from '@/app/types/category'
 import type { Product, ProductForm } from '@/app/types/product'
 import { client } from '@/share/useTreaty'
+import ImageSelector from '@/app/components/ImageSelector.vue'
 
 
 
@@ -45,6 +45,7 @@ const filterCategory = ref<number | null>(null)
 const filterStatus = ref('all')
 const showCreateDialog = ref(false)
 const editingProduct = ref<Product | null>(null)
+const showImageSelector = ref(false)
 
 // 表单数据
 const productForm = ref<ProductForm>({
@@ -432,29 +433,25 @@ const formatDate = (date: Date | string) => {
     })
 }
 
-// 图片上传处理
-const onImageUpload = (event: any) => {
-    const files = event.files
-    if (files && files.length > 0) {
-
-        // 暂时将图片URL添加到productForm.images数组中
-        files.forEach((file: File) => {
-            const reader = new FileReader()
-            reader.onload = (e) => {
-                if (e.target?.result) {
-                    productForm.value.images.push(e.target.result as string)
-                }
-            }
-            reader.readAsDataURL(file)
-        })
-
-        toast.add({ severity: 'success', summary: '成功', detail: '图片上传成功' })
-    }
+// 打开图片选择器
+const openImageSelector = () => {
+    showImageSelector.value = true
 }
 
-// 图片移除处理
-const onImageRemove = (event: any) => {
-    // 处理图片移除逻辑
+// 处理图片选择
+const onImageSelected = (imageUrl: string) => {
+    if (!productForm.value.images.includes(imageUrl)) {
+        productForm.value.images.push(imageUrl)
+        toast.add({ severity: 'success', summary: '成功', detail: '图片添加成功' })
+    } else {
+        toast.add({ severity: 'warn', summary: '提示', detail: '图片已存在' })
+    }
+    showImageSelector.value = false
+}
+
+// 移除图片
+const removeImage = (index: number) => {
+    productForm.value.images.splice(index, 1)
     toast.add({ severity: 'info', summary: '提示', detail: '图片已移除' })
 }
 
@@ -708,34 +705,28 @@ const goToAddProduct = () => {
                     <!-- 商品图片 -->
                     <div class="field col-span-2">
                         <label class="block text-sm font-medium mb-2">商品图片</label>
-                        <FileUpload mode="advanced" name="images" accept="image/*" :maxFileSize="5000000"
-                            :multiple="true" :fileLimit="5" chooseLabel="选择图片" uploadLabel="上传" cancelLabel="取消"
-                            @upload="onImageUpload" @remove="onImageRemove" class="w-full">
-                            <template
-                                #content="{ files, uploadedFiles, removeUploadedFileCallback, removeFileCallback }">
-                                <div v-if="files.length > 0 || uploadedFiles.length > 0">
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                                        <!-- 已上传的图片 -->
-                                        <div v-for="(file, index) in uploadedFiles" :key="'uploaded-' + index"
-                                            class="relative">
-                                            <img :src="file.objectURL || file.url" :alt="file.name"
-                                                class="w-full h-24 object-cover rounded border" />
-                                            <Button icon="pi pi-times"
-                                                class="p-button-rounded p-button-danger p-button-text absolute -top-2 -right-2"
-                                                @click="removeUploadedFileCallback(index)" />
-                                        </div>
-                                        <!-- 待上传的图片 -->
-                                        <div v-for="(file, index) in files" :key="'pending-' + index" class="relative">
-                                            <img :src="file.objectURL" :alt="file.name"
-                                                class="w-full h-24 object-cover rounded border" />
-                                            <Button icon="pi pi-times"
-                                                class="p-button-rounded p-button-danger p-button-text absolute -top-2 -right-2"
-                                                @click="removeFileCallback(index)" />
-                                        </div>
-                                    </div>
+                        <div class="space-y-4">
+                            <!-- 添加图片按钮 -->
+                            <Button label="选择图片" icon="pi pi-plus" @click="openImageSelector"
+                                class="p-button-outlined w-full" v-tooltip="'从图片库中选择图片'" />
+
+                            <!-- 已选择的图片展示 -->
+                            <div v-if="productForm.images.length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div v-for="(imageUrl, index) in productForm.images" :key="index" class="relative">
+                                    <img :src="imageUrl" :alt="`商品图片 ${index + 1}`"
+                                        class="w-full h-24 object-cover rounded border" />
+                                    <Button icon="pi pi-times"
+                                        class="p-button-rounded p-button-danger p-button-text absolute -top-2 -right-2"
+                                        @click="removeImage(index)" v-tooltip="'移除图片'" />
                                 </div>
-                            </template>
-                        </FileUpload>
+                            </div>
+
+                            <!-- 空状态提示 -->
+                            <div v-else class="text-center py-8 text-gray-500">
+                                <i class="pi pi-image text-4xl mb-2"></i>
+                                <p>暂无图片，点击上方按钮选择图片</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex gap-6">
@@ -762,6 +753,9 @@ const goToAddProduct = () => {
 
         <!-- 确认对话框 -->
         <ConfirmDialog />
+
+        <!-- 图片选择器 -->
+        <ImageSelector v-model:visible="showImageSelector" category="products" @select="onImageSelected" />
     </div>
 </template>
 
