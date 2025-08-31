@@ -12,18 +12,18 @@
 				<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 					<div>
 						<label class="block text-sm font-medium mb-2">广告类型</label>
-						<Dropdown v-model="filters.type" :options="typeOptions" optionLabel="label" optionValue="value"
-							placeholder="选择类型" showClear @change="loadAdvertisements" class="w-full" />
+						<Select v-model="filters.type" :options="typeOptions" optionLabel="label" optionValue="value"
+						placeholder="选择类型" showClear @change="loadAdvertisements" class="w-full" />
 					</div>
 					<div>
 						<label class="block text-sm font-medium mb-2">广告位置</label>
-						<Dropdown v-model="filters.position" :options="positionOptions" optionLabel="label" optionValue="value"
-							placeholder="选择位置" showClear @change="loadAdvertisements" class="w-full" />
+						<Select v-model="filters.position" :options="positionOptions" optionLabel="label" optionValue="value"
+						placeholder="选择位置" showClear @change="loadAdvertisements" class="w-full" />
 					</div>
 					<div>
 						<label class="block text-sm font-medium mb-2">状态</label>
-						<Dropdown v-model="filters.isActive" :options="statusOptions" optionLabel="label" optionValue="value"
-							placeholder="选择状态" showClear @change="loadAdvertisements" class="w-full" />
+						<Select v-model="filters.isActive" :options="statusOptions" optionLabel="label" optionValue="value"
+						placeholder="选择状态" showClear @change="loadAdvertisements" class="w-full" />
 					</div>
 					<div class="flex items-end">
 						<Button @click="resetFilters" icon="pi pi-refresh" label="重置" class="p-button-outlined" />

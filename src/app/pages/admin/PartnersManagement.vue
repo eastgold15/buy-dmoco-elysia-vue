@@ -404,7 +404,7 @@ onMounted(() => {
                 </div>
                 <div class="flex gap-3">
                     <InputText v-model="searchKeyword" placeholder="搜索合作伙伴名称..." class="w-64" @input="handleSearch" />
-                    <Dropdown v-model="filterStatus" :options="statusOptions" optionLabel="label" optionValue="value"
+                    <Select v-model="filterStatus" :options="statusOptions" optionLabel="label" optionValue="value"
                         placeholder="筛选状态" class="w-32" @change="handleFilter" />
                 </div>
             </div>

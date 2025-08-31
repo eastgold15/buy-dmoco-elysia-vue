@@ -481,9 +481,9 @@ onMounted(() => {
                 </div>
                 <div class="flex gap-3">
                     <InputText v-model="searchKeyword" placeholder="搜索订单号或用户..." class="w-64" @input="handleSearch" />
-                    <Dropdown v-model="filterStatus" :options="statusOptions" optionLabel="label" optionValue="value"
+                    <Select v-model="filterStatus" :options="statusOptions" optionLabel="label" optionValue="value"
                         placeholder="筛选状态" class="w-32" @change="handleFilter" />
-                    <Dropdown v-model="filterPaymentStatus" :options="paymentStatusOptions" optionLabel="label" optionValue="value"
+                    <Select v-model="filterPaymentStatus" :options="paymentStatusOptions" optionLabel="label" optionValue="value"
                         placeholder="支付状态" class="w-32" @change="handleFilter" />
                     <Calendar v-model="filterDateRange" selectionMode="range" placeholder="选择日期范围" 
                         class="w-48" @date-select="handleFilter" showIcon />
@@ -739,7 +739,7 @@ onMounted(() => {
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium mb-2">订单状态</label>
-                    <Dropdown v-model="newStatus" :options="orderStatusOptions" optionLabel="label" 
+                    <Select v-model="newStatus" :options="orderStatusOptions" optionLabel="label" 
                         optionValue="value" placeholder="选择状态" class="w-full" />
                 </div>
                 <div>

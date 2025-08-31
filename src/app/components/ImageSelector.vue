@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
-import Dropdown from 'primevue/dropdown';
+import Select from 'primevue/select';
 import InputText from 'primevue/inputtext';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
@@ -196,41 +196,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <Dialog
-    :visible="visible"
-    @update:visible="emit('update:visible', $event)"
-    :modal="true"
-    :closable="true"
-    :draggable="false"
-    class="image-selector-dialog"
-    header="选择图片"
-    :style="{ width: '90vw', maxWidth: '1200px' }"
-  >
+  <Dialog :visible="visible" @update:visible="emit('update:visible', $event)" :modal="true" :closable="true"
+    :draggable="false" class="image-selector-dialog" header="选择图片" :style="{ width: '90vw', maxWidth: '1200px' }">
     <div class="image-selector">
       <!-- 搜索和筛选工具栏 -->
       <div class="toolbar">
         <div class="toolbar-left">
           <!-- 分类筛选 -->
-          <Dropdown
-            v-model="selectedCategory"
-            :options="categoryOptions"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="选择分类"
-            class="category-filter"
-            @change="filterByCategory"
-          />
+          <Select v-model="selectedCategory" :options="categoryOptions" optionLabel="label" optionValue="value"
+            placeholder="选择分类" class="category-filter" @change="filterByCategory" />
 
           <!-- 搜索框 -->
           <InputGroup class="search-box">
             <InputGroupAddon>
               <i class="pi pi-search" />
             </InputGroupAddon>
-            <InputText
-              v-model="searchQuery"
-              placeholder="搜索图片..."
-              @input="searchImages"
-            />
+            <InputText v-model="searchQuery" placeholder="搜索图片..." @input="searchImages" />
           </InputGroup>
         </div>
       </div>
@@ -249,29 +230,14 @@ onMounted(() => {
         </div>
 
         <div v-else class="images-grid">
-          <div
-            v-for="image in paginatedImages"
-            :key="image.id"
-            class="image-card"
-            :class="{ 'hovered': hoveredImage === image.id }"
-            @mouseenter="hoveredImage = image.id"
-            @mouseleave="hoveredImage = null"
-            @click="selectImage(image)"
-          >
+          <div v-for="image in paginatedImages" :key="image.id" class="image-card"
+            :class="{ 'hovered': hoveredImage === image.id }" @mouseenter="hoveredImage = image.id"
+            @mouseleave="hoveredImage = null" @click="selectImage(image)">
             <!-- 图片预览 -->
             <div class="image-preview">
-              <img
-                :src="getImageUrl(image.url)"
-                :alt="image.fileName"
-                class="preview-img"
-                loading="lazy"
-              />
+              <img :src="getImageUrl(image.url)" :alt="image.fileName" class="preview-img" loading="lazy" />
               <div class="image-overlay">
-                <Button
-                  icon="pi pi-check"
-                  class="p-button-rounded p-button-sm p-button-success"
-                  label="选择"
-                />
+                <Button icon="pi pi-check" class="p-button-rounded p-button-sm p-button-success" label="选择" />
               </div>
             </div>
 
@@ -292,23 +258,13 @@ onMounted(() => {
 
       <!-- 分页 -->
       <div v-if="totalPages > 1" class="pagination-container">
-        <Paginator
-          v-model:first="first"
-          :rows="pageSize"
-          :totalRecords="filteredImages.length"
-          :rowsPerPageOptions="[12, 24, 48]"
-          @page="onPageChange"
-        />
+        <Paginator v-model:first="first" :rows="pageSize" :totalRecords="filteredImages.length"
+          :rowsPerPageOptions="[12, 24, 48]" @page="onPageChange" />
       </div>
     </div>
 
     <template #footer>
-      <Button
-        label="取消"
-        icon="pi pi-times"
-        @click="closeDialog"
-        class="p-button-text"
-      />
+      <Button label="取消" icon="pi pi-times" @click="closeDialog" class="p-button-text" />
     </template>
   </Dialog>
 </template>

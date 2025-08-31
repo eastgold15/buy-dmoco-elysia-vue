@@ -491,9 +491,9 @@ const goToAddProduct = () => {
                 <div class="flex gap-3">
                     <InputText v-model="searchKeyword" placeholder="搜索商品名称或SKU..." class="w-64"
                         @update:modelValue="handleSearch" />
-                    <Dropdown v-model="filterCategory" :options="categoryOptions" optionLabel="label"
-                        optionValue="value" placeholder="筛选分类" class="w-32" @change="handleFilter" showClear />
-                    <Dropdown v-model="filterStatus" :options="statusOptions" optionLabel="label" optionValue="value"
+                    <Select v-model="filterCategory" :options="categoryOptions" optionLabel="label" optionValue="value"
+                        placeholder="筛选分类" class="w-32" @change="handleFilter" showClear />
+                    <Select v-model="filterStatus" :options="statusOptions" optionLabel="label" optionValue="value"
                         placeholder="筛选状态" class="w-32" @change="handleFilter" />
                 </div>
             </div>
@@ -633,8 +633,8 @@ const goToAddProduct = () => {
 
                             <div>
                                 <label class="block text-sm font-medium mb-2 text-red-700">商品分类 *</label>
-                                <Dropdown v-model="productForm.categoryId" :options="categoryOptions"
-                                    optionLabel="label" optionValue="value" placeholder="请选择分类" class="w-full"
+                                <Select v-model="productForm.categoryId" :options="categoryOptions" optionLabel="label"
+                                    optionValue="value" placeholder="请选择分类" class="w-full"
                                     :class="{ 'p-invalid': !productForm.categoryId }" />
                             </div>
                         </div>

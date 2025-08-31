@@ -73,7 +73,7 @@
 						</div>
 						<div>
 							<label class="block text-sm font-medium text-gray-700 mb-2">环境设置</label>
-							<Dropdown 
+							<Select 
 								v-model="paymentSettings.alipay.environment" 
 								:options="environmentOptions" 
 								optionLabel="label" 
@@ -213,7 +213,7 @@
 						</div>
 						<div>
 							<label class="block text-sm font-medium text-gray-700 mb-2">环境设置</label>
-							<Dropdown 
+							<Select 
 								v-model="paymentSettings.paypal.environment" 
 								:options="environmentOptions" 
 								optionLabel="label" 
@@ -271,7 +271,7 @@
 					<div class="space-y-4" :class="{ 'opacity-50': !paymentSettings.bankCard.enabled }">
 						<div>
 							<label class="block text-sm font-medium text-gray-700 mb-2">支付网关</label>
-							<Dropdown 
+							<Select 
 								v-model="paymentSettings.bankCard.gateway" 
 								:options="gatewayOptions" 
 								optionLabel="label" 
@@ -343,7 +343,7 @@
 					<!-- 默认货币 -->
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-2">默认货币</label>
-						<Dropdown 
+						<Select 
 							v-model="paymentSettings.general.defaultCurrency" 
 							:options="currencyOptions" 
 							optionLabel="label" 

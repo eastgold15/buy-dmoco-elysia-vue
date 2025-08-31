@@ -579,9 +579,9 @@ onMounted(() => {
                 </div>
                 <div class="flex gap-3">
                     <InputText v-model="searchKeyword" placeholder="搜索用户名、昵称或邮箱..." class="w-64" @input="handleSearch" />
-                    <Dropdown v-model="filterStatus" :options="statusOptions" optionLabel="label" optionValue="value"
+                    <Select v-model="filterStatus" :options="statusOptions" optionLabel="label" optionValue="value"
                         placeholder="筛选状态" class="w-32" @change="handleFilter" />
-                    <Dropdown v-model="filterLevel" :options="levelOptions" optionLabel="label" optionValue="value"
+                    <Select v-model="filterLevel" :options="levelOptions" optionLabel="label" optionValue="value"
                         placeholder="筛选等级" class="w-32" @change="handleFilter" />
                     <Calendar v-model="filterDateRange" selectionMode="range" placeholder="注册日期范围" 
                         class="w-48" @date-select="handleFilter" showIcon />
@@ -749,7 +749,7 @@ onMounted(() => {
 
                     <div>
                         <label class="block text-sm font-medium mb-2">性别</label>
-                        <Dropdown v-model="userForm.gender" :options="genderOptions" optionLabel="label" 
+                        <Select v-model="userForm.gender" :options="genderOptions" optionLabel="label" 
                             optionValue="value" placeholder="选择性别" class="w-full" />
                     </div>
                 </div>
@@ -762,13 +762,13 @@ onMounted(() => {
 
                     <div>
                         <label class="block text-sm font-medium mb-2">用户状态</label>
-                        <Dropdown v-model="userForm.status" :options="userStatusOptions" optionLabel="label" 
+                        <Select v-model="userForm.status" :options="userStatusOptions" optionLabel="label" 
                             optionValue="value" placeholder="选择状态" class="w-full" />
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium mb-2">用户等级</label>
-                        <Dropdown v-model="userForm.level" :options="userLevelOptions" optionLabel="label" 
+                        <Select v-model="userForm.level" :options="userLevelOptions" optionLabel="label" 
                             optionValue="value" placeholder="选择等级" class="w-full" />
                     </div>
 
@@ -786,7 +786,7 @@ onMounted(() => {
 
                     <div>
                         <label class="block text-sm font-medium mb-2">用户标签</label>
-                        <Dropdown v-model="userForm.tags" :options="tagOptions" optionLabel="label" 
+                        <Select v-model="userForm.tags" :options="tagOptions" optionLabel="label" 
                             optionValue="value" placeholder="选择标签" class="w-full" multiple />
                     </div>
 

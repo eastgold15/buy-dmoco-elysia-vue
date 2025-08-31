@@ -39,7 +39,7 @@
 					<!-- 退款状态筛选 -->
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-2">退款状态</label>
-						<Dropdown 
+						<Select 
 							v-model="filterStatus" 
 							:options="statusOptions" 
 							optionLabel="label" 
@@ -54,7 +54,7 @@
 					<!-- 退款类型筛选 -->
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-2">退款类型</label>
-						<Dropdown 
+						<Select 
 							v-model="filterType" 
 							:options="typeOptions" 
 							optionLabel="label" 

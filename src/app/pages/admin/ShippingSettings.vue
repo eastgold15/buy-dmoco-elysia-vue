@@ -420,7 +420,7 @@
 					<!-- 默认重量单位 -->
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-2">默认重量单位</label>
-						<Dropdown 
+						<Select 
 							v-model="shippingSettings.general.weightUnit" 
 							:options="weightUnitOptions" 
 							optionLabel="label" 
@@ -433,7 +433,7 @@
 					<!-- 默认尺寸单位 -->
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-2">默认尺寸单位</label>
-						<Dropdown 
+						<Select 
 							v-model="shippingSettings.general.dimensionUnit" 
 							:options="dimensionUnitOptions" 
 							optionLabel="label" 

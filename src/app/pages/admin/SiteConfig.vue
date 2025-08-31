@@ -40,7 +40,7 @@
               <label for="currency" class="block text-sm font-medium text-gray-700 mb-2">
                 货币单位
               </label>
-              <Dropdown id="currency" v-model="configs.currency" :options="currencyOptions" optionLabel="label"
+              <Select id="currency" v-model="configs.currency" :options="currencyOptions" optionLabel="label"
                 optionValue="value" placeholder="选择货币单位" class="w-full" />
             </div>
           </div>
