@@ -13,6 +13,7 @@ export async function handleApiRes<T>(apiPromise: Promise<{
 
   try {
     const response = await apiPromise;
+    console.log('response', response);
     if (response.status !== 200) {
       throw new Error(response.message || '请求失败');
     }

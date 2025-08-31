@@ -25,6 +25,19 @@ export const productsRoute = new Elysia({
 						}
 					} else {
 						body.parentId = parseInt(body.parentId.toString(), 10);
+
+					}
+				}
+				if (body.categoryId) {
+					if (typeof body.categoryId === "object" && body.categoryId !== null) {
+						// 从对象中提取第一个key作为parentId
+						const keys = Object.keys(body.categoryId);
+						if (!keys[0]) return
+						if (keys.length > 0) {
+							body.categoryId = parseInt(keys[0], 10);
+						}
+					} else {
+						body.categoryId = parseInt(body.categoryId.toString(), 10);
 					}
 				}
 
@@ -279,7 +292,7 @@ export const productsRoute = new Elysia({
 					.limit(1);
 
 				if (!dbProduct) {
-					return status(404, "商品不存在");
+					return commonRes(null, 404, "商品不存在");
 				}
 
 				return commonRes(dbProduct, 200);
