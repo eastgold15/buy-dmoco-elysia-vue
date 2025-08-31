@@ -10,6 +10,8 @@ export const advertisementsModel = {
 		["id", "createdAt", "updatedAt"]
 	),
 
+
+
 	// 更新广告请求参数
 	UpdateAdvertisementDto: t.Object({
 		...DbType.spreads.insert.advertisementsSchema,
@@ -19,7 +21,7 @@ export const advertisementsModel = {
 	UpdateSortRequest: t.Object({
 		sortOrder: t.Number(),
 	}),
-	
+
 	// 广告列表查询参数
 	AdvertisementListQueryDto: t.Object({
 		...UnoQuery.properties,

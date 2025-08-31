@@ -1,15 +1,12 @@
 // 前端广告相关类型定义
 
-// 广告类型枚举
-export type AdvertisementType = "banner" | "carousel";
+// 广告类型枚举 - 只有轮播图
+export type AdvertisementType = "carousel";
 
-// 广告位置枚举
+// 广告位置枚举 - 只有首页轮播和分类页顶部
 export type AdvertisementPosition =
 	| "home-hero"
-	| "home-banner"
-	| "product-detail"
-	| "category-top"
-	| "sidebar";
+	| "category-top";
 
 // 广告基础信息
 export interface Advertisement {
@@ -69,29 +66,6 @@ export interface AdvertisementListResponse {
 	error?: string;
 }
 
-// 文件上传响应
-export interface FileUploadResponse {
-	success: boolean;
-	data?: {
-		filename: string;
-		url: string;
-		size: number;
-	};
-	message?: string;
-	error?: string;
-}
 
-// 广告位置选项
-export const ADVERTISEMENT_POSITIONS = [
-	{ label: "首页轮播", value: "home-hero" },
-	{ label: "首页横幅", value: "home-banner" },
-	{ label: "商品详情页", value: "product-detail" },
-	{ label: "分类页顶部", value: "category-top" },
-	{ label: "侧边栏", value: "sidebar" },
-] as const;
 
-// 广告类型选项
-export const ADVERTISEMENT_TYPES = [
-	{ label: "轮播图", value: "carousel" },
-	{ label: "Banner横幅", value: "banner" },
-] as const;
+

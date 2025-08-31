@@ -155,7 +155,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="w-full h-full">
+	<div class="container h-full">
 		<!-- 网站头部 -->
 		<header class="w-full">
 			<!-- 顶部信息栏 -->
@@ -169,30 +169,29 @@ onMounted(() => {
 				</div>
 			</div>
 
-			<!-- 主要头部区域 -->
+
 			<div class="">
-				<div class="container">
-					<!-- 桌面端布局 -->
-					<div class="hidden md:flex flex-justify-start items-center py-4">
-						<!-- 左侧：语言切换和主题切换 -->
+				<!-- 桌面端布局 -->
+				<div class="hidden md:flex flex-justify-start items-center py-4">
+					<!-- 左侧：语言切换和主题切换 -->
 
 
 
-						<!-- logo -->
-						<div class="inline-flex max-w-[100%]">
-							<RouterLink to="/" class="logo-link px-4">
-								<h1 class="logo-text">外贸商城</h1>
-							</RouterLink>
-						</div>
+					<!-- logo -->
+					<div class="inline-flex max-w-[100%]">
+						<RouterLink to="/" class="logo-link px-4">
+							<h1 class="logo-text">外贸商城</h1>
+						</RouterLink>
+					</div>
 
 
 
 
 
 
-						<!-- 搜索框 -->
-						<div class=" flex-1 mx-8">
-							<!-- <input type="text" placeholder="搜索商品..." class="search-input" v-model="searchQuery"
+					<!-- 搜索框 -->
+					<div class=" flex-1 mx-8">
+						<!-- <input type="text" placeholder="搜索商品..." class="search-input" v-model="searchQuery"
 								@keyup.enter="handleSearch">
 
 							<InputText type="text" v-model="value" variant="filled" />
@@ -200,119 +199,119 @@ onMounted(() => {
 								<div class=""></div>
 							</button> -->
 
-							<InputGroup>
-								<InputText v-model="searchQuery" placeholder="搜索商品..." @update:modelValue="handleSearch" />
-								<InputGroupAddon>
-									<Button icon="pi pi-search" severity="secondary" variant="text" @click="handleSearch" />
-								</InputGroupAddon>
-							</InputGroup>
-						</div>
+						<InputGroup>
+							<InputText v-model="searchQuery" placeholder="搜索商品..." @update:modelValue="handleSearch" />
+							<InputGroupAddon>
+								<Button icon="pi pi-search" severity="secondary" variant="text" @click="handleSearch" />
+							</InputGroupAddon>
+						</InputGroup>
+					</div>
 
 
 
 
-						<!-- 语言切换下拉菜单 -->
-						<div class="relative">
-							<button @click="toggleLanguageMenu" class="language-btn">
-								<div class="i-ic:baseline-g-translate"></div>
-								<span>{{ currentLanguage }}</span>
-								<div class="i-ic:baseline-keyboard-arrow-down"></div>
+					<!-- 语言切换下拉菜单 -->
+					<div class="relative">
+						<button @click="toggleLanguageMenu" class="language-btn">
+							<div class="i-ic:baseline-g-translate"></div>
+							<span>{{ currentLanguage }}</span>
+							<div class="i-ic:baseline-keyboard-arrow-down"></div>
+						</button>
+						<Menu ref="languageMenu" :model="languageOptions" :popup="true" class="language-menu" />
+					</div>
+
+					<!-- 主题切换按钮 -->
+					<button @click="toggleTheme" class="theme-btn" :title="isDarkMode ? '切换到白天模式' : '切换到夜间模式'">
+						<div :class="isDarkMode ? 'i-ic:baseline-light-mode' : 'i-ic:baseline-dark-mode'"></div>
+					</button>
+
+
+
+
+					<!-- 收藏 -->
+					<button @click="toggleFavorites" class="theme-btn" title="收藏">
+						<div class="i-ic:baseline-favorite-border"></div>
+					</button>
+
+
+
+					<!-- 购物袋 -->
+					<button class="theme-btn">
+						<div class="i-ic:outline-shopping-cart"></div>
+						<span class="cart-count">0</span>
+					</button>
+
+					<!-- 登录/用户信息 -->
+					<button @click="handleLogin" class="login-btn " :title="isUserLoggedIn ? '用户中心' : '登录'">
+						<div :class="isUserLoggedIn ? 'i-ic:baseline-person' : 'i-ic:baseline-login'" class="w-5 h-5 mr-2"></div>
+						<span class="login-text">{{ isUserLoggedIn ? '用户中心' : '登录' }}</span>
+					</button>
+
+				</div>
+
+				<!-- 移动端布局 -->
+				<div class=" mobile-header md:hidden">
+					<!-- 第一行：菜单、Logo、购物袋 -->
+					<div class="container mobile-top-row flex">
+						<!-- 左侧：菜单按钮 -->
+						<div class="mobile-left">
+							<button @click="toggleMobileMenu" class="mobile-menu-btn">
+								<div class="i-ic:baseline-menu"></div>
 							</button>
-							<Menu ref="languageMenu" :model="languageOptions" :popup="true" class="language-menu" />
+
+							<!-- 移动端主题切换 -->
+							<button @click="toggleTheme" class="mobile-theme-btn" :title="isDarkMode ? '切换到白天模式' : '切换到夜间模式'">
+								<div :class="isDarkMode ? 'i-ic:baseline-light-mode' : 'i-ic:baseline-dark-mode'">
+								</div>
+							</button>
+
+
+							<!-- 移动端语言切换 -->
+							<div class="relative">
+								<button @click="toggleMobileLanguageMenu" class="mobile-language-btn">
+									<div class="i-ic:baseline-g-translate"></div>
+								</button>
+								<Menu ref="mobileLanguageMenu" :model="languageOptions" :popup="true" />
+							</div>
 						</div>
 
-						<!-- 主题切换按钮 -->
-						<button @click="toggleTheme" class="theme-btn" :title="isDarkMode ? '切换到白天模式' : '切换到夜间模式'">
-							<div :class="isDarkMode ? 'i-ic:baseline-light-mode' : 'i-ic:baseline-dark-mode'"></div>
-						</button>
+						<!-- 中间：Logo -->
+						<div class="mobile-center-logo">
+							<RouterLink to="/" class="mobile-logo-link">
+								<h1 class="mobile-logo-text">外贸商城</h1>
+							</RouterLink>
+						</div>
 
+						<!-- 右侧：购物袋 -->
+						<div class="mobile-right">
+							<button class="mobile-cart-btn">
+								<div class="i-ic:outline-shopping-cart"></div>
+								<span class="mobile-cart-count">{{ cartCount }}</span>
+							</button>
+						</div>
 
-
-
-						<!-- 收藏 -->
-						<button @click="toggleFavorites" class="theme-btn" title="收藏">
-							<div class="i-ic:baseline-favorite-border"></div>
-						</button>
-
-
-
-						<!-- 购物袋 -->
-						<button class="theme-btn">
-							<div class="i-ic:outline-shopping-cart"></div>
-							<span class="cart-count">0</span>
-						</button>
 
 						<!-- 登录/用户信息 -->
-						<button @click="handleLogin" class="login-btn " :title="isUserLoggedIn ? '用户中心' : '登录'">
-							<div :class="isUserLoggedIn ? 'i-ic:baseline-person' : 'i-ic:baseline-login'" class="w-5 h-5 mr-2"></div>
+						<button @click="handleLogin" class="mobile-theme-btn " :title="isUserLoggedIn ? '用户中心' : '登录'">
+							<div :class="isUserLoggedIn ? 'i-ic:baseline-person' : 'i-ic:baseline-login'" class="w-5 h-5 mr-2">
+							</div>
 							<span class="login-text">{{ isUserLoggedIn ? '用户中心' : '登录' }}</span>
 						</button>
-
 					</div>
 
-					<!-- 移动端布局 -->
-					<div class=" mobile-header md:hidden">
-						<!-- 第一行：菜单、Logo、购物袋 -->
-						<div class="container mobile-top-row flex">
-							<!-- 左侧：菜单按钮 -->
-							<div class="mobile-left">
-								<button @click="toggleMobileMenu" class="mobile-menu-btn">
-									<div class="i-ic:baseline-menu"></div>
-								</button>
-
-								<!-- 移动端主题切换 -->
-								<button @click="toggleTheme" class="mobile-theme-btn" :title="isDarkMode ? '切换到白天模式' : '切换到夜间模式'">
-									<div :class="isDarkMode ? 'i-ic:baseline-light-mode' : 'i-ic:baseline-dark-mode'">
-									</div>
-								</button>
-
-
-								<!-- 移动端语言切换 -->
-								<div class="relative">
-									<button @click="toggleMobileLanguageMenu" class="mobile-language-btn">
-										<div class="i-ic:baseline-g-translate"></div>
-									</button>
-									<Menu ref="mobileLanguageMenu" :model="languageOptions" :popup="true" />
-								</div>
-							</div>
-
-							<!-- 中间：Logo -->
-							<div class="mobile-center-logo">
-								<RouterLink to="/" class="mobile-logo-link">
-									<h1 class="mobile-logo-text">外贸商城</h1>
-								</RouterLink>
-							</div>
-
-							<!-- 右侧：购物袋 -->
-							<div class="mobile-right">
-								<button class="mobile-cart-btn">
-									<div class="i-ic:outline-shopping-cart"></div>
-									<span class="mobile-cart-count">{{ cartCount }}</span>
-								</button>
-							</div>
-
-
-							<!-- 登录/用户信息 -->
-							<button @click="handleLogin" class="mobile-theme-btn " :title="isUserLoggedIn ? '用户中心' : '登录'">
-								<div :class="isUserLoggedIn ? 'i-ic:baseline-person' : 'i-ic:baseline-login'" class="w-5 h-5 mr-2">
-								</div>
-								<span class="login-text">{{ isUserLoggedIn ? '用户中心' : '登录' }}</span>
-							</button>
-						</div>
-
-						<!-- 第二行：搜索框 -->
-						<div class="mobile-search-row">
-							<InputGroup>
-								<InputText v-model="searchQuery" placeholder="搜索商品..." @update:modelValue="handleSearch" />
-								<InputGroupAddon>
-									<Button icon="pi pi-search" severity="secondary" variant="text" @click="handleSearch" />
-								</InputGroupAddon>
-							</InputGroup>
-						</div>
-
+					<!-- 第二行：搜索框 -->
+					<div class="mobile-search-row">
+						<InputGroup>
+							<InputText v-model="searchQuery" placeholder="搜索商品..." @update:modelValue="handleSearch" />
+							<InputGroupAddon>
+								<Button icon="pi pi-search" severity="secondary" variant="text" @click="handleSearch" />
+							</InputGroupAddon>
+						</InputGroup>
 					</div>
+
 				</div>
 			</div>
+
 
 		</header>
 

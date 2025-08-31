@@ -1,23 +1,44 @@
 <template>
-	<div class="home-page">
-		<!-- 轮播图广告 -->
-		<section class="hero-section">
-			<CarouselAds :autoplay-interval="5000" :show-navigators="true" :show-indicators="true" :show-title="true" />
-		</section>
+	<div class="w-[100%]">
 
-		<!-- Banner广告区域 -->
-		<section class="banner-section" v-if="showHomeBanners">
-			<BannerAds position="home-banner" :show-title="false" height="200px" layout="horizontal" :gap="'1rem'"
-				:rounded="true" :shadow="true" />
-		</section>
+		<div class=" grid grid-cols-2 gap-2 h-64">
+			<div class=" bg-blue-200   grid-row-span-2">
+				<!--  -->
 
-		<!-- 商品分类导航 -->
-		<section class="categories-section">
-			<div class="container">
-				<h2 class="section-title">商品分类</h2>
-				<CategoryNavigation :show-all-categories="true" />
+				<!-- 轮播图广告 -->
+				<section class="hero-section">
+					<Carousel :value="products" :numVisible="3" :numScroll="3" :responsiveOptions="responsiveOptions">
+						<template #item="slotProps">
+							<div class="border border-surface-200 dark:border-surface-700 rounded m-2  p-4">
+								<div class="mb-4">
+									<div class="relative mx-auto">
+										<img :src="'https://primefaces.org/cdn/primevue/images/product/' + slotProps.data.image"
+											:alt="slotProps.data.name" class="w-full rounded" />
+										<Tag :value="slotProps.data.inventoryStatus" :severity="getSeverity(slotProps.data.inventoryStatus)"
+											class="absolute" style="left:5px; top: 5px" />
+									</div>
+								</div>
+								<div class="mb-4 font-medium">{{ slotProps.data.name }}</div>
+								<div class="flex justify-between items-center">
+									<div class="mt-0 font-semibold text-xl">${{ slotProps.data.price }}</div>
+									<span>
+										<Button icon="pi pi-heart" severity="secondary" variant="outlined" />
+										<Button icon="pi pi-shopping-cart" class="ml-2" />
+									</span>
+								</div>
+							</div>
+						</template>
+					</Carousel>
+				</section>
 			</div>
-		</section>
+			<div class="bg-green-200">右侧上部</div>
+			<div class="bg-yellow-200">右侧下部</div>
+		</div>
+
+
+
+
+
 
 		<!-- 热门商品 -->
 		<section class="featured-products">
@@ -32,8 +53,7 @@
 					<div v-for="product in featuredProducts" :key="product.id" class="product-card"
 						@click="viewProduct(product.id)">
 						<div class="product-image">
-							<img :src="product.images?.[0] || '/placeholder-product.png'" :alt="product.name"
-								class="product-img" />
+							<img :src="product.images?.[0] || '/placeholder-product.png'" :alt="product.name" class="product-img" />
 							<div class="product-overlay">
 								<Button icon="pi pi-eye" class="p-button-rounded p-button-secondary"
 									@click.stop="viewProduct(product.id)" />
@@ -43,8 +63,7 @@
 							<h3 class="product-name">{{ product.name }}</h3>
 							<div class="product-price">
 								<span class="current-price">${{ product.price }}</span>
-								<span v-if="product.originalPrice && product.originalPrice > product.price"
-									class="original-price">
+								<span v-if="product.originalPrice && product.originalPrice > product.price" class="original-price">
 									${{ product.originalPrice }}
 								</span>
 							</div>
@@ -84,8 +103,7 @@
 			<div class="container">
 				<div class="section-header">
 					<h2 class="section-title">最新资讯</h2>
-					<Button label="查看更多" icon="pi pi-arrow-right" iconPos="right" class="p-button-text"
-						@click="viewAllNews" />
+					<Button label="查看更多" icon="pi pi-arrow-right" iconPos="right" class="p-button-text" @click="viewAllNews" />
 				</div>
 
 				<div class="news-grid">
@@ -108,20 +126,18 @@
 </template>
 
 <script setup lang="ts">
+import { client } from '@/share/useTreaty';
 import Rating from 'primevue/rating';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import CategoryNavigation from '@/app/components/CategoryNavigation.vue';
-import { client } from '@/share/useTreaty';
-import BannerAds from '../components/BannerAds.vue';
-import CarouselAds from '../components/CarouselAds.vue';
+
 import type { Product } from '../types/product';
 
 // 路由
 const router = useRouter();
 
 // 响应式数据
-const showHomeBanners = ref(true);
+
 const featuredProducts = ref<Product[]>([]);
 const loadingProducts = ref(false);
 const latestNews = ref<any[]>([]);
@@ -151,6 +167,21 @@ const loadFeaturedProducts = async () => {
 	} finally {
 		loadingProducts.value = false;
 	}
+};
+
+
+// 加载轮播图广告
+const loadCarouselAds = async () => {
+
+	try {
+
+		// const { data, error } = await client.api.advertisements.carousel.get();
+
+	} catch (error) {
+
+	}
+
+
 };
 
 /**
