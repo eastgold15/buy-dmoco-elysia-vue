@@ -55,11 +55,6 @@ export const createApp = async () => {
 						component: () => import("./pages/Home.vue"),
 					},
 					{
-						path: "counter",
-						name: "counter",
-						component: () => import("./pages/test.vue"),
-					},
-					{
 						path: "product/:id",
 						name: "product-detail",
 						component: () => import("./pages/ProductDetail.vue"),

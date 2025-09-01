@@ -11,6 +11,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { client } from '@/share/useTreaty';
 import { formatSize, formatDate, getImageUrl } from '@/share/utils/formatUtils';
 import { useToast } from 'primevue/usetoast';
+import { handleApiRes } from '../utils/handleApi';
 
 // 图片数据类型
 interface ImageData {
@@ -115,20 +116,35 @@ const totalPages = computed(() => {
 const loadImages = async () => {
   loading.value = true;
   try {
-    const response = await client.api.images.get();
+    // @ts-ignore
+    const response = await handleApiRes(client.api.images.get());
+    if (!response) {
+      throw new Error("加载图片列表失败");
+    }
+    console.log("111111111111", response)
 
-    if (response.status === 200 && response.data.code == 200) {
-      images.value = response.data.data;
-    } else {
-      throw new Error(response.data?.error || '加载失败');
+
+
+    if (response.code === 200) {
+      // @ts-ignore
+      images.value = response.data
     }
   } catch (error) {
+
+
     toast.add({
       severity: 'error',
       summary: '加载失败',
-      detail: '无法加载图片列表',
+      detail: (error as Error).message,
       life: 3000
     });
+
+
+
+
+    // if (error instanceof Error) {
+    //   error.message
+    // }
   } finally {
     loading.value = false;
   }

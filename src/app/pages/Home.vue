@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router';
 import type { Advertisement } from '../types/advertisement';
 import type { Products } from '../types/product';
 import { handleApiRes } from '../utils/handleApi';
+import { useToast } from 'primevue/usetoast';
 
 // 路由
 const router = useRouter();
@@ -55,21 +56,29 @@ const loadHotProducts = async () => {
 
 const carouselAds = ref<Advertisement[]>([])
 
+const toast = useToast()
+
 // 加载轮播图广告
 const loadCarouselAds = async () => {
 
 	try {
 
 		const res = await handleApiRes(client.api.advertisements.position({ position: "home-hero" }).get())
+		if (!res) {
+			throw new Error("加载轮播图广告失敗")
+		}
 
-		if (res && res.code === 200) {
+		if (res.code === 200) {
 			carouselAds.value = res.data as any
 		}
 	} catch (error) {
-
+		toast.add({
+			severity: 'error',
+			summary: '加载失败',
+			detail: (error as Error).message,
+			life: 3000
+		})
 	}
-
-
 };
 loadCarouselAds()
 /**
