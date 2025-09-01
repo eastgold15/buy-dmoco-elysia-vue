@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { $fetch } from 'ofetch'
+
 import { onMounted, ref } from 'vue'
 import { client } from '@/share/useTreaty'
 

@@ -229,9 +229,9 @@ onMounted(() => {
 
 
 					<!-- 收藏 -->
-					<button @click="toggleFavorites" class="theme-btn" title="收藏">
+					<!-- <button @click="toggleFavorites" class="theme-btn" title="收藏">
 						<div class="i-ic:baseline-favorite-border"></div>
-					</button>
+					</button> -->
 
 
 

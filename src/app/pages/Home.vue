@@ -1,130 +1,3 @@
-<template>
-	<div class="w-[100%]">
-
-		<div class=" grid grid-cols-2 gap-2 h-64">
-			<div class=" bg-blue-200   grid-row-span-2">
-				<!--  -->
-
-				<!-- 轮播图广告 -->
-				<section class="hero-section">
-					<Carousel :value="products" :numVisible="3" :numScroll="3" :responsiveOptions="responsiveOptions">
-						<template #item="slotProps">
-							<div class="border border-surface-200 dark:border-surface-700 rounded m-2  p-4">
-								<div class="mb-4">
-									<div class="relative mx-auto">
-										<img :src="'https://primefaces.org/cdn/primevue/images/product/' + slotProps.data.image"
-											:alt="slotProps.data.name" class="w-full rounded" />
-										<Tag :value="slotProps.data.inventoryStatus" :severity="getSeverity(slotProps.data.inventoryStatus)"
-											class="absolute" style="left:5px; top: 5px" />
-									</div>
-								</div>
-								<div class="mb-4 font-medium">{{ slotProps.data.name }}</div>
-								<div class="flex justify-between items-center">
-									<div class="mt-0 font-semibold text-xl">${{ slotProps.data.price }}</div>
-									<span>
-										<Button icon="pi pi-heart" severity="secondary" variant="outlined" />
-										<Button icon="pi pi-shopping-cart" class="ml-2" />
-									</span>
-								</div>
-							</div>
-						</template>
-					</Carousel>
-				</section>
-			</div>
-			<div class="bg-green-200">右侧上部</div>
-			<div class="bg-yellow-200">右侧下部</div>
-		</div>
-
-
-
-
-
-
-		<!-- 热门商品 -->
-		<section class="featured-products">
-			<div class="container">
-				<div class="section-header">
-					<h2 class="section-title">热门商品</h2>
-					<Button label="查看全部" icon="pi pi-arrow-right" iconPos="right" class="p-button-text"
-						@click="viewAllProducts" />
-				</div>
-
-				<div class="products-grid" v-if="featuredProducts.length > 0">
-					<div v-for="product in featuredProducts" :key="product.id" class="product-card"
-						@click="viewProduct(product.id)">
-						<div class="product-image">
-							<img :src="product.images?.[0] || '/placeholder-product.png'" :alt="product.name" class="product-img" />
-							<div class="product-overlay">
-								<Button icon="pi pi-eye" class="p-button-rounded p-button-secondary"
-									@click.stop="viewProduct(product.id)" />
-							</div>
-						</div>
-						<div class="product-info">
-							<h3 class="product-name">{{ product.name }}</h3>
-							<div class="product-price">
-								<span class="current-price">${{ product.price }}</span>
-								<span v-if="product.originalPrice && product.originalPrice > product.price" class="original-price">
-									${{ product.originalPrice }}
-								</span>
-							</div>
-							<div class="product-rating" v-if="product.rating">
-								<Rating :modelValue="product.rating" readonly :cancel="false" />
-								<span class="rating-count">({{ product.reviewCount || 0 }})</span>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- 加载状态 -->
-				<div v-else-if="loadingProducts" class="loading-products">
-					<ProgressSpinner />
-					<span>加载商品中...</span>
-				</div>
-
-				<!-- 空状态 -->
-				<div v-else class="empty-products">
-					<i class="pi pi-shopping-bag empty-icon"></i>
-					<p>暂无热门商品</p>
-				</div>
-			</div>
-		</section>
-
-		<!-- 品牌展示 -->
-		<section class="brands-section">
-			<div class="container">
-				<h2 class="section-title">合作品牌</h2>
-				<BannerAds position="brand-showcase" :show-title="false" height="120px" layout="grid" :grid-cols="4"
-					:gap="'1rem'" :rounded="true" :shadow="false" :show-empty="false" />
-			</div>
-		</section>
-
-		<!-- 新闻资讯 -->
-		<section class="news-section">
-			<div class="container">
-				<div class="section-header">
-					<h2 class="section-title">最新资讯</h2>
-					<Button label="查看更多" icon="pi pi-arrow-right" iconPos="right" class="p-button-text" @click="viewAllNews" />
-				</div>
-
-				<div class="news-grid">
-					<div v-for="news in latestNews" :key="news.id" class="news-card" @click="viewNews(news.id)">
-						<div class="news-image">
-							<img :src="news.image || '/placeholder-news.png'" :alt="news.title" />
-						</div>
-						<div class="news-content">
-							<h3 class="news-title">{{ news.title }}</h3>
-							<p class="news-excerpt">{{ news.excerpt }}</p>
-							<div class="news-meta">
-								<span class="news-date">{{ formatDate(news.createdAt) }}</span>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-	</div>
-</template>
-
 <script setup lang="ts">
 import { client } from '@/share/useTreaty';
 import Rating from 'primevue/rating';
@@ -132,6 +5,7 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import type { Product } from '../types/product';
+import { handleApiRes } from '../utils/handleApi';
 
 // 路由
 const router = useRouter();
@@ -168,14 +42,22 @@ const loadFeaturedProducts = async () => {
 		loadingProducts.value = false;
 	}
 };
+import type { Advertisement } from '../types/advertisement';
 
+const carouselAds = ref<Advertisement[]>([])
 
 // 加载轮播图广告
 const loadCarouselAds = async () => {
 
 	try {
 
-		// const { data, error } = await client.api.advertisements.carousel.get();
+		const res = await handleApiRes(client.api.advertisements.position({ position: "home-hero" }).get())
+
+		if (res && res.code === 200) {
+			carouselAds.value = res.data || []
+		}
+
+		console.log("22", res)
 
 	} catch (error) {
 
@@ -183,7 +65,7 @@ const loadCarouselAds = async () => {
 
 
 };
-
+loadCarouselAds()
 /**
  * 加载最新资讯
  */
@@ -264,9 +146,123 @@ onMounted(() => {
 });
 </script>
 
+
+<template>
+	<div class="w-[100%]">
+		<div class="grid grid-cols-5 gap-8">
+			<!-- 左侧广告（2:1 比例） -->
+			<div class="col-span-4 overflow-hidden aspect-[2/1]"> <!-- 关键：aspect-[2/1] -->
+				<Carousel :value="carouselAds" :numVisible="1" :numScroll="3" circular :showIndicators="false" :pt="{
+					content: { class: 'relative !block ' }, // 确保 Carousel 继承高度
+					pcPrevButton: { root: { class: '!absolute top-1/2 -translate-y-1/2 left-4 z-1' } },
+					pcNextButton: { root: { class: '!absolute top-1/2 -translate-y-1/2 right-4' } }
+				}">
+					<template #item="slotProps">
+						<img :src="slotProps.data.image" :alt="slotProps.data.name" class="w-full h-full object-cover" />
+					</template>
+				</Carousel>
+			</div>
+
+			<!-- 右侧（等高布局） -->
+			<div class="col-span-1 grid grid-rows-2 gap-4 min-w-[200px] h-full"> <!-- 关键：h-full -->
+				<!-- 上部：4个图标 -->
+				<div class="grid grid-cols-2 grid-rows-2 gap-4">
+					<!-- 图标项（保持和左侧等高） -->
+					<div class="flex-center-center bg-white rounded-lg shadow-sm">
+						<div class="flex flex-col items-center p-3">
+							<i class="i-ic:outline-shopify text-6 text-blue-500"></i>
+							<span class="text-sm mt-2">我的订单</span>
+						</div>
+					</div>
+
+
+					<div class="flex-center-center bg-white rounded-lg shadow-sm">
+						<div class="flex flex-col items-center p-3">
+							<i class="i-ic:outline-shopify text-6 text-blue-500"></i>
+							<span class="text-sm mt-2">我的订单</span>
+						</div>
+					</div>
+
+
+					<div class="flex-center-center bg-white rounded-lg shadow-sm">
+						<div class="flex flex-col items-center p-3">
+							<i class="i-ic:outline-shopify text-6 text-blue-500"></i>
+							<span class="text-sm mt-2">我的订单</span>
+						</div>
+					</div>
+					<!-- 其他3个图标同理... -->
+				</div>
+
+				<!-- 下部：Banner -->
+				<div class="bg-yellow-200 rounded-lg overflow-hidden">
+					<img src="./../public/01.jpg" alt="Banner" class="w-full h-full object-cover" />
+				</div>
+			</div>
+		</div>
+
+
+
+
+
+		<!-- 热门商品 -->
+		<section class="featured-products">
+			<div class="">
+				<div class="section-header">
+					<h2 class="section-title">热门商品</h2>
+					<Button label="查看全部" icon="pi pi-arrow-right" iconPos="right" class="p-button-text"
+						@click="viewAllProducts" />
+				</div>
+
+				<div class="products-grid" v-if="featuredProducts.length > 0">
+					<div v-for="product in featuredProducts" :key="product.id" class="product-card"
+						@click="viewProduct(product.id)">
+						<div class="product-image">
+							<img :src="product.images?.[0] || '/placeholder-product.png'" :alt="product.name" class="product-img" />
+							<div class="product-overlay">
+								<Button icon="pi pi-eye" class="p-button-rounded p-button-secondary"
+									@click.stop="viewProduct(product.id)" />
+							</div>
+						</div>
+						<div class="product-info">
+							<h3 class="product-name">{{ product.name }}</h3>
+							<div class="product-price">
+								<span class="current-price">${{ product.price }}</span>
+								<span v-if="product.originalPrice && product.originalPrice > product.price" class="original-price">
+									${{ product.originalPrice }}
+								</span>
+							</div>
+							<div class="product-rating" v-if="product.rating">
+								<Rating :modelValue="product.rating" readonly :cancel="false" />
+								<span class="rating-count">({{ product.reviewCount || 0 }})</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 加载状态 -->
+				<div v-else-if="loadingProducts" class="loading-products">
+					<ProgressSpinner />
+					<span>加载商品中...</span>
+				</div>
+
+				<!-- 空状态 -->
+				<div v-else class="empty-products">
+					<i class="pi pi-shopping-bag empty-icon"></i>
+					<p>暂无热门商品</p>
+				</div>
+			</div>
+		</section>
+
+
+	</div>
+</template>
+
+
 <style scoped>
 .home-page {
 	@apply min-h-screen;
+
+
 }
 
 /* 轮播图区域 */

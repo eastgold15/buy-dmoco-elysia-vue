@@ -11,7 +11,7 @@ import { commonRes, pageRes } from "../plugins/Res";
 import { advertisementsModel } from "./advertisements.model";
 
 
-export const advertisementsRoute = new Elysia({ prefix: "/advertisements" })
+export const advertisementsRoute = new Elysia({ prefix: "/advertisements",tags:["广告"] })
 	.model(advertisementsModel)
 	.guard(
 		{

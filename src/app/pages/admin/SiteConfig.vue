@@ -418,7 +418,7 @@ const loadConfigs = async () => {
   try {
     loading.value = true
 
-    const response = await client.api['site-configs'].get()
+    const response = await client.api.siteConfigs.get()
     if (response.data && response.data.code === 200 && Array.isArray(response.data.data)) {
       // 将配置数组转换为对象
       response.data.data.forEach((config: any) => {
@@ -520,7 +520,7 @@ const saveConfigs = async () => {
       }
     })
 
-    const response = await client.api['site-configs'].batch.patch(updateData)
+    const response = await client.api.siteConfigs.batch.patch(updateData)
 
     if (response.data && response.data.code === 200) {
       toast.add({
@@ -564,33 +564,33 @@ const resetConfigs = () => {
   })
 }
 
-// 初始化默认配置
-const initializeConfigs = async () => {
-  try {
-    const response = await client.api['site-configs'].initialize.post()
+// // 初始化默认配置
+// const initializeConfigs = async () => {
+//   try {
+//     const response = await client.api['site-configs'].initialize.post()
 
-    if (response.data && response.data.code === 200) {
-      await loadConfigs()
-      toast.add({
-        severity: 'success',
-        summary: '成功',
-        detail: '默认配置初始化成功',
-        life: 1000
-      })
-    }
-  } catch (error) {
-    console.error('初始化配置失败:', error)
-  }
-}
+//     if (response.data && response.data.code === 200) {
+//       await loadConfigs()
+//       toast.add({
+//         severity: 'success',
+//         summary: '成功',
+//         detail: '默认配置初始化成功',
+//         life: 1000
+//       })
+//     }
+//   } catch (error) {
+//     console.error('初始化配置失败:', error)
+//   }
+// }
 
 // 组件挂载时加载数据
 onMounted(async () => {
   await loadConfigs()
 
-  // 如果没有配置数据，初始化默认配置
-  if (!configs.site_name) {
-    await initializeConfigs()
-  }
+  // // 如果没有配置数据，初始化默认配置
+  // if (!configs.site_name) {
+  //   await initializeConfigs()
+  // }
 })
 </script>
 
