@@ -504,73 +504,65 @@ export const productsRoute = new Elysia({
 		},
 	)
 
-// // 获取推荐商品
-// .get(
-// 	"/featured",
-// 	async ({ query }) => {
-// 		try {
-// 			const pageSize = query.pageSize
-// 				? parseInt(query.pageSize as string, 10)
-// 				: 8;
+	// 获取热门商品
+	.get(
+		"/hot",
+		async ({ query: { page, pageSize } }) => {
+			try {
+				const offsetValue = ((Number(page) || 1) - 1) * pageSize;
+				const dbProductColumns = getTableColumns(productsSchema);
 
-// 			const dbProducts = await db
-// 				.select({
-// 					id: productsSchema.id,
-// 					name: productsSchema.name,
-// 					slug: productsSchema.slug,
-// 					description: productsSchema.description,
-// 					shortDescription: productsSchema.shortDescription,
-// 					price: productsSchema.price,
-// 					comparePrice: productsSchema.comparePrice,
-// 					sku: productsSchema.sku,
-// 					stock: productsSchema.stock,
-// 					images: productsSchema.images,
-// 					colors: productsSchema.colors,
-// 					sizes: productsSchema.sizes,
-// 					features: productsSchema.features,
-// 					categoryId: productsSchema.categoryId,
-// 					categoryName: categoriesSchema.name,
-// 					isActive: productsSchema.isActive,
-// 					isFeatured: productsSchema.isFeatured,
-// 					weight: productsSchema.weight,
-// 					dimensions: productsSchema.dimensions,
-// 					materials: productsSchema.materials,
-// 					// brand: productsSchema.brand, // 字段不存在
-// 					metaTitle: productsSchema.metaTitle,
-// 					metaDescription: productsSchema.metaDescription,
-// 					metaKeywords: productsSchema.metaKeywords,
-// 					createdAt: productsSchema.createdAt,
-// 					updatedAt: productsSchema.updatedAt,
-// 				})
-// 				.from(productsSchema)
-// 				.leftJoin(
-// 					categoriesSchema,
-// 					eq(productsSchema.categoryId, categoriesSchema.id),
-// 				)
-// 				.where(
-// 					and(
-// 						eq(productsSchema.isActive, true),
-// 						eq(productsSchema.isFeatured, true),
-// 					),
-// 				)
-// 				.orderBy(desc(productsSchema.createdAt))
-// 				.limit(pageSize);
+				let condition = [
+					eq(productsSchema.isActive, true),
+					eq(productsSchema.isFeatured, true),
+				];
+				const queryBuilder = db
+					.select({
+						...dbProductColumns,
+						categoryName: categoriesSchema.name,
+					})
+					.from(productsSchema)
+					.leftJoin(
+						categoriesSchema,
+						eq(productsSchema.categoryId, categoriesSchema.id),
+					)
+					.where(
+						and(
+							...condition
+						),
+					)
+					.orderBy(desc(productsSchema.createdAt))
+					.offset(offsetValue)
 
-// 			return commonRes(dbProducts, 200);
-// 		} catch (error) {
-// 			console.error("获取推荐商品失败:", error);
-// 			return commonRes(null, 500, "获取推荐商品失败");
-// 		}
-// 	},
-// 	{
-// 		query: "RelatedProductsQueryDto",
-// 		detail: {
-// 			tags: ["Products"],
-// 			summary: "获取推荐商品",
-// 			description: "获取推荐的特色商品列表",
-// 		},
-// 	},
-// )
+
+				const [dbProducts, total] = await Promise.all([
+					queryBuilder,
+					db.select({
+						value: count()
+					}).from(productsSchema)
+						.where(
+							and(
+								...condition
+							),
+						)
+				])
+
+
+				return pageRes(dbProducts, total[0]?.value || 0, page, pageSize, "获取推荐商品成功");
+			} catch (error) {
+				console.error("获取推荐商品失败:", error);
+				return commonRes(null, 500, "获取推荐商品失败");
+			}
+		},
+		{
+			query: "HotProductsDto",
+			detail: {
+				tags: ["Products"],
+				summary: "获取热门商品",
+				description: "获取推荐的热门商品列表",
+			},
+		},
+	)
 
 // // 获取相关商品
 // .get(

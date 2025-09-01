@@ -3,8 +3,8 @@ import { client } from '@/share/useTreaty';
 import Rating from 'primevue/rating';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-
-import type { Product } from '../types/product';
+import type { Advertisement } from '../types/advertisement';
+import type { Products } from '../types/product';
 import { handleApiRes } from '../utils/handleApi';
 
 // 路由
@@ -12,29 +12,38 @@ const router = useRouter();
 
 // 响应式数据
 
-const featuredProducts = ref<Product[]>([]);
+const hotProducts = ref<Products[]>([]);
 const loadingProducts = ref(false);
 const latestNews = ref<any[]>([]);
+
+const pageMeta = ref({
+	total: 0,
+	page: 1,
+	pageSize: 10,
+	totalPages: 0,
+})
 
 // 方法
 /**
  * 加载热门商品
  */
-const loadFeaturedProducts = async () => {
+const loadHotProducts = async () => {
 	loadingProducts.value = true;
 	try {
-		const { data, error } = await client.api.products.get({
+		const res = await handleApiRes(client.api.products.hot.get({
 			query: {
-				featured: true,
-				limit: 8
+				page: 1,
+				pageSize: 10
 			}
-		});
-		console.log("response", data)
+		}))
+		console.log("response", res)
 
-		if (data) {
-			featuredProducts.value = data.products || [];
-		} else {
-			console.error('加载热门商品失败:', error);
+		if (!res) {
+			return
+		}
+		if (res.code === 200) {
+			hotProducts.value = res.data?.items as any;
+			pageMeta.value = res.data?.meta as any
 		}
 	} catch (error) {
 		console.error('加载热门商品失败:', error);
@@ -42,7 +51,7 @@ const loadFeaturedProducts = async () => {
 		loadingProducts.value = false;
 	}
 };
-import type { Advertisement } from '../types/advertisement';
+
 
 const carouselAds = ref<Advertisement[]>([])
 
@@ -54,11 +63,8 @@ const loadCarouselAds = async () => {
 		const res = await handleApiRes(client.api.advertisements.position({ position: "home-hero" }).get())
 
 		if (res && res.code === 200) {
-			carouselAds.value = res.data || []
+			carouselAds.value = res.data as any
 		}
-
-		console.log("22", res)
-
 	} catch (error) {
 
 	}
@@ -141,7 +147,7 @@ const formatDate = (date: Date) => {
 
 // 生命周期
 onMounted(() => {
-	loadFeaturedProducts();
+	loadHotProducts();
 	loadLatestNews();
 });
 </script>
@@ -151,14 +157,29 @@ onMounted(() => {
 	<div class="w-[100%]">
 		<div class="grid grid-cols-5 gap-8">
 			<!-- 左侧广告（2:1 比例） -->
-			<div class="col-span-4 overflow-hidden aspect-[2/1]"> <!-- 关键：aspect-[2/1] -->
-				<Carousel :value="carouselAds" :numVisible="1" :numScroll="3" circular :showIndicators="false" :pt="{
-					content: { class: 'relative !block ' }, // 确保 Carousel 继承高度
-					pcPrevButton: { root: { class: '!absolute top-1/2 -translate-y-1/2 left-4 z-1' } },
-					pcNextButton: { root: { class: '!absolute top-1/2 -translate-y-1/2 right-4' } }
-				}">
+			<div class="col-span-4 overflow-hidden aspect-[2/1]  max-h-[400px]">
+
+				<Carousel class="inline-flex" :value="carouselAds" :numVisible="1" :numScroll="3" circular
+					:showIndicators="false" :pt="{
+						root: { class: 'h-full' },
+						content: { class: 'relative !block  h-full' }, // 确保 Carousel 继承高度
+						viewport: { class: '!h-full', root: { class: '!h-full' } }, pcPrevButton: {
+							root: {
+								class: '!absolute top-1/2 -translate-y-1/2 left-4 z-1'
+							}
+						}, pcNextButton: {
+							root: {
+								class: '!absolute top-1/2 -translate-y-1/2 right-4'
+							}
+						}
+					}">
+
+
+
 					<template #item="slotProps">
-						<img :src="slotProps.data.image" :alt="slotProps.data.name" class="w-full h-full object-cover" />
+						<div class="relative w-full aspect-[2/1]"> <!-- 父容器固定比例 -->
+							<img :src="slotProps.data.image" :alt="slotProps.data.name" class=" w-full h-full object-cover " />
+						</div>
 					</template>
 				</Carousel>
 			</div>
@@ -213,9 +234,8 @@ onMounted(() => {
 						@click="viewAllProducts" />
 				</div>
 
-				<div class="products-grid" v-if="featuredProducts.length > 0">
-					<div v-for="product in featuredProducts" :key="product.id" class="product-card"
-						@click="viewProduct(product.id)">
+				<div class="products-grid" v-if="hotProducts.length > 0">
+					<div v-for="product in hotProducts" :key="product.id" class="product-card" @click="viewProduct(product.id)">
 						<div class="product-image">
 							<img :src="product.images?.[0] || '/placeholder-product.png'" :alt="product.name" class="product-img" />
 							<div class="product-overlay">

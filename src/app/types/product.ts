@@ -1,36 +1,56 @@
 // 类型定义 - 基于数据库schema
-export interface Product {
-	id: number;
-	name: string;
-	slug: string;
-	description: string;
-	shortDescription: string;
-	price: number;
-	comparePrice?: number;
-	cost?: number;
-	sku: string;
-	barcode?: string;
-	weight?: number;
-	dimensions?: any;
-	images: string[];
-	videos?: string[];
-	colors?: string[];
-	sizes?: string[];
-	materials?: string[];
-	careInstructions?: string;
-	features?: any;
-	specifications?: any;
+export interface Products {
+	barcode: string;
+	careInstructions: string;
 	categoryId: number;
-	categoryName?: string;
-	stock: number;
-	minStock: number;
+	categoryName: string;
+	colors: string[];
+	comparePrice: string;
+	cost: string;
+	createdAt: string;
+	description: string;
+	dimensions: Dimensions;
+	features: string[];
+	id: number;
+	images: string[];
 	isActive: boolean;
 	isFeatured: boolean;
-	metaTitle?: string;
-	metaDescription?: string;
-	metaKeywords?: string;
-	createdAt: Date;
-	updatedAt: Date;
+	materials: string[];
+	metaDescription: string;
+	metaKeywords: string;
+	metaTitle: string;
+	minStock: number;
+	name: string;
+	price: string;
+	shortDescription: string;
+	sizes: string[];
+	sku: string;
+	slug: string;
+	specifications: Specifications;
+	stock: number;
+	updatedAt: string;
+	videos: string[];
+	weight: string;
+	[property: string]: any;
+}
+
+export interface Dimensions {
+	height: number;
+	length: number;
+	width: number;
+	[property: string]: any;
+}
+
+export interface Specifications {
+	collar?: string;
+	cuff?: string;
+	fabric?: string;
+	fit?: string;
+	length: string;
+	sleeve: string;
+	style: string;
+	weight?: string;
+	[property: string]: any;
 }
 
 export interface ProductForm {

@@ -37,4 +37,9 @@ export const productsModel = {
 			]),
 		),
 	}),
+
+	HotProductsDto: t.Object({
+		page: t.Number(),
+		pageSize: t.Number()
+	}),
 };
