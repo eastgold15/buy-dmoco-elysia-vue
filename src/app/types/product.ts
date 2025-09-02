@@ -31,8 +31,9 @@ export interface Products {
 	updatedAt: string;
 	videos: string[];
 	weight: string;
-	[property: string]: any;
 }
+
+
 
 export interface Dimensions {
 	height: number;
@@ -42,15 +43,10 @@ export interface Dimensions {
 }
 
 export interface Specifications {
-	collar?: string;
-	cuff?: string;
-	fabric?: string;
-	fit?: string;
-	length: string;
-	sleeve: string;
-	style: string;
-	weight?: string;
-	[property: string]: any;
+	fabric: string;
+	fit: string;
+	weight: string;
+
 }
 
 export interface ProductForm {

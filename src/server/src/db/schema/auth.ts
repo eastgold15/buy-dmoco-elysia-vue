@@ -22,6 +22,7 @@ export const userSchema = pgTable(
 		username: varchar("username", { length: 50 }).notNull().unique(),
 		password: varchar("password", { length: 255 }), // OAuth用户可能没有密码
 		email: varchar("email", { length: 100 }).unique(), // @typebox { format: 'email' }
+		phone: varchar("phone", { length: 20 }),
 		nickname: varchar("nickname", { length: 50 }),
 		avatar: varchar("avatar", { length: 255 }),
 		role: role("role").notNull().default("user"), // user, admin
