@@ -325,7 +325,6 @@ const setCurrentVideo = (videoUrl: string, thumbnailUrl: string) => {
   currentImage.value = thumbnailUrl
   isVideoMode.value = true
 }
-
 // const selectColor = (color: string) => {
 //   selectedColor.value = color
 //   // 如果该颜色有对应的图片，切换到该图片

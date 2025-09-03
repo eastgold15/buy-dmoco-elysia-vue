@@ -546,7 +546,7 @@ onMounted(() => {
                 <Button @click="clearCallback()" icon="pi pi-times" rounded variant="outlined" severity="danger"
                   :disabled="!files || files.length === 0"></Button>
               </div>
-              <ProgressBar :value="totalSizePercent" :showValue="false" class="md:w-20rem h-1 w-full md:ml-auto">
+              <ProgressBar :value="totalSizePercent" :showValue="false" class="md:w-[20rem] h-1 w-full md:ml-auto">
                 <span class="whitespace-nowrap">{{ totalSize }}B / 5MB</span>
               </ProgressBar>
             </div>

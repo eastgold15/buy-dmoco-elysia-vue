@@ -4,95 +4,105 @@
  * 请勿手动修改此文件
  */
 
-import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
-import { t } from "elysia";
-import { spreads } from "../utils/dizzle.type";
-import { dbSchema } from "./schema/index";
+import { t } from 'elysia'
+import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
+import { spreads } from '../utils/dizzle.type'
+import { dbSchema } from './schema/index'
 
 /**
  * 数据库 TypeBox 配置
  */
 export const DbType = {
-	typebox: {
-		insert: {
-			userSchema: createInsertSchema(dbSchema.userSchema, {
-				email: t.String({ format: "email" }),
-			}),
-			tokenSchema: createInsertSchema(dbSchema.tokenSchema),
-			categoriesSchema: createInsertSchema(dbSchema.categoriesSchema),
-			productsSchema: createInsertSchema(dbSchema.productsSchema, {
-				price: t.Number({ minimum: 0 }),
-				comparePrice: t.Number({ minimum: 0 }),
-				cost: t.Number({ minimum: 0 }),
-				stock: t.Number({ minimum: 0 }),
-				minStock: t.Number({ minimum: 0 }),
-				weight: t.Number({ minimum: 0 }),
-				categoryId: t.Number({ minimum: -1 }),
-			}),
-			reviewsSchema: createInsertSchema(dbSchema.reviewsSchema),
-			siteConfigSchema: createInsertSchema(dbSchema.siteConfigSchema),
-			advertisementsSchema: createInsertSchema(dbSchema.advertisementsSchema),
-			imagesSchema: createInsertSchema(dbSchema.imagesSchema),
-			ordersSchema: createInsertSchema(dbSchema.ordersSchema),
-			orderItemsSchema: createInsertSchema(dbSchema.orderItemsSchema),
-			refundsSchema: createInsertSchema(dbSchema.refundsSchema),
-			partnersSchema: createInsertSchema(dbSchema.partnersSchema),
-		},
-		select: {
-			userSchema: createSelectSchema(dbSchema.userSchema, {
-				email: t.String({ format: "email" }),
-			}),
-			tokenSchema: createSelectSchema(dbSchema.tokenSchema),
-			categoriesSchema: createSelectSchema(dbSchema.categoriesSchema),
-			productsSchema: createSelectSchema(dbSchema.productsSchema),
-			reviewsSchema: createSelectSchema(dbSchema.reviewsSchema),
-			siteConfigSchema: createSelectSchema(dbSchema.siteConfigSchema),
-			advertisementsSchema: createSelectSchema(dbSchema.advertisementsSchema),
-			imagesSchema: createSelectSchema(dbSchema.imagesSchema),
-			ordersSchema: createSelectSchema(dbSchema.ordersSchema),
-			orderItemsSchema: createSelectSchema(dbSchema.orderItemsSchema),
-			refundsSchema: createSelectSchema(dbSchema.refundsSchema),
-			partnersSchema: createSelectSchema(dbSchema.partnersSchema),
-		},
-	},
-	spreads: {
-		insert: spreads(
-			{
-				userSchema: createInsertSchema(dbSchema.userSchema, {
-					email: t.String({ format: "email" }),
-				}),
-				tokenSchema: createInsertSchema(dbSchema.tokenSchema),
-				categoriesSchema: createInsertSchema(dbSchema.categoriesSchema),
-				productsSchema: createInsertSchema(dbSchema.productsSchema),
-				reviewsSchema: createInsertSchema(dbSchema.reviewsSchema),
-				siteConfigSchema: createInsertSchema(dbSchema.siteConfigSchema),
-				advertisementsSchema: createInsertSchema(dbSchema.advertisementsSchema),
-				imagesSchema: createInsertSchema(dbSchema.imagesSchema),
-				ordersSchema: createInsertSchema(dbSchema.ordersSchema),
-				orderItemsSchema: createInsertSchema(dbSchema.orderItemsSchema),
-				refundsSchema: createInsertSchema(dbSchema.refundsSchema),
-				partnersSchema: createInsertSchema(dbSchema.partnersSchema),
-			},
-			"insert",
-		),
-		select: spreads(
-			{
-				userSchema: createSelectSchema(dbSchema.userSchema, {
-					email: t.String({ format: "email" }),
-				}),
-				tokenSchema: createSelectSchema(dbSchema.tokenSchema),
-				categoriesSchema: createSelectSchema(dbSchema.categoriesSchema),
-				productsSchema: createSelectSchema(dbSchema.productsSchema),
-				reviewsSchema: createSelectSchema(dbSchema.reviewsSchema),
-				siteConfigSchema: createSelectSchema(dbSchema.siteConfigSchema),
-				advertisementsSchema: createSelectSchema(dbSchema.advertisementsSchema),
-				imagesSchema: createSelectSchema(dbSchema.imagesSchema),
-				ordersSchema: createSelectSchema(dbSchema.ordersSchema),
-				orderItemsSchema: createSelectSchema(dbSchema.orderItemsSchema),
-				refundsSchema: createSelectSchema(dbSchema.refundsSchema),
-				partnersSchema: createSelectSchema(dbSchema.partnersSchema),
-			},
-			"select",
-		),
-	},
-} as const;
+  typebox: {
+    insert: {
+      userSchema: createInsertSchema(dbSchema.userSchema, {
+        email: t.String({ format: "email" })
+      }),
+      tokenSchema: createInsertSchema(dbSchema.tokenSchema),
+      categoriesSchema: createInsertSchema(dbSchema.categoriesSchema),
+      productsSchema: createInsertSchema(dbSchema.productsSchema, {
+        price: t.Number({ minimum: 0 }),
+        comparePrice: t.Number({ minimum: 0 }),
+        cost: t.Number({ minimum: 0 }),
+        stock: t.Number({ minimum: 0 }),
+        minStock: t.Number({ minimum: 0 }),
+        weight: t.Number({ minimum: 0 }),
+        categoryId: t.Number({ minimum: -1 }),
+      }),
+      productImagesSchema: createInsertSchema(dbSchema.productImagesSchema),
+  productVideosSchema: createInsertSchema(dbSchema.productVideosSchema),
+      reviewsSchema: createInsertSchema(dbSchema.reviewsSchema),
+      siteConfigSchema: createInsertSchema(dbSchema.siteConfigSchema),
+      advertisementsSchema: createInsertSchema(dbSchema.advertisementsSchema),
+      ordersSchema: createInsertSchema(dbSchema.ordersSchema),
+      orderItemsSchema: createInsertSchema(dbSchema.orderItemsSchema),
+      refundsSchema: createInsertSchema(dbSchema.refundsSchema),
+      partnersSchema: createInsertSchema(dbSchema.partnersSchema),
+      imagesSchema: createInsertSchema(dbSchema.imagesSchema),
+      videosSchema: createInsertSchema(dbSchema.videosSchema),
+    
+    },
+    select: {
+      userSchema: createSelectSchema(dbSchema.userSchema, {
+        email: t.String({ format: "email" })
+      }),
+      tokenSchema: createSelectSchema(dbSchema.tokenSchema),
+      categoriesSchema: createSelectSchema(dbSchema.categoriesSchema),
+      productsSchema: createSelectSchema(dbSchema.productsSchema),
+      productImagesSchema: createSelectSchema(dbSchema.productImagesSchema),
+  productVideosSchema: createSelectSchema(dbSchema.productVideosSchema),
+      reviewsSchema: createSelectSchema(dbSchema.reviewsSchema),
+      siteConfigSchema: createSelectSchema(dbSchema.siteConfigSchema),
+      advertisementsSchema: createSelectSchema(dbSchema.advertisementsSchema),
+      ordersSchema: createSelectSchema(dbSchema.ordersSchema),
+      orderItemsSchema: createSelectSchema(dbSchema.orderItemsSchema),
+      refundsSchema: createSelectSchema(dbSchema.refundsSchema),
+      partnersSchema: createSelectSchema(dbSchema.partnersSchema),
+      imagesSchema: createSelectSchema(dbSchema.imagesSchema),
+      videosSchema: createSelectSchema(dbSchema.videosSchema),
+    
+    }
+  },
+  spreads: {
+    insert: spreads({
+      userSchema: createInsertSchema(dbSchema.userSchema, {
+        email: t.String({ format: "email" })
+      }),
+      tokenSchema: createInsertSchema(dbSchema.tokenSchema),
+      categoriesSchema: createInsertSchema(dbSchema.categoriesSchema),
+      productsSchema: createInsertSchema(dbSchema.productsSchema),
+      productImagesSchema: createInsertSchema(dbSchema.productImagesSchema),
+  productVideosSchema: createInsertSchema(dbSchema.productVideosSchema),
+      reviewsSchema: createInsertSchema(dbSchema.reviewsSchema),
+      siteConfigSchema: createInsertSchema(dbSchema.siteConfigSchema),
+      advertisementsSchema: createInsertSchema(dbSchema.advertisementsSchema),
+      ordersSchema: createInsertSchema(dbSchema.ordersSchema),
+      orderItemsSchema: createInsertSchema(dbSchema.orderItemsSchema),
+      refundsSchema: createInsertSchema(dbSchema.refundsSchema),
+      partnersSchema: createInsertSchema(dbSchema.partnersSchema),
+      imagesSchema: createInsertSchema(dbSchema.imagesSchema),
+      videosSchema: createInsertSchema(dbSchema.videosSchema),
+    
+    }, 'insert'),
+    select: spreads({
+      userSchema: createSelectSchema(dbSchema.userSchema, {
+        email: t.String({ format: "email" })
+      }),
+      tokenSchema: createSelectSchema(dbSchema.tokenSchema),
+      categoriesSchema: createSelectSchema(dbSchema.categoriesSchema),
+      productsSchema: createSelectSchema(dbSchema.productsSchema),
+      productImagesSchema: createSelectSchema(dbSchema.productImagesSchema),
+  productVideosSchema: createSelectSchema(dbSchema.productVideosSchema),
+      reviewsSchema: createSelectSchema(dbSchema.reviewsSchema),
+      siteConfigSchema: createSelectSchema(dbSchema.siteConfigSchema),
+      advertisementsSchema: createSelectSchema(dbSchema.advertisementsSchema),
+      ordersSchema: createSelectSchema(dbSchema.ordersSchema),
+      orderItemsSchema: createSelectSchema(dbSchema.orderItemsSchema),
+      refundsSchema: createSelectSchema(dbSchema.refundsSchema),
+      partnersSchema: createSelectSchema(dbSchema.partnersSchema),
+      imagesSchema: createSelectSchema(dbSchema.imagesSchema),
+      videosSchema: createSelectSchema(dbSchema.videosSchema),
+    
+    }, 'select')
+  }
+} as const
