@@ -142,6 +142,11 @@ export const createApp = async () => {
 						component: () => import("./pages/admin/ImageManager.vue"),
 					},
 					{
+						path: "media",
+						name: "media-manager",
+						component: () => import("./pages/admin/MediaManage.vue"),
+					},
+					{
 						path: "payment-settings",
 						name: "payment-settings",
 						component: () => import("./pages/admin/PaymentSettings.vue"),

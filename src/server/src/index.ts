@@ -20,7 +20,7 @@ import { err_handler } from "./utils/err.global";
 export const api = new Elysia({ prefix: "/api" })
 
 	.use(swaggerPlugin)
-	.use(logPlugin)
+	// .use(logPlugin)
 	.use(authPlugin) // 认证插件
 	.use(oauthPlugin) // OAuth 插件
 	// 使用模块化路由
@@ -45,6 +45,6 @@ console.log(
 );
 console.log(
 	"📚 API Documentation: http://localhost:" +
-		envConfig.get("APP_PORT") +
-		"/swagger",
+	envConfig.get("APP_PORT") +
+	"/swagger",
 );

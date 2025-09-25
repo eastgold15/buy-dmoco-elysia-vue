@@ -59,9 +59,6 @@ bun install
 
 # 启动开发服务器
 bun run dev
-
-# 生成类型定义
-bun run db:schema:typebox
 ```
 
 
@@ -82,10 +79,7 @@ bun run db:schema:typebox
 - 自动生成类型定义
 - 统一的数据转换和映射
 
-### 🚀 性能优先
-- 代码分割和懒加载
-- 数据库查询优化
-- 合理的缓存策略
+
 
 ## 代码规范要点
 

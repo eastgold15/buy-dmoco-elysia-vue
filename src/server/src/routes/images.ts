@@ -4,22 +4,19 @@
  */
 
 import { and, asc, count, desc, eq, inArray, like, or } from "drizzle-orm";
-import { Elysia, status, t } from "elysia";
-import { nanoid } from "nanoid";
+import { Elysia } from "elysia";
 import { db } from "../db/connection";
 import { imagesSchema } from "../db/schema";
 import { commonRes, pageRes } from "../plugins/Res";
-import { imageRouteModel, type UpdateImageDto } from "./images.model";
+import { imageRouteModel } from "./images.model";
 import { ossService } from "./oss";
 
-// 图片状态枚举
-const ImageStatus = {
-	ACTIVE: 1,
-	DISABLED: 0,
-} as const;
+
 
 export const imagesRoute = new Elysia({ prefix: "/images" })
 	.model(imageRouteModel)
+
+
 
 	// 获取图片列表
 	.get("/", async ({ query }) => {
@@ -27,7 +24,11 @@ export const imagesRoute = new Elysia({ prefix: "/images" })
 			const { page, pageSize, search, category, sortBy = "uploadDate", sortOrder = "desc" } = query;
 
 			// 构建查询条件
-			const conditions = [];
+			const conditions = [
+
+			];
+
+			conditions.push(like(imagesSchema.mimeType, 'image/%'));
 			if (search) {
 				conditions.push(
 					or(
@@ -95,10 +96,17 @@ export const imagesRoute = new Elysia({ prefix: "/images" })
 	// 根据ID获取图片详情
 	.get("/:id", async ({ params: { id }, status }) => {
 		try {
+
+			let conditions = [
+				eq(imagesSchema.id, +id),
+				like(imagesSchema.mimeType, 'image/%')
+			];
+			conditions.push();
+
 			const image = await db
 				.select()
 				.from(imagesSchema)
-				.where(eq(imagesSchema.id, id))
+				.where(and(...conditions))
 				.limit(1);
 
 			if (image.length === 0) {
@@ -181,11 +189,7 @@ export const imagesRoute = new Elysia({ prefix: "/images" })
 			const updateData: Record<string, any> = Object.fromEntries(Object.entries(body).filter(([_, value]) => {
 				return value !== undefined && value !== null
 			}))
-
-
-
-
-			await db.update(imagesSchema).set(updateData).where(eq(imagesSchema.id, +id));
+			await db.update(imagesSchema).set(updateData).where(and(eq(imagesSchema.id, +id), like(imagesSchema.mimeType, 'image/%')));
 
 			// 获取更新后的图片信息
 			const updatedImage = await db
@@ -256,8 +260,6 @@ export const imagesRoute = new Elysia({ prefix: "/images" })
 	// 批量删除图片
 	.delete("/batch", async ({ body: { imageIds } }) => {
 		try {
-
-
 			if (!imageIds || imageIds.length === 0) {
 				return commonRes(null, 400, "请提供要删除的图片ID列表");
 			}

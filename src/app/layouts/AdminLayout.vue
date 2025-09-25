@@ -129,6 +129,11 @@ const menuItems = ref([
 				command: () => router.push('/admin/images')
 			},
 			{
+				label: '资源管理',
+				icon: 'pi pi-images',
+				command: () => router.push('/admin/media')
+			},
+			{
 				label: '支付设置',
 				icon: 'pi pi-credit-card',
 				command: () => router.push('/admin/payment-settings')
