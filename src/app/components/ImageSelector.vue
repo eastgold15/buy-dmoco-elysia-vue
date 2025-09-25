@@ -121,10 +121,6 @@ const loadImages = async () => {
     if (!response) {
       throw new Error("加载图片列表失败");
     }
-    console.log("111111111111", response)
-
-
-
     if (response.code === 200) {
       // @ts-ignore
       images.value = response.data

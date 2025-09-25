@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // PrimeVue 组件
 import ImageSelector from '@/app/components/ImageSelector.vue'
+import { handleApiRes } from '@/app/utils/handleApi'
 import { client } from '@/share/useTreaty'
 import { Form, FormField } from '@primevue/forms'
 import { zodResolver } from '@primevue/forms/resolvers/zod'
@@ -169,8 +170,8 @@ const onFormSubmit = async ({ valid, values }: { valid: boolean; values: any }) 
 			saving.value = true
 
 			// 调用API创建商品
-			const { data, error } = await client.api.products.post(values)
-
+			const res = await handleApiRes(client.api.products.post(values))
+			const data = res?.data
 			if (data) {
 				toast.add({
 					severity: 'success',
@@ -182,7 +183,7 @@ const onFormSubmit = async ({ valid, values }: { valid: boolean; values: any }) 
 				// 跳转到商品列表页面
 				// router.push('/admin/products')
 			} else {
-				throw new Error(error || '保存失败')
+				throw new Error('保存失败')
 			}
 		} catch (error) {
 			console.error('保存商品失败:', error)
@@ -218,8 +219,8 @@ const saveDraft = async ({ valid, values }: { valid: boolean; values: any }) => 
 		}
 
 		// 调用API创建商品
-		const { data, error } = await client.api.products.post(productData)
-
+		const res = await handleApiRes(client.api.products.post(productData))
+		const data = res?.data
 		if (data) {
 			toast.add({
 				severity: 'success',
@@ -231,7 +232,7 @@ const saveDraft = async ({ valid, values }: { valid: boolean; values: any }) => 
 			// 跳转到商品列表页面
 			router.push('/admin/products')
 		} else {
-			throw new Error(error || '保存失败')
+			throw new Error('保存失败')
 		}
 	} catch (error) {
 		console.error('保存草稿失败:', error)
@@ -263,8 +264,8 @@ const publishProduct = async ({ valid, values }: { valid: boolean; values: any }
 		}
 
 		// 调用API创建商品
-		const { data, error } = await client.api.products.post(productData)
-
+		const res = await handleApiRes(client.api.products.post(productData))
+		const data = res?.data
 		if (data) {
 			toast.add({
 				severity: 'success',
@@ -276,7 +277,7 @@ const publishProduct = async ({ valid, values }: { valid: boolean; values: any }
 			// 跳转到商品列表页面
 			router.push('/admin/products')
 		} else {
-			throw new Error(error || '保存失败')
+			throw new Error('发布失败')
 		}
 	} catch (error) {
 		console.error('发布商品失败:', error)
@@ -374,11 +375,11 @@ const removeImage = (index: number) => {
 // 加载商品分类
 const loadCategories = async () => {
 	try {
-		const { data, error } = await client.api.categories.tree.get()
-		if (data && data.code === 200) {
-			categories.value = data.data || []
+		const res = await handleApiRes(client.api.categories.tree.get())
+		if (res && res.code === 200) {
+			categories.value = res.data || []
 		} else {
-			console.error('获取分类失败:', error)
+			console.error('获取分类失败:', res)
 			categories.value = []
 		}
 	} catch (error) {

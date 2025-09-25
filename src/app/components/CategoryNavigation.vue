@@ -95,6 +95,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { client } from '@/share/useTreaty';
 import type { Category } from '../types/category';
+import { handleApiRes } from '../utils/handleApi';
 
 // Props
 interface Props {
@@ -143,11 +144,14 @@ const visibleCategories = computed(() => {
 const loadCategories = async () => {
 	loading.value = true;
 	try {
-		const { data, error } = await client.api.categories.tree.get();
-		if (data && Array.isArray(data)) {
-			categories.value = data.filter((cat: Category) => cat.isVisible);
+		const res = await handleApiRes(client.api.categories.tree.get());
+		if(!res){
+        return;
+		}
+		if (res.code === 200 && res.data) {
+			categories.value = (res.data as any )
 		} else {
-			console.error('获取分类失败:', error);
+			console.error('获取分类失败:',Error);
 			categories.value = [];
 		}
 	} catch (error) {
